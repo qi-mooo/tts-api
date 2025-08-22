@@ -40,10 +40,10 @@ chmod +x deploy.sh
 4. **验证部署**
 ```bash
 # 检查服务状态
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 
 # 访问管理界面
-open http://localhost:5000/admin
+open http://localhost:8080/admin
 ```
 
 ## 🔧 管理命令
@@ -64,10 +64,10 @@ docker pull ghcr.io/qi-mooo/tts-api:latest && docker-compose up -d
 
 ## 🌐 访问地址
 
-- **API 服务**: http://localhost:5000
-- **健康检查**: http://localhost:5000/health  
-- **管理控制台**: http://localhost:5000/admin
-- **API 文档**: http://localhost:5000/api?text=测试
+- **API 服务**: http://localhost:8080
+- **健康检查**: http://localhost:8080/health  
+- **管理控制台**: http://localhost:8080/admin
+- **API 文档**: http://localhost:8080/api?text=测试
 
 ## 🔒 安全配置
 

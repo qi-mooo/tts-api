@@ -171,7 +171,90 @@ class StructuredFormatter(logging.Formatter):
         try:
             # 尝试解析为 JSON
             log_data = json.loads(record.getMessage())
-            return json.dumps(log_data, ensure_ascii=False, indent=None)
+            
+            # 提取关键信息用于更易读的格式
+            timestamp = log_data.get('timestamp', '')
+            level = log_data.get('level', 'INFO')
+            module = log_data.get('module', 'unknown')
+            message = log_data.get('message', '')
+            request_id = log_data.get('request_id', '')
+            
+            # 简化时间戳显示（只显示时分秒）
+            if timestamp:
+                try:
+                    from datetime import datetime
+                    dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                    timestamp = dt.strftime('%H:%M:%S')
+                except:
+                    timestamp = timestamp[-8:] if len(timestamp) > 8 else timestamp
+            
+            # 构建基础日志行
+            base_log = f"[{timestamp}] {level:<7} [{module:<12}] {message}"
+            
+            # 添加请求ID（缩短显示）
+            if request_id:
+                base_log += f" [req:{request_id}]"
+            
+            # 添加额外的关键信息
+            extra_info = []
+            if 'method' in log_data and 'path' in log_data:
+                # 过滤掉静态资源和健康检查的日志
+                path = log_data['path']
+                if not any(path.startswith(skip) for skip in ['/static/', '/favicon.ico', '/health']):
+                    extra_info.append(f"{log_data['method']} {path}")
+            
+            if 'status_code' in log_data:
+                status = log_data['status_code']
+                # 为不同状态码添加颜色标识（在支持的终端中）
+                if status >= 400:
+                    extra_info.append(f"status:{status}")
+                elif status >= 300:
+                    extra_info.append(f"status:{status}")
+                else:
+                    extra_info.append(f"status:{status}")
+            
+            if 'duration_ms' in log_data:
+                duration = log_data['duration_ms']
+                # 高亮慢请求
+                if duration > 1000:
+                    extra_info.append(f"duration:{duration}ms [SLOW]")
+                else:
+                    extra_info.append(f"duration:{duration}ms")
+            
+            if 'remote_addr' in log_data and log_data['remote_addr'] != '127.0.0.1':
+                extra_info.append(f"from:{log_data['remote_addr']}")
+            
+            # 添加用户代理信息（简化）
+            if 'user_agent' in log_data:
+                ua = log_data['user_agent']
+                if 'curl' in ua.lower():
+                    extra_info.append("via:curl")
+                elif 'postman' in ua.lower():
+                    extra_info.append("via:postman")
+                elif 'python' in ua.lower():
+                    extra_info.append("via:python")
+                elif 'chrome' in ua.lower():
+                    extra_info.append("via:chrome")
+                elif 'firefox' in ua.lower():
+                    extra_info.append("via:firefox")
+            
+            # 添加请求大小信息
+            if 'content_length' in log_data and log_data['content_length']:
+                size = log_data['content_length']
+                if size > 1024:
+                    extra_info.append(f"size:{size//1024}KB")
+                else:
+                    extra_info.append(f"size:{size}B")
+            
+            # 添加错误信息
+            if 'error_type' in log_data:
+                extra_info.append(f"error:{log_data['error_type']}")
+            
+            if extra_info:
+                base_log += f" | {' | '.join(extra_info)}"
+            
+            return base_log
+            
         except (json.JSONDecodeError, ValueError):
             # 如果不是 JSON，使用标准格式
             return super().format(record)

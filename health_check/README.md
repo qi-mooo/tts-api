@@ -249,7 +249,7 @@ if __name__ == '__main__':
 
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
+  CMD curl -f http://localhost:8080/health || exit 1
 ```
 
 ### Kubernetes健康检查
@@ -269,13 +269,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health/live
-            port: 5000
+            port: 8080
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health/ready
-            port: 5000
+            port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
 ```

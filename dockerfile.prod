@@ -4,13 +4,13 @@ WORKDIR /app
 
 # 安装系统依赖
 RUN apt-get update && \
-    apt-get install -y wget xz-utils && \
+    apt-get install -y wget xz-utils curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # 复制依赖文件并安装 Python 包
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
 # 安装 FFmpeg
 RUN wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz && \
@@ -23,7 +23,7 @@ RUN wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.t
     rm -rf /var/lib/apt/lists/*
 
 # 创建必要的目录
-RUN mkdir -p logs templates audio_cache
+RUN mkdir -p logs templates audio_cache data dictionary
 
 # 复制应用代码和模块
 COPY config/ ./config/
@@ -38,6 +38,10 @@ COPY templates/ ./templates/
 COPY *.py ./
 COPY config.json.template ./config.json
 
+# 复制启动脚本
+COPY docker_start.py ./
+COPY gunicorn_config.py ./
+
 # 设置环境变量
 ENV FLASK_APP=app_with_admin.py
 ENV FLASK_RUN_HOST=0.0.0.0
@@ -51,8 +55,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# 复制启动脚本
-COPY docker_start.py ./
-
-# 启动命令 - 开发环境使用 Python 直接运行，生产环境使用 gunicorn
-CMD ["python3", "docker_start.py"]
+# 生产环境启动命令
+CMD ["gunicorn", "-c", "gunicorn_config.py", "app_with_admin:app"]

@@ -23,7 +23,7 @@
 
 1. **访问管理控制台**
    ```
-   http://your-server:5000/admin
+   http://your-server:8080/admin
    ```
 
 2. **使用默认凭据登录**
@@ -459,7 +459,7 @@
 
 ```bash
 # 通过 API 检查
-curl http://localhost:5000/health?detailed=true
+curl http://localhost:8080/health?detailed=true
 
 # 通过管理界面
 # 进入"系统监控" → "健康检查" → 点击"立即检查"
@@ -650,7 +650,7 @@ python3 -c "import json; json.load(open('config.json'))"
 docker-compose up -d
 
 # 验证恢复
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 ```
 
 ## 性能优化
@@ -710,13 +710,13 @@ curl http://localhost:5000/health
 
 ```bash
 # 查看缓存统计
-curl http://localhost:5000/admin/cache/stats
+curl http://localhost:8080/admin/cache/stats
 
 # 清理缓存
-curl -X POST http://localhost:5000/admin/cache/clear
+curl -X POST http://localhost:8080/admin/cache/clear
 
 # 预热缓存
-curl -X POST http://localhost:5000/admin/cache/warmup
+curl -X POST http://localhost:8080/admin/cache/warmup
 ```
 
 ### 数据库优化
@@ -779,7 +779,7 @@ LIMIT 100;
 **解决步骤**：
 1. 清理缓存
    ```bash
-   curl -X POST http://localhost:5000/admin/cache/clear
+   curl -X POST http://localhost:8080/admin/cache/clear
    ```
 
 2. 调整缓存配置
@@ -863,7 +863,7 @@ echo "时间: $(date)"
 echo
 
 echo "1. 服务状态检查"
-curl -s http://localhost:5000/health | jq .
+curl -s http://localhost:8080/health | jq .
 
 echo "2. 系统资源检查"
 echo "CPU: $(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | awk -F'%' '{print $1}')"
@@ -964,7 +964,7 @@ sleep 10
 
 # 7. 验证服务状态
 echo "验证服务状态..."
-curl -f http://localhost:5000/health || {
+curl -f http://localhost:8080/health || {
   echo "服务启动失败，请检查日志"
   exit 1
 }
@@ -1009,13 +1009,13 @@ echo "紧急重启完成"
 # maintenance.sh - 自动维护脚本
 
 # 设置维护模式
-curl -X POST http://localhost:5000/admin/maintenance/enable
+curl -X POST http://localhost:8080/admin/maintenance/enable
 
 # 清理旧日志
 find logs/ -name "*.log.*" -mtime +30 -delete
 
 # 清理过期缓存
-curl -X POST http://localhost:5000/admin/cache/cleanup
+curl -X POST http://localhost:8080/admin/cache/cleanup
 
 # 优化数据库
 python3 scripts/optimize_db.py
@@ -1024,7 +1024,7 @@ python3 scripts/optimize_db.py
 python3 scripts/generate_report.py
 
 # 退出维护模式
-curl -X POST http://localhost:5000/admin/maintenance/disable
+curl -X POST http://localhost:8080/admin/maintenance/disable
 
 echo "维护完成"
 ```

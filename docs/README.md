@@ -134,7 +134,7 @@
 
 ```bash
 # 检查系统状态
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 
 # 查看最近日志
 tail -f logs/app.log

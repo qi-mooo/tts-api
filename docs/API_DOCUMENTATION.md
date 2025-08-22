@@ -6,7 +6,7 @@
 
 ## 基础信息
 
-- **基础URL**: `http://localhost:5000`
+- **基础URL**: `http://localhost:8080`
 - **API版本**: v1
 - **内容类型**: `application/json`
 - **字符编码**: UTF-8
@@ -17,7 +17,7 @@
 
 ```bash
 # 登录获取会话
-curl -X POST http://localhost:5000/admin/login \
+curl -X POST http://localhost:8080/admin/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "your-password"}'
 ```
@@ -112,10 +112,10 @@ Content-Length: [音频文件大小]
 
 ```bash
 # 基本健康检查
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 
 # 详细健康信息
-curl http://localhost:5000/health?detailed=true
+curl http://localhost:8080/health?detailed=true
 ```
 
 **响应格式**
@@ -457,7 +457,7 @@ import json
 
 # 基本 TTS 请求
 def text_to_speech(text, speed=1.2):
-    url = "http://localhost:5000/api"
+    url = "http://localhost:8080/api"
     params = {
         "text": text,
         "speed": speed
@@ -475,7 +475,7 @@ def text_to_speech(text, speed=1.2):
 
 # 管理 API 示例
 def admin_login(username, password):
-    url = "http://localhost:5000/admin/login"
+    url = "http://localhost:8080/admin/login"
     data = {
         "username": username,
         "password": password
@@ -486,7 +486,7 @@ def admin_login(username, password):
 
 # 添加字典规则
 def add_dictionary_rule(pattern, replacement, rule_type="pronunciation"):
-    url = "http://localhost:5000/admin/dictionary/rules"
+    url = "http://localhost:8080/admin/dictionary/rules"
     data = {
         "type": rule_type,
         "pattern": pattern,
@@ -503,7 +503,7 @@ def add_dictionary_rule(pattern, replacement, rule_type="pronunciation"):
 ```javascript
 // 基本 TTS 请求
 async function textToSpeech(text, speed = 1.2) {
-    const url = `http://localhost:5000/api?text=${encodeURIComponent(text)}&speed=${speed}`;
+    const url = `http://localhost:8080/api?text=${encodeURIComponent(text)}&speed=${speed}`;
     
     try {
         const response = await fetch(url);
@@ -529,7 +529,7 @@ async function textToSpeech(text, speed = 1.2) {
 
 // 管理 API 示例
 async function adminLogin(username, password) {
-    const url = 'http://localhost:5000/admin/login';
+    const url = 'http://localhost:8080/admin/login';
     const data = {
         username: username,
         password: password
@@ -556,26 +556,26 @@ async function adminLogin(username, password) {
 
 ```bash
 # 基本 TTS 请求
-curl -G "http://localhost:5000/api" \
+curl -G "http://localhost:8080/api" \
   --data-urlencode "text=你好世界" \
   --data-urlencode "speed=1.5" \
   -o output.mp3
 
 # 健康检查
-curl "http://localhost:5000/health?detailed=true" | jq
+curl "http://localhost:8080/health?detailed=true" | jq
 
 # 管理员登录
-curl -X POST "http://localhost:5000/admin/login" \
+curl -X POST "http://localhost:8080/admin/login" \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "your-password"}' \
   -c cookies.txt
 
 # 获取配置（需要先登录）
-curl "http://localhost:5000/admin/config" \
+curl "http://localhost:8080/admin/config" \
   -b cookies.txt | jq
 
 # 添加字典规则
-curl -X POST "http://localhost:5000/admin/dictionary/rules" \
+curl -X POST "http://localhost:8080/admin/dictionary/rules" \
   -H "Content-Type: application/json" \
   -b cookies.txt \
   -d '{

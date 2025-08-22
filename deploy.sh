@@ -114,7 +114,7 @@ print_info "开始配置 TTS API 服务..."
 echo
 
 # 服务端口配置
-read_input "请输入服务端口" "5000" "TTS_PORT"
+read_input "请输入服务端口" "8080" "TTS_PORT"
 
 # 管理员账号配置
 print_info "配置管理员账号..."

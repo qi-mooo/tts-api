@@ -28,11 +28,7 @@ def init_admin_app(app: Flask) -> None:
         """管理控制台主页"""
         return render_template('admin.html')
     
-    # 重定向根路径到管理界面
-    @app.route('/')
-    def index():
-        """主页重定向到管理界面"""
-        return redirect(url_for('admin_index'))
+    # 注意：不在这里定义根路径路由，避免与主应用冲突
     
     # 设置 session 配置
     app.config.update(

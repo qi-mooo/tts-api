@@ -54,7 +54,7 @@ run:
 
 run-prod:
 	@echo "启动生产服务器..."
-	./venv/bin/gunicorn -b 0.0.0.0:5000 enhanced_tts_api:app \
+	./venv/bin/gunicorn -b 0.0.0.0:8080 enhanced_tts_api:app \
 		--workers 4 --timeout 120 --log-level info
 
 # 测试
@@ -77,7 +77,7 @@ docker-run:
 	@echo "运行 Docker 容器..."
 	docker run -d \
 		--name tts-api \
-		-p 5000:5000 \
+		-p 8080:8080 \
 		-v $(PWD)/logs:/app/logs \
 		-v $(PWD)/config.json:/app/config.json \
 		-e TTS_ADMIN_PASSWORD=admin123 \
@@ -111,7 +111,7 @@ logs:
 
 health:
 	@echo "检查服务健康状态..."
-	@curl -s http://localhost:5000/health | python3 -m json.tool || echo "服务不可用"
+	@curl -s http://localhost:8080/health | python3 -m json.tool || echo "服务不可用"
 
 backup:
 	@echo "备份配置文件..."
@@ -180,4 +180,4 @@ quick-docker:
 	@echo "快速启动 Docker 环境..."
 	@make docker-build
 	@make docker-run
-	@echo "服务已启动，访问 http://localhost:5000"
+	@echo "服务已启动，访问 http://localhost:8080"

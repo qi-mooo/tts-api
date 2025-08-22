@@ -44,13 +44,35 @@ def create_enhanced_app() -> Flask:
         request.start_time = time.time()
         logger.set_request_id(request.id)
         
-        # 记录请求开始
+        # 过滤掉不需要记录的请求
+        skip_paths = ['/health', '/favicon.ico', '/static/']
+        if any(request.path.startswith(skip) for skip in skip_paths):
+            return
+        
+        # 记录请求开始（只记录重要信息）
+        log_data = {
+            'method': request.method,
+            'path': request.path,
+            'remote_addr': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent', 'unknown')
+        }
+        
+        # 只在有查询参数时记录
+        if request.query_string:
+            query = request.query_string.decode('utf-8')
+            # 截断过长的查询字符串
+            if len(query) > 200:
+                query = query[:200] + '...'
+            log_data['query_string'] = query
+        
+        # 只在有请求体时记录
+        if request.content_length and request.content_length > 0:
+            log_data['content_type'] = request.content_type
+            log_data['content_length'] = request.content_length
+        
         logger.info(
-            "请求开始",
-            method=request.method,
-            path=request.path,
-            remote_addr=request.remote_addr,
-            user_agent=request.headers.get('User-Agent', 'unknown')
+            f"→ {request.method} {request.path}",
+            **log_data
         )
     
     # 请求后处理
@@ -59,12 +81,38 @@ def create_enhanced_app() -> Flask:
         """请求后处理 - 记录响应信息"""
         duration = time.time() - getattr(request, 'start_time', time.time())
         
-        logger.info(
-            "请求完成",
-            status_code=response.status_code,
-            duration_ms=round(duration * 1000, 2),
-            content_length=response.content_length
-        )
+        # 过滤掉不需要记录的请求
+        skip_paths = ['/health', '/favicon.ico', '/static/']
+        if not any(request.path.startswith(skip) for skip in skip_paths):
+            # 构建响应日志
+            status_emoji = "✓" if response.status_code < 400 else "✗"
+            duration_ms = round(duration * 1000, 2)
+            
+            log_data = {
+                'status_code': response.status_code,
+                'duration_ms': duration_ms,
+                'method': request.method,
+                'path': request.path
+            }
+            
+            # 添加响应大小信息
+            if response.content_length:
+                log_data['response_size_bytes'] = response.content_length
+                if response.content_length > 1024:
+                    size_kb = response.content_length / 1024
+                    log_data['response_size_display'] = f"{size_kb:.1f}KB"
+                else:
+                    log_data['response_size_display'] = f"{response.content_length}B"
+            
+            # 根据状态码和耗时选择日志级别
+            if response.status_code >= 500:
+                logger.error(f"← {status_emoji} {response.status_code} {request.method} {request.path} ({duration_ms}ms)", **log_data)
+            elif response.status_code >= 400:
+                logger.warning(f"← {status_emoji} {response.status_code} {request.method} {request.path} ({duration_ms}ms)", **log_data)
+            elif duration_ms > 1000:  # 慢请求
+                logger.warning(f"← {status_emoji} {response.status_code} {request.method} {request.path} ({duration_ms}ms) [SLOW]", **log_data)
+            else:
+                logger.info(f"← {status_emoji} {response.status_code} {request.method} {request.path} ({duration_ms}ms)", **log_data)
         
         # 添加响应头
         response.headers['X-Request-ID'] = getattr(request, 'id', 'unknown')
@@ -309,7 +357,7 @@ def create_enhanced_app() -> Flask:
         @app.route('/health', methods=['GET'])
         def health_check():
             """健康检查端点"""
-            return health_monitor.get_health_status()
+            return health_monitor.get_health_summary()
             
     except ImportError:
         logger.warning("健康检查模块不可用，使用简化版本")
@@ -325,10 +373,11 @@ def create_enhanced_app() -> Flask:
     
     # 管理控制台端点（集成现有的管理模块）
     try:
-        admin_controller = AdminController()
-        app.register_blueprint(admin_controller.get_blueprint(), url_prefix='/admin')
-    except ImportError:
-        logger.warning("管理控制台模块不可用")
+        from admin.flask_integration import init_admin_app
+        init_admin_app(app)
+        logger.info("管理控制台已集成")
+    except ImportError as e:
+        logger.warning(f"管理控制台模块不可用: {e}")
     
     # 根路径
     @app.route('/')

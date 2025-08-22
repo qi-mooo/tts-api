@@ -38,7 +38,7 @@ docker-compose up -d
 
 # 4. 检查服务状态
 docker-compose ps
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 ```
 
 #### 配置选项
@@ -66,7 +66,7 @@ docker build -t tts-api .
 # 2. 运行容器
 docker run -d \
   --name tts-api \
-  -p 5000:5000 \
+  -p 8080:8080 \
   -v $(pwd)/logs:/app/logs \
   -v $(pwd)/config.json:/app/config.json \
   -e TTS_ADMIN_PASSWORD=your-password \
@@ -74,7 +74,7 @@ docker run -d \
 
 # 3. 检查状态
 docker logs tts-api
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 ```
 
 ### 3. Python 环境部署
@@ -104,7 +104,7 @@ export FLASK_ENV=development
 python enhanced_tts_api.py
 
 # 生产模式
-gunicorn -b 0.0.0.0:5000 enhanced_tts_api:app \
+gunicorn -b 0.0.0.0:8080 enhanced_tts_api:app \
   --workers 4 --timeout 120 \
   --log-level info
 ```
@@ -190,7 +190,7 @@ server {
     ssl_certificate_key /path/to/key.pem;
     
     location / {
-        proxy_pass http://localhost:5000;
+        proxy_pass http://localhost:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -203,12 +203,12 @@ server {
 
 ```bash
 # Ubuntu/Debian
-sudo ufw allow 5000/tcp
+sudo ufw allow 8080/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
 # CentOS/RHEL
-sudo firewall-cmd --permanent --add-port=5000/tcp
+sudo firewall-cmd --permanent --add-port=8080/tcp
 sudo firewall-cmd --permanent --add-port=80/tcp
 sudo firewall-cmd --permanent --add-port=443/tcp
 sudo firewall-cmd --reload
@@ -220,10 +220,10 @@ sudo firewall-cmd --reload
 
 ```bash
 # 基本健康检查
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 
 # 详细状态信息
-curl http://localhost:5000/health?detailed=true
+curl http://localhost:8080/health?detailed=true
 ```
 
 ### 2. 日志管理
@@ -248,7 +248,7 @@ docker-compose logs -f tts-api
 scrape_configs:
   - job_name: 'tts-api'
     static_configs:
-      - targets: ['localhost:5000']
+      - targets: ['localhost:8080']
     metrics_path: '/metrics'
 ```
 
@@ -329,7 +329,7 @@ chmod 644 config.json
 
 ```bash
 # Gunicorn 配置
-gunicorn -b 0.0.0.0:5000 enhanced_tts_api:app \
+gunicorn -b 0.0.0.0:8080 enhanced_tts_api:app \
   --workers 4 \
   --worker-class sync \
   --worker-connections 1000 \
@@ -396,7 +396,7 @@ docker-compose build
 docker-compose up -d
 
 # 6. 验证升级
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 ```
 
 ### 2. 配置迁移

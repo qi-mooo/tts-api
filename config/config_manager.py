@@ -53,7 +53,7 @@ class SystemConfig:
     """系统配置"""
     debug: bool = False
     host: str = "0.0.0.0"
-    port: int = 5000
+    port: int = 8080
     max_workers: int = 10
 
 

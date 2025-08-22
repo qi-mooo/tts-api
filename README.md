@@ -52,7 +52,7 @@ chmod +x deploy.sh
 ./deploy.sh
 
 # 3. 访问服务
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 ```
 
 ### 方式二：Docker Compose 开发环境
@@ -70,7 +70,7 @@ cp .env.template .env
 docker-compose up -d
 
 # 4. 访问服务
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 ```
 
 ### 方式三：Python 环境
@@ -179,7 +179,7 @@ POST /admin/restart
 
 ## 🎛️ Web 管理控制台
 
-访问 `http://localhost:5000/admin` 进入管理控制台：
+访问 `http://localhost:8080/admin` 进入管理控制台：
 
 ### 功能特性
 - **配置管理**: 实时修改语音参数和系统设置
@@ -198,10 +198,10 @@ POST /admin/restart
 
 ```bash
 # 基本健康检查
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 
 # 详细状态信息
-curl "http://localhost:5000/health?detailed=true"
+curl "http://localhost:8080/health?detailed=true"
 ```
 
 ### 日志管理
@@ -315,7 +315,7 @@ docker build -t tts-api .
 # 运行容器
 docker run -d \
   --name tts-api \
-  -p 5000:5000 \
+  -p 8080:8080 \
   -v $(pwd)/logs:/app/logs \
   -e TTS_ADMIN_PASSWORD=your-password \
   tts-api
@@ -431,7 +431,7 @@ docker logs -f tts-api
 
 ```bash
 # Gunicorn 配置
-gunicorn -b 0.0.0.0:5000 enhanced_tts_api:app \
+gunicorn -b 0.0.0.0:8080 enhanced_tts_api:app \
   --workers 4 \
   --worker-class sync \
   --timeout 120

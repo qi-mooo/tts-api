@@ -71,6 +71,8 @@ class AdminController:
         self.blueprint.route('/system/restart/cancel', methods=['POST'])(self.require_auth(self.cancel_restart))
         self.blueprint.route('/system/restart/history', methods=['GET'])(self.require_auth(self.get_restart_history))
         self.blueprint.route('/logs', methods=['GET'])(self.require_auth(self.get_logs))
+        self.blueprint.route('/logs/stream', methods=['GET'])(self.require_auth(self.stream_logs))
+        self.blueprint.route('/logs/download', methods=['GET'])(self.require_auth(self.download_logs))
         self.blueprint.route('/change-password', methods=['POST'])(self.require_auth(self.change_password))
     
     def require_auth(self, f):
@@ -445,20 +447,167 @@ class AdminController:
         try:
             # 获取查询参数
             lines = request.args.get('lines', 100, type=int)
-            level = request.args.get('level', 'INFO')
+            level = request.args.get('level')  # None 表示所有级别
+            log_type = request.args.get('type')  # 日志类型过滤
+            search = request.args.get('search')  # 搜索关键词
             
             # 读取日志文件
             log_file = config_manager.logging.file
-            logs = self._read_log_file(log_file, lines, level)
+            raw_logs = self._read_log_file_raw(log_file, lines * 2)  # 读取更多行用于过滤
+            
+            # 使用 web 日志格式化器
+            from logger.web_log_formatter import web_log_formatter
+            
+            # 格式化日志
+            formatted_logs = web_log_formatter.format_log_list(raw_logs, limit=lines * 2)
+            
+            # 应用过滤器
+            filtered_logs = web_log_formatter.filter_logs(
+                formatted_logs, 
+                level=level, 
+                log_type=log_type, 
+                search=search
+            )
+            
+            # 限制返回数量
+            final_logs = filtered_logs[-lines:] if len(filtered_logs) > lines else filtered_logs
+            
+            # 统计信息
+            stats = {
+                'total_lines': len(raw_logs),
+                'formatted_entries': len(formatted_logs),
+                'filtered_entries': len(filtered_logs),
+                'returned_entries': len(final_logs)
+            }
+            
+            # 按类型统计
+            type_stats = {}
+            level_stats = {}
+            for log in formatted_logs:
+                log_type_key = log.get('type', 'unknown')
+                log_level_key = log.get('level', 'INFO')
+                type_stats[log_type_key] = type_stats.get(log_type_key, 0) + 1
+                level_stats[log_level_key] = level_stats.get(log_level_key, 0) + 1
             
             return jsonify({
                 'success': True,
                 'data': {
-                    'logs': logs,
-                    'total': len(logs),
-                    'log_file': log_file
+                    'logs': final_logs,
+                    'stats': stats,
+                    'type_stats': type_stats,
+                    'level_stats': level_stats,
+                    'log_file': log_file,
+                    'filters': {
+                        'level': level,
+                        'type': log_type,
+                        'search': search,
+                        'lines': lines
+                    }
                 }
             })
+            
+        except Exception as e:
+            return self.error_handler.handle_error(e)
+    
+    def stream_logs(self) -> Response:
+        """实时日志流"""
+        try:
+            def generate_log_stream():
+                """生成日志流"""
+                import time
+                import os
+                
+                log_file = config_manager.logging.file
+                if not os.path.exists(log_file):
+                    yield f"data: {json.dumps({'error': '日志文件不存在'})}\n\n"
+                    return
+                
+                # 获取文件初始大小
+                last_size = os.path.getsize(log_file)
+                
+                while True:
+                    try:
+                        current_size = os.path.getsize(log_file)
+                        
+                        if current_size > last_size:
+                            # 文件有新内容
+                            with open(log_file, 'r', encoding='utf-8') as f:
+                                f.seek(last_size)
+                                new_lines = f.readlines()
+                                
+                                for line in new_lines:
+                                    if line.strip():
+                                        from logger.web_log_formatter import web_log_formatter
+                                        formatted_log = web_log_formatter.format_log_entry(line.strip())
+                                        yield f"data: {json.dumps(formatted_log, ensure_ascii=False)}\n\n"
+                                
+                                last_size = current_size
+                        
+                        time.sleep(1)  # 每秒检查一次
+                        
+                    except Exception as e:
+                        yield f"data: {json.dumps({'error': f'读取日志失败: {str(e)}'})}\n\n"
+                        break
+            
+            return Response(
+                generate_log_stream(),
+                mimetype='text/event-stream',
+                headers={
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive',
+                    'Access-Control-Allow-Origin': '*'
+                }
+            )
+            
+        except Exception as e:
+            return self.error_handler.handle_error(e)
+    
+    def download_logs(self) -> Response:
+        """下载日志文件"""
+        try:
+            log_file = config_manager.logging.file
+            
+            if not os.path.exists(log_file):
+                return jsonify({
+                    'success': False,
+                    'error': '日志文件不存在'
+                }), 404
+            
+            # 获取查询参数
+            lines = request.args.get('lines', type=int)  # 如果指定行数，只下载最后N行
+            level = request.args.get('level')
+            log_type = request.args.get('type')
+            
+            if lines or level or log_type:
+                # 过滤后下载
+                raw_logs = self._read_log_file_raw(log_file, lines or 10000)
+                
+                from logger.web_log_formatter import web_log_formatter
+                formatted_logs = web_log_formatter.format_log_list(raw_logs)
+                filtered_logs = web_log_formatter.filter_logs(formatted_logs, level=level, log_type=log_type)
+                
+                # 转换回文本格式
+                content = '\n'.join([
+                    f"[{log.get('timestamp', '')}] {log.get('level', 'INFO')} [{log.get('module', 'unknown')}] {log.get('message', '')}"
+                    for log in filtered_logs
+                ])
+                
+                filename = f"filtered_logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+            else:
+                # 下载完整文件
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                filename = f"app_logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+            
+            return Response(
+                content,
+                mimetype='text/plain',
+                headers={
+                    'Content-Disposition': f'attachment; filename="{filename}"',
+                    'Content-Type': 'text/plain; charset=utf-8'
+                }
+            )
             
         except Exception as e:
             return self.error_handler.handle_error(e)
@@ -578,39 +727,23 @@ class AdminController:
         except Exception:
             return False
     
-    def _read_log_file(self, log_file: str, lines: int, level: str) -> List[Dict[str, Any]]:
-        """读取日志文件"""
-        logs = []
+    def _read_log_file_raw(self, log_file: str, lines: int) -> List[str]:
+        """读取原始日志文件行"""
         try:
             if not os.path.exists(log_file):
-                return logs
+                return []
             
             with open(log_file, 'r', encoding='utf-8') as f:
                 # 读取最后 N 行
                 file_lines = f.readlines()
                 recent_lines = file_lines[-lines:] if len(file_lines) > lines else file_lines
                 
-                for line in recent_lines:
-                    try:
-                        # 尝试解析 JSON 格式的日志
-                        import json
-                        log_data = json.loads(line.strip())
-                        
-                        # 过滤日志级别
-                        if log_data.get('level', 'INFO') == level or level == 'ALL':
-                            logs.append(log_data)
-                    except json.JSONDecodeError:
-                        # 如果不是 JSON 格式，作为普通文本处理
-                        logs.append({
-                            'timestamp': datetime.now().isoformat(),
-                            'level': 'INFO',
-                            'message': line.strip()
-                        })
+                # 过滤空行
+                return [line.strip() for line in recent_lines if line.strip()]
         
         except Exception as e:
             self.logger.error(f"读取日志文件失败: {e}")
-        
-        return logs
+            return []
 
 
 # 创建全局实例

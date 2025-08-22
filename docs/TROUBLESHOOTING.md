@@ -12,7 +12,7 @@
 
 ```bash
 # 1. 检查服务状态
-curl http://localhost:5000/health
+curl http://localhost:8080/health
 
 # 2. 检查容器状态（Docker 环境）
 docker-compose ps
@@ -28,7 +28,7 @@ tail -50 logs/app.log | grep ERROR
 
 | 问题类型 | 检查命令 | 正常状态 |
 |----------|----------|----------|
-| 服务可用性 | `curl -I http://localhost:5000/health` | HTTP/1.1 200 OK |
+| 服务可用性 | `curl -I http://localhost:8080/health` | HTTP/1.1 200 OK |
 | Edge-TTS 连接 | `curl -I https://speech.platform.bing.com` | HTTP/2 200 |
 | 磁盘空间 | `df -h /` | 使用率 < 90% |
 | 内存使用 | `free -h` | 可用内存 > 500MB |
@@ -79,7 +79,7 @@ except Exception as e:
 2. **端口冲突**
    ```bash
    # 查找占用端口的进程
-   sudo lsof -i :5000
+   sudo lsof -i :8080
    # 终止冲突进程或修改配置端口
    ```
 
@@ -148,7 +148,7 @@ sudo iptables -L | grep -i drop
 
 ```bash
 # 1. 测试 API 响应时间
-time curl "http://localhost:5000/api?text=测试文本"
+time curl "http://localhost:8080/api?text=测试文本"
 
 # 2. 检查系统负载
 uptime && iostat 1 3
@@ -287,7 +287,7 @@ grep "duration_ms" logs/app.log | awk -F'"duration_ms":' '{print $2}' | awk -F',
 2. **清理缓存**
    ```bash
    # 清理过期缓存
-   curl -X POST http://localhost:5000/admin/cache/cleanup
+   curl -X POST http://localhost:8080/admin/cache/cleanup
    
    # 完全清理缓存
    rm -rf cache/*
@@ -312,7 +312,7 @@ echo "Docker 版本: $(docker --version 2>/dev/null || echo '未安装')"
 
 # 2. 服务状态检查
 echo "2. 服务状态检查"
-if curl -s http://localhost:5000/health > /dev/null; then
+if curl -s http://localhost:8080/health > /dev/null; then
     echo "✓ TTS API 服务正常"
 else
     echo "✗ TTS API 服务异常"
@@ -397,7 +397,7 @@ fi
 # 6. 等待服务就绪
 echo "6. 等待服务启动..."
 for i in {1..30}; do
-    if curl -s http://localhost:5000/health > /dev/null; then
+    if curl -s http://localhost:8080/health > /dev/null; then
         echo "服务启动成功"
         break
     fi
@@ -407,7 +407,7 @@ done
 
 # 7. 验证服务状态
 echo "7. 验证服务状态..."
-if curl -s http://localhost:5000/health | grep -q "healthy"; then
+if curl -s http://localhost:8080/health | grep -q "healthy"; then
     echo "✓ 服务运行正常"
 else
     echo "✗ 服务启动失败，请检查日志"

@@ -174,6 +174,6 @@ if __name__ == '__main__':
     
     print("\n启动 Flask 应用进行 API 测试...")
     print("可以使用以下命令测试 API:")
-    print("curl -X POST http://localhost:5000/api/tts -H 'Content-Type: application/json' -d '{\"text\":\"你好世界\",\"voice\":\"zh-CN-YunjianNeural\"}'")
+    print("curl -X POST http://localhost:8080/api/tts -H 'Content-Type: application/json' -d '{\"text\":\"你好世界\",\"voice\":\"zh-CN-YunjianNeural\"}'")
     
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8080)
