@@ -1,0 +1,77 @@
+{
+  "rules": [
+    {
+      "id": "pronunciation_001",
+      "type": "pronunciation",
+      "pattern": "\\bGitHub\\b",
+      "replacement": "吉特哈布",
+      "enabled": true,
+      "created_at": "2024-01-01T00:00:00",
+      "updated_at": "2025-08-22T19:04:28.220293"
+    },
+    {
+      "id": "pronunciation_002",
+      "type": "pronunciation",
+      "pattern": "\\bAPI\\b",
+      "replacement": "A P I",
+      "enabled": true,
+      "created_at": "2024-01-01T00:00:00",
+      "updated_at": "2024-01-01T00:00:00"
+    },
+    {
+      "id": "pronunciation_003",
+      "type": "pronunciation",
+      "pattern": "\\bJSON\\b",
+      "replacement": "J S O N",
+      "enabled": true,
+      "created_at": "2024-01-01T00:00:00",
+      "updated_at": "2024-01-01T00:00:00"
+    },
+    {
+      "id": "pronunciation_004",
+      "type": "pronunciation",
+      "pattern": "\\bHTTP\\b",
+      "replacement": "H T T P",
+      "enabled": true,
+      "created_at": "2024-01-01T00:00:00",
+      "updated_at": "2024-01-01T00:00:00"
+    },
+    {
+      "id": "filter_001",
+      "type": "filter",
+      "pattern": "敏感词",
+      "replacement": "***",
+      "enabled": true,
+      "created_at": "2024-01-01T00:00:00",
+      "updated_at": "2024-01-01T00:00:00"
+    },
+    {
+      "id": "filter_002",
+      "type": "filter",
+      "pattern": "不当内容",
+      "replacement": "[已过滤]",
+      "enabled": true,
+      "created_at": "2024-01-01T00:00:00",
+      "updated_at": "2024-01-01T00:00:00"
+    },
+    {
+      "id": "pronunciation_007",
+      "type": "pronunciation",
+      "pattern": "\\bPython\\b",
+      "replacement": "派森",
+      "enabled": true,
+      "created_at": "2025-08-22T19:04:28.219368",
+      "updated_at": "2025-08-22T19:04:28.219368"
+    },
+    {
+      "id": "pronunciation_008",
+      "type": "pronunciation",
+      "pattern": "test",
+      "replacement": "replacement",
+      "enabled": true,
+      "created_at": "2025-08-22T19:14:53.040167",
+      "updated_at": "2025-08-22T19:14:53.040167"
+    }
+  ],
+  "updated_at": "2025-08-22T20:17:09.301202"
+}

@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>文本转语音生成器</title>
+    <script>
+        const voices = {
+            "ar": [
+              "No",
+              "ar-AE-FatimaNeural",
+              "ar-AE-HamdanNeural",
+              "ar-BH-LailaNeural",
+              "ar-BH-AliNeural",
+              "ar-DZ-AminaNeural",
+              "ar-DZ-IsmaelNeural",
+              "ar-EG-SalmaNeural",
+              "ar-EG-ShakirNeural",
+              "ar-IQ-RanaNeural",
+              "ar-IQ-BasselNeural",
+              "ar-JO-SanaNeural",
+              "ar-JO-TaimNeural",
+              "ar-KW-NouraNeural",
+              "ar-KW-FahedNeural",
+              "ar-LB-LaylaNeural",
+              "ar-LB-RamiNeural",
+              "ar-LY-ImanNeural",
+              "ar-LY-OmarNeural",
+              "ar-MA-MounaNeural",
+              "ar-MA-JamalNeural",
+              "ar-OM-AyshaNeural",
+              "ar-OM-AbdullahNeural",
+              "ar-QA-AmalNeural",
+              "ar-QA-MoazNeural",
+              "ar-SA-ZariyahNeural",
+              "ar-SA-HamedNeural",
+              "ar-SY-AmanyNeural",
+              "ar-SY-LaithNeural",
+              "ar-TN-ReemNeural",
+              "ar-TN-HediNeural",
+              "ar-YE-MaryamNeural",
+              "ar-YE-SalehNeural"
+            ],
+            
+            "cs": [
+              "No",
+              "cs-CZ-VlastaNeural",
+              "cs-CZ-AntoninNeural"
+            ],
+            
+            "de": [
+              "No",
+              "de-AT-IngridNeural",
+              "de-AT-JonasNeural",
+              "de-CH-LeniNeural",
+              "de-CH-JanNeural",
+              "de-DE-KatjaNeural",
+              "de-DE-ConradNeural",
+              "de-DE-AmalaNeural",
+              "de-DE-BerndNeural",
+              "de-DE-ChristophNeural",
+              "de-DE-ElkeNeural",
+              "de-DE-GiselaNeural",
+              "de-DE-KasperNeural",
+              "de-DE-KillianNeural",
+              "de-DE-KlarissaNeural",
+              "de-DE-KlausNeural",
+              "de-DE-LouisaNeural",
+              "de-DE-MajaNeural",
+              "de-DE-RalfNeural",
+              "de-DE-TanjaNeural",
+              "de-DE-FlorianMultilingualNeural",
+              "de-DE-SeraphinaMultilingualNeural"
+            ],
+            
+            "en": [
+              "No",
+              "en-AU-NatashaNeural",
+              "en-AU-WilliamNeural",
+              "en-AU-AnnetteNeural",
+              "en-AU-CarlyNeural",
+              "en-AU-DarrenNeural",
+              "en-AU-DuncanNeural",
+              "en-AU-ElsieNeural",
+              "en-AU-FreyaNeural",
+              "en-AU-JoanneNeural",
+              "en-AU-KenNeural",
+              "en-AU-KimNeural",
+              "en-AU-NeilNeural",
+              "en-AU-TimNeural",
+              "en-AU-TinaNeural",
+              "en-CA-ClaraNeural",
+              "en-CA-LiamNeural",
+              "en-GB-SoniaNeural",
+              "en-GB-RyanNeural",
+              "en-GB-LibbyNeural",
+              "en-GB-AbbiNeural",
+              "en-GB-AlfieNeural",
+              "en-GB-BellaNeural",
+              "en-GB-ElliotNeural",
+              "en-GB-EthanNeural",
+              "en-GB-HollieNeural",
+              "en-GB-MaisieNeural",
+              "en-GB-NoahNeural",
+              "en-GB-OliverNeural",
+              "en-GB-OliviaNeural",
+              "en-GB-ThomasNeural",
+              "en-HK-YanNeural",
+              "en-HK-SamNeural",
+              "en-IE-EmilyNeural",
+              "en-IE-ConnorNeural",
+              "en-IN-NeerjaNeural",
+              "en-IN-PrabhatNeural",
+              "en-KE-AsiliaNeural",
+              "en-KE-ChilembaNeural",
+              "en-NG-EzinneNeural",
+              "en-NG-AbeoNeural",
+              "en-NZ-MollyNeural",
+              "en-NZ-MitchellNeural",
+              "en-PH-RosaNeural",
+              "en-PH-JamesNeural",
+              "en-SG-LunaNeural",
+              "en-SG-WayneNeural",
+              "en-TZ-ImaniNeural",
+              "en-TZ-ElimuNeural",
+              "en-US-AvaNeural",
+              "en-US-AndrewNeural",
+              "en-US-EmmaNeural",
+              "en-US-BrianNeural",
+              "en-US-JennyNeural",
+              "en-US-GuyNeural",
+              "en-US-AriaNeural",
+              "en-US-DavisNeural",
+              "en-US-JaneNeural",
+              "en-US-JasonNeural",
+              "en-US-SaraNeural",
+              "en-US-TonyNeural",
+              "en-US-NancyNeural",
+              "en-US-AmberNeural",
+              "en-US-AnaNeural",
+              "en-US-AshleyNeural",
+              "en-US-BrandonNeural",
+              "en-US-ChristopherNeural",
+              "en-US-CoraNeural",
+              "en-US-ElizabethNeural",
+              "en-US-EricNeural",
+              "en-US-JacobNeural",
+              "en-US-JennyMultilingualNeural",
+              "en-US-MichelleNeural",
+              "en-US-MonicaNeural",
+              "en-US-RogerNeural",
+              "en-US-RyanMultilingualNeural",
+              "en-US-SteffanNeural",
+              "en-US-AIGenerate1Neural",
+              "en-US-AIGenerate2Neural",
+              "en-US-AndrewMultilingualNeural",
+              "en-US-AvaMultilingualNeural",
+              "en-US-BlueNeural",
+              "en-US-BrianMultilingualNeural",
+              "en-US-EmmaMultilingualNeural",
+              "en-US-AlloyMultilingualNeural",
+              "en-US-EchoMultilingualNeural",
+              "en-US-FableMultilingualNeural",
+              "en-US-OnyxMultilingualNeural",
+              "en-US-NovaMultilingualNeural",
+              "en-US-ShimmerMultilingualNeural",
+              "en-US-AlloyMultilingualNeuralHD",
+              "en-US-EchoMultilingualNeuralHD",
+              "en-US-FableMultilingualNeuralHD",
+              "en-US-OnyxMultilingualNeuralHD",
+              "en-US-NovaMultilingualNeuralHD",
+              "en-US-ShimmerMultilingualNeuralHD",
+              "en-ZA-LeahNeural",
+              "en-ZA-LukeNeural"
+            ],
+            "es": [
+              "No",
+              "es-AR-ElenaNeural",
+              "es-AR-TomasNeural",
+              "es-BO-SofiaNeural",
+              "es-BO-MarceloNeural",
+              "es-CL-CatalinaNeural",
+              "es-CL-LorenzoNeural",
+              "es-CO-SalomeNeural",
+              "es-CO-GonzaloNeural",
+              "es-CR-MariaNeural",
+              "es-CR-JuanNeural",
+              "es-CU-BelkysNeural",
+              "es-CU-ManuelNeural",
+              "es-DO-RamonaNeural",
+              "es-DO-EmilioNeural",
+              "es-EC-AndreaNeural",
+              "es-EC-LuisNeural",
+              "es-ES-ElviraNeural",
+              "es-ES-AlvaroNeural",
+              "es-ES-AbrilNeural",
+              "es-ES-ArnauNeural",
+              "es-ES-DarioNeural",
+              "es-ES-EliasNeural",
+              "es-ES-EstrellaNeural",
+              "es-ES-IreneNeural",
+              "es-ES-LaiaNeural",
+              "es-ES-LiaNeural",
+              "es-ES-NilNeural",
+              "es-ES-SaulNeural",
+              "es-ES-TeoNeural",
+              "es-ES-TrianaNeural",
+              "es-ES-VeraNeural",
+              "es-ES-XimenaNeural",
+              "es-GQ-TeresaNeural",
+              "es-GQ-JavierNeural",
+              "es-GT-MartaNeural",
+              "es-GT-AndresNeural",
+              "es-HN-KarlaNeural",
+              "es-HN-CarlosNeural",
+              "es-MX-DaliaNeural",
+              "es-MX-JorgeNeural",
+              "es-MX-BeatrizNeural",
+              "es-MX-CandelaNeural",
+              "es-MX-CarlotaNeural",
+              "es-MX-CecilioNeural",
+              "es-MX-GerardoNeural",
+              "es-MX-LarissaNeural",
+              "es-MX-LibertoNeural",
+              "es-MX-LucianoNeural",
+              "es-MX-MarinaNeural",
+              "es-MX-NuriaNeural",
+              "es-MX-PelayoNeural",
+              "es-MX-RenataNeural",
+              "es-MX-YagoNeural",
+              "es-NI-YolandaNeural",
+              "es-NI-FedericoNeural",
+              "es-PA-MargaritaNeural",
+              "es-PA-RobertoNeural",
+              "es-PE-CamilaNeural",
+              "es-PE-AlexNeural",
+              "es-PR-KarinaNeural",
+              "es-PR-VictorNeural",
+              "es-PY-TaniaNeural",
+              "es-PY-MarioNeural",
+              "es-SV-LorenaNeural",
+              "es-SV-RodrigoNeural",
+              "es-US-PalomaNeural",
+              "es-US-AlonsoNeural",
+              "es-UY-ValentinaNeural",
+              "es-UY-MateoNeural",
+              "es-VE-PaolaNeural",
+              "es-VE-SebastianNeural"
+            ],
+            
+            
+            "fr": [
+              "No",
+              "fr-BE-CharlineNeural",
+              "fr-BE-GerardNeural",
+              "fr-CA-SylvieNeural",
+              "fr-CA-JeanNeural",
+              "fr-CA-AntoineNeural",
+              "fr-CA-ThierryNeural",
+              "fr-CH-ArianeNeural",
+              "fr-CH-FabriceNeural",
+              "fr-FR-DeniseNeural",
+              "fr-FR-HenriNeural",
+              "fr-FR-AlainNeural",
+              "fr-FR-BrigitteNeural",
+              "fr-FR-CelesteNeural",
+              "fr-FR-ClaudeNeural",
+              "fr-FR-CoralieNeural",
+              "fr-FR-EloiseNeural",
+              "fr-FR-JacquelineNeural",
+              "fr-FR-JeromeNeural",
+              "fr-FR-JosephineNeural",
+              "fr-FR-MauriceNeural",
+              "fr-FR-YvesNeural",
+              "fr-FR-YvetteNeural",
+              "fr-FR-RemyMultilingualNeural",
+              "fr-FR-VivienneMultilingualNeural"
+            ],
+            
+            
+            "hi": [
+              "No",
+              "hi-IN-SwaraNeural",
+              "hi-IN-MadhurNeural"
+            ],
+            "hu": [
+              "No",
+              "hu-HU-NoemiNeural",
+              "hu-HU-TamasNeural"
+            ],
+            
+            "id": [
+              "No",
+              "id-ID-GadisNeural",
+              "id-ID-ArdiNeural"
+            ],
+            
+            "it": [
+              "No",
+              "it-IT-ElsaNeural",
+              "it-IT-IsabellaNeural",
+              "it-IT-DiegoNeural",
+              "it-IT-BenignoNeural",
+              "it-IT-CalimeroNeural",
+              "it-IT-CataldoNeural",
+              "it-IT-FabiolaNeural",
+              "it-IT-FiammaNeural",
+              "it-IT-GianniNeural",
+              "it-IT-ImeldaNeural",
+              "it-IT-IrmaNeural",
+              "it-IT-LisandroNeural",
+              "it-IT-PalmiraNeural",
+              "it-IT-PierinaNeural",
+              "it-IT-RinaldoNeural",
+              "it-IT-GiuseppeNeural"
+            ],
+            "ja": [
+              "No",
+              "ja-JP-NanamiNeural",
+              "ja-JP-KeitaNeural",
+              "ja-JP-AoiNeural",
+              "ja-JP-DaichiNeural",
+              "ja-JP-MayuNeural",
+              "ja-JP-NaokiNeural",
+              "ja-JP-ShioriNeural",
+              "ja-JP-MasaruMultilingualNeural"
+            ],
+            
+            "kk": [
+              "No",
+              "kk-KZ-AigulNeural",
+              "kk-KZ-DauletNeural"
+            ],
+            "ko": [
+              "No",
+              "ko-KR-SunHiNeural",
+              "ko-KR-InJoonNeural",
+              "ko-KR-BongJinNeural",
+              "ko-KR-GookMinNeural",
+              "ko-KR-JiMinNeural",
+              "ko-KR-SeoHyeonNeural",
+              "ko-KR-SoonBokNeural",
+              "ko-KR-YuJinNeural",
+              "ko-KR-HyunsuNeural"
+            ],
+            
+            "ms": [
+              "No",
+              "ms-MY-YasminNeural",
+              "ms-MY-OsmanNeural"
+            ],
+            "nl": [
+              "No",
+              "nl-BE-DenaNeural",
+              "nl-BE-ArnaudNeural",
+              "nl-NL-FennaNeural",
+              "nl-NL-MaartenNeural",
+              "nl-NL-ColetteNeural"
+            ],
+            "pl": [
+              "No",
+              "pl-PL-AgnieszkaNeural",
+              "pl-PL-MarekNeural",
+              "pl-PL-ZofiaNeural"
+            ],
+            
+            "pt": [
+              "No",
+              "pt-BR-FranciscaNeural",
+              "pt-BR-AntonioNeural",
+              "pt-BR-BrendaNeural",
+              "pt-BR-DonatoNeural",
+              "pt-BR-ElzaNeural",
+              "pt-BR-FabioNeural",
+              "pt-BR-GiovannaNeural",
+              "pt-BR-HumbertoNeural",
+              "pt-BR-JulioNeural",
+              "pt-BR-LeilaNeural",
+              "pt-BR-LeticiaNeural",
+              "pt-BR-ManuelaNeural",
+              "pt-BR-NicolauNeural",
+              "pt-BR-ValerioNeural",
+              "pt-BR-YaraNeural",
+              "pt-BR-ThalitaNeural",
+              "pt-PT-RaquelNeural",
+              "pt-PT-DuarteNeural",
+              "pt-PT-FernandaNeural"
+            ],
+            
+            "ru": [
+              "No",
+              "ru-RU-SvetlanaNeural",
+              "ru-RU-DmitryNeural",
+              "ru-RU-DariyaNeural"
+            ],
+            
+            "sv": [
+              "No",
+              "sv-SE-SofieNeural",
+              "sv-SE-MattiasNeural",
+              "sv-SE-HilleviNeural"
+            ],
+            "th": [
+              "No",
+              "th-TH-PremwadeeNeural",
+              "th-TH-NiwatNeural",
+              "th-TH-AcharaNeural"
+            ],
+            "tr": [
+              "No",
+              "tr-TR-EmelNeural",
+              "tr-TR-AhmetNeural"
+            ],
+            "uk": [
+              "No",
+              "uk-UA-PolinaNeural",
+              "uk-UA-OstapNeural"
+            ],
+            "vi": [
+              "No",
+              "vi-VN-HoaiMyNeural",
+              "vi-VN-NamMinhNeural"
+            ],
+            "zh": [
+              "No",
+              "zh-CN-XiaoxiaoNeural",
+              "zh-CN-YunxiNeural",
+              "zh-CN-YunjianNeural",
+              "zh-CN-XiaoyiNeural",
+              "zh-CN-YunyangNeural",
+              "zh-CN-XiaochenNeural",
+              "zh-CN-XiaohanNeural",
+              "zh-CN-XiaomengNeural",
+              "zh-CN-XiaomoNeural",
+              "zh-CN-XiaoqiuNeural",
+              "zh-CN-XiaoruiNeural",
+              "zh-CN-XiaoshuangNeural",
+              "zh-CN-XiaoyanNeural",
+              "zh-CN-XiaoyouNeural",
+              "zh-CN-XiaozhenNeural",
+              "zh-CN-YunfengNeural",
+              "zh-CN-YunhaoNeural",
+              "zh-CN-YunxiaNeural",
+              "zh-CN-YunyeNeural",
+              "zh-CN-YunzeNeural",
+              "zh-CN-XiaochenMultilingualNeural",
+              "zh-CN-XiaorouNeural",
+              "zh-CN-XiaoxiaoDialectsNeural",
+              "zh-CN-XiaoxiaoMultilingualNeural",
+              "zh-CN-XiaoyuMultilingualNeural",
+              "zh-CN-YunjieNeural",
+              "zh-CN-YunyiMultilingualNeural",
+              "zh-CN-guangxi-YunqiNeural",
+              "zh-CN-henan-YundengNeural",
+              "zh-CN-liaoning-XiaobeiNeural",
+              "zh-CN-liaoning-YunbiaoNeural",
+              "zh-CN-shaanxi-XiaoniNeural",
+              "zh-CN-shandong-YunxiangNeural",
+              "zh-CN-sichuan-YunxiNeural",
+              "zh-HK-HiuMaanNeural",
+              "zh-HK-WanLungNeural",
+              "zh-HK-HiuGaaiNeural",
+              "zh-TW-HsiaoChenNeural",
+              "zh-TW-YunJheNeural",
+              "zh-TW-HsiaoYuNeural"
+            ]
+        };
+
+        function updateVoices() {
+            const countrySelect = document.getElementById('country');
+            const voiceSelect = document.getElementById('voice');
+            const selectedCountry = countrySelect.value;
+            const isNarration = document.getElementById('narration').checked;
+            const isDialogue = document.getElementById('dialogue').checked;
+
+            // 清空声音下拉框
+            voiceSelect.innerHTML = '';
+
+            if (selectedCountry in voices) {
+                let selectedVoices = voices[selectedCountry]["all"];
+                if (isNarration && !isDialogue) {
+                    selectedVoices = voices[selectedCountry]["narration"];
+                } else if (!isNarration && isDialogue) {
+                    selectedVoices = voices[selectedCountry]["dialogue"];
+                }
+
+                selectedVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voice;
+                    option.textContent = voice;
+                    voiceSelect.appendChild(option);
+                });
+            }
+        }
+
+        function generateLink(event) {
+            event.preventDefault(); // 阻止表单默认提交行为
+            
+            const text = document.getElementById('text').value;
+            const speed = document.getElementById('speed').value;
+            const voice = document.getElementById('voice').value;
+
+            // 构建链接
+            let baseUrl = window.location.origin + '/api?';
+            let params = `text=${encodeURIComponent(text)}&speed=${speed}&narr=${encodeURIComponent(voice)}`;
+            const link = baseUrl + params;
+
+            // 显示弹窗
+            alert(`生成的链接: ${link}`);
+        }
+    </script>
+</head>
+<body>
+    <h1>文本转语音生成器</h1>
+    <form onsubmit="generateLink(event)">
+        <label for="text">文本:</label><br>
+        <textarea id="text" name="text" rows="4" cols="50" required></textarea><br><br>
+        
+        <label for="speed">速度 (默认50%):</label><br>
+        <input type="number" id="speed" name="speed" value="50"><br><br>
+
+        <label for="country">选择国家:</label><br>
+        <select id="country" name="country" onchange="updateVoices()">
+            <option value="">请选择国家</option>
+            <option value="ar">阿拉伯语</option>
+            <option value="cs">捷克语</option>
+            <option value="de">德语</option>
+            <option value="en">英语</option>
+            <option value="es">西班牙语</option>
+            <option value="fr">法语</option>
+            <option value="hi">印地语</option>
+            <option value="hu">匈牙利语</option>
+            <option value="id">印尼语</option>
+            <option value="it">意大利语</option>
+            <option value="ja">日语</option>
+            <option value="kk">哈萨克语</option>
+            <option value="ko">韩语</option>
+            <option value="ms">马来语</option>
+            <option value="nl">荷兰语</option>
+            <option value="pl">波兰语</option>
+            <option value="pt">葡萄牙语</option>
+            <option value="ru">俄语</option>
+            <option value="sv">瑞典语</option>
+            <option value="th">泰语</option>
+            <option value="tr">土耳其语</option>
+            <option value="uk">乌克兰语</option>
+            <option value="vi">越南语</option>
+            <option value="zh">中文</option>
+        </select><br><br>
+
+        <label for="voice">选择声音:</label><br>
+        <select id="voice" name="voice" required>
+            <option value="">请先选择国家</option>
+        </select><br><br>
+
+        <label>多语音(旁白/对话):</label><br>
+        <input type="checkbox" id="narration" name="narration" onchange="updateVoices()">
+        <label for="narration">旁白</label><br>
+        <input type="checkbox" id="dialogue" name="dialogue" onchange="updateVoices()">
+        <label for="dialogue">对话</label><br><br>
+
+        <input type="submit" value="生成链接">
+    </form>
+</body>
+</html>

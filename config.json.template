@@ -1,0 +1,32 @@
+{
+  "tts": {
+    "narration_voice": "zh-CN-YunjianNeural",
+    "dialogue_voice": "zh-CN-XiaoyiNeural",
+    "default_speed": 1.2,
+    "cache_size_limit": 10485760,
+    "cache_time_limit": 1200
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "logs/app.log",
+    "max_size": "10MB",
+    "backup_count": 5,
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  },
+  "admin": {
+    "username": "admin",
+    "password_hash": "",
+    "session_timeout": 3600,
+    "secret_key": ""
+  },
+  "dictionary": {
+    "enabled": true,
+    "rules_file": "dictionary/rules.json"
+  },
+  "system": {
+    "debug": false,
+    "host": "0.0.0.0",
+    "port": 5000,
+    "max_workers": 10
+  }
+}

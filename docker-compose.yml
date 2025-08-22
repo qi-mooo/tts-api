@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  tts-api:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - TTS_CONFIG_FILE=/app/config.json
+      - TTS_LOG_LEVEL=DEBUG
+      - TTS_ADMIN_USERNAME=admin
+      - TTS_ADMIN_PASSWORD=admin123
+    volumes:
+      # 开发时挂载代码目录以支持热重载
+      - ./config:/app/config
+      - ./error_handler:/app/error_handler
+      - ./logger:/app/logger
+      - ./dictionary:/app/dictionary
+      - ./admin:/app/admin
+      - ./health_check:/app/health_check
+      - ./restart:/app/restart
+      - ./audio_cache:/app/audio_cache
+      - ./templates:/app/templates
+      - ./logs:/app/logs
+      - ./config.json:/app/config.json
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 可选：添加 Redis 用于缓存（如果需要）
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    profiles:
+      - with-redis
+
+  # 可选：添加 Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - tts-api
+    restart: unless-stopped
+    profiles:
+      - with-nginx
+
+volumes:
+  redis_data:
+
+networks:
+  default:
+    name: tts-network

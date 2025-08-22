@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS 管理控制台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+        }
+        .sidebar .nav-link {
+            color: #adb5bd;
+        }
+        .sidebar .nav-link:hover {
+            color: #fff;
+        }
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: #495057;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-healthy {
+            background-color: #28a745;
+        }
+        .status-warning {
+            background-color: #ffc107;
+        }
+        .status-error {
+            background-color: #dc3545;
+        }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .btn-preview {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+        }
+        .btn-preview:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+            color: white;
+        }
+        .log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        .log-level-INFO {
+            color: #0d6efd;
+        }
+        .log-level-WARNING {
+            color: #fd7e14;
+        }
+        .log-level-ERROR {
+            color: #dc3545;
+        }
+        .log-level-DEBUG {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-soundwave display-4 text-primary"></i>
+                    <h3 class="mt-2">TTS 管理控制台</h3>
+                    <p class="text-muted">请登录以继续</p>
+                </div>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>登录
+                    </button>
+                </form>
+                <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="mainApp" class="d-none">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- 侧边栏 -->
+                <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                    <div class="position-sticky pt-3">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-soundwave text-light display-6"></i>
+                            <h5 class="text-light mt-2">TTS 控制台</h5>
+                        </div>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#" data-page="dashboard">
+                                    <i class="bi bi-speedometer2 me-2"></i>仪表板
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-page="config">
+                                    <i class="bi bi-gear me-2"></i>配置管理
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-page="dictionary">
+                                    <i class="bi bi-book me-2"></i>字典管理
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-page="logs">
+                                    <i class="bi bi-file-text me-2"></i>日志查看
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-page="system">
+                                    <i class="bi bi-cpu me-2"></i>系统监控
+                                </a>
+                            </li>
+                        </ul>
+                        <hr class="text-light">
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-light text-decoration-none dropdown-toggle" 
+                               id="dropdownUser" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-2"></i>
+                                <span id="currentUser">管理员</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                                <li><a class="dropdown-item" href="#" data-page="profile">
+                                    <i class="bi bi-person me-2"></i>个人设置
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="logout()">
+                                    <i class="bi bi-box-arrow-right me-2"></i>退出登录
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- 主内容区域 -->
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                    <!-- 仪表板页面 -->
+                    <div id="dashboardPage" class="page-content">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">仪表板</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshDashboard()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>刷新
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 系统状态卡片 -->
+                        <div class="row mb-4">
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-primary shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    系统运行时间
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="systemUptime">
+                                                    加载中...
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="bi bi-clock text-primary" style="font-size: 2rem;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-success shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                    内存使用率
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="memoryUsage">
+                                                    加载中...
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="bi bi-memory text-success" style="font-size: 2rem;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-info shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                    CPU 使用率
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="cpuUsage">
+                                                    加载中...
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="bi bi-cpu text-info" style="font-size: 2rem;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-warning shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                    Edge-TTS 状态
+                                                </div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="edgeTtsStatus">
+                                                    <span class="status-indicator status-healthy"></span>正常
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="bi bi-soundwave text-warning" style="font-size: 2rem;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 配置摘要 -->
+                        <div class="row">
+                            <div class="col-lg-6 mb-4">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-gear me-2"></i>当前配置
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="configSummary">
+                                            <p>加载中...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 mb-4">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-book me-2"></i>字典统计
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="dictionaryStats">
+                                            <p>加载中...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                   <!-- 配置管理页面 -->
+                    <div id="configPage" class="page-content d-none">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">配置管理</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <button type="button" class="btn btn-sm btn-success" onclick="saveConfig()">
+                                    <i class="bi bi-check-circle me-1"></i>保存配置
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="loadConfig()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>重新加载
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- TTS 配置 -->
+                            <div class="col-lg-6 mb-4">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-soundwave me-2"></i>语音参数配置
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="ttsConfigForm">
+                                            <div class="mb-3">
+                                                <label for="narrationVoice" class="form-label">旁白语音</label>
+                                                <select class="form-select" id="narrationVoice" name="narration_voice">
+                                                    <option value="zh-CN-YunjianNeural">云健 (男声)</option>
+                                                    <option value="zh-CN-XiaoyiNeural">晓伊 (女声)</option>
+                                                    <option value="zh-CN-YunxiNeural">云希 (男声)</option>
+                                                    <option value="zh-CN-XiaoxiaoNeural">晓晓 (女声)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dialogueVoice" class="form-label">对话语音</label>
+                                                <select class="form-select" id="dialogueVoice" name="dialogue_voice">
+                                                    <option value="zh-CN-XiaoyiNeural">晓伊 (女声)</option>
+                                                    <option value="zh-CN-YunjianNeural">云健 (男声)</option>
+                                                    <option value="zh-CN-YunxiNeural">云希 (男声)</option>
+                                                    <option value="zh-CN-XiaoxiaoNeural">晓晓 (女声)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="defaultSpeed" class="form-label">默认语速</label>
+                                                <input type="number" class="form-control" id="defaultSpeed" name="default_speed" 
+                                                       min="0.5" max="3.0" step="0.1" value="1.2">
+                                                <div class="form-text">语速范围：0.5 - 3.0</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="cacheSizeLimit" class="form-label">缓存大小限制 (字节)</label>
+                                                <input type="number" class="form-control" id="cacheSizeLimit" name="cache_size_limit" 
+                                                       value="10485760">
+                                                <div class="form-text">默认：10MB (10485760 字节)</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="cacheTimeLimit" class="form-label">缓存时间限制 (秒)</label>
+                                                <input type="number" class="form-control" id="cacheTimeLimit" name="cache_time_limit" 
+                                                       value="1200">
+                                                <div class="form-text">默认：20分钟 (1200 秒)</div>
+                                            </div>
+                                        </form>
+                                        
+                                        <!-- 语音预览 -->
+                                        <div class="mt-4">
+                                            <h6>语音预览</h6>
+                                            <div class="input-group mb-2">
+                                                <input type="text" class="form-control" id="previewText" 
+                                                       placeholder="输入要预览的文本" value="这是一个语音预览测试">
+                                                <button class="btn btn-preview" type="button" onclick="previewVoice('narration')">
+                                                    预览旁白
+                                                </button>
+                                                <button class="btn btn-preview" type="button" onclick="previewVoice('dialogue')">
+                                                    预览对话
+                                                </button>
+                                            </div>
+                                            <audio id="previewAudio" controls class="w-100 d-none"></audio>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 系统配置 -->
+                            <div class="col-lg-6 mb-4">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-gear me-2"></i>系统设置
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="systemConfigForm">
+                                            <div class="mb-3">
+                                                <label for="systemHost" class="form-label">服务器地址</label>
+                                                <input type="text" class="form-control" id="systemHost" name="host" value="0.0.0.0">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="systemPort" class="form-label">端口号</label>
+                                                <input type="number" class="form-control" id="systemPort" name="port" 
+                                                       min="1" max="65535" value="5000">
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="systemDebug" name="debug">
+                                                    <label class="form-check-label" for="systemDebug">
+                                                        调试模式
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="maxWorkers" class="form-label">最大工作线程数</label>
+                                                <input type="number" class="form-control" id="maxWorkers" name="max_workers" 
+                                                       min="1" max="20" value="5">
+                                            </div>
+                                        </form>
+
+                                        <!-- 日志配置 -->
+                                        <hr>
+                                        <h6>日志配置</h6>
+                                        <form id="loggingConfigForm">
+                                            <div class="mb-3">
+                                                <label for="logLevel" class="form-label">日志级别</label>
+                                                <select class="form-select" id="logLevel" name="level">
+                                                    <option value="DEBUG">DEBUG</option>
+                                                    <option value="INFO" selected>INFO</option>
+                                                    <option value="WARNING">WARNING</option>
+                                                    <option value="ERROR">ERROR</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="logFile" class="form-label">日志文件路径</label>
+                                                <input type="text" class="form-control" id="logFile" name="file" 
+                                                       value="logs/app.log">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="logMaxSize" class="form-label">日志文件最大大小</label>
+                                                <input type="text" class="form-control" id="logMaxSize" name="max_size" 
+                                                       value="10MB">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="logBackupCount" class="form-label">备份文件数量</label>
+                                                <input type="number" class="form-control" id="logBackupCount" name="backup_count" 
+                                                       min="1" max="10" value="5">
+                                            </div>
+                                        </form>
+
+                                        <!-- 字典配置 -->
+                                        <hr>
+                                        <h6>字典配置</h6>
+                                        <form id="dictionaryConfigForm">
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="dictionaryEnabled" name="enabled" checked>
+                                                    <label class="form-check-label" for="dictionaryEnabled">
+                                                        启用字典功能
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="rulesFile" class="form-label">规则文件路径</label>
+                                                <input type="text" class="form-control" id="rulesFile" name="rules_file" 
+                                                       value="dictionary/rules.json">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 字典管理页面 -->
+                    <div id="dictionaryPage" class="page-content d-none">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">字典管理</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addRuleModal">
+                                    <i class="bi bi-plus-circle me-1"></i>添加规则
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="loadDictionaryRules()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>刷新
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 规则过滤器 -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <input type="text" class="form-control" id="ruleSearch" placeholder="搜索规则...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="ruleTypeFilter">
+                                    <option value="">所有类型</option>
+                                    <option value="pronunciation">发音替换</option>
+                                    <option value="filter">内容过滤</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="ruleStatusFilter">
+                                    <option value="">所有状态</option>
+                                    <option value="enabled">已启用</option>
+                                    <option value="disabled">已禁用</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 规则列表 -->
+                        <div class="card shadow">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>类型</th>
+                                                <th>匹配模式</th>
+                                                <th>替换内容</th>
+                                                <th>状态</th>
+                                                <th>创建时间</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="rulesTableBody">
+                                            <tr>
+                                                <td colspan="7" class="text-center">加载中...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>       
+             <!-- 日志查看页面 -->
+                    <div id="logsPage" class="page-content d-none">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">日志查看</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadLogs()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>刷新
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="clearLogDisplay()">
+                                    <i class="bi bi-trash me-1"></i>清空显示
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 日志过滤器 -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label for="logLevelFilter" class="form-label">日志级别</label>
+                                <select class="form-select" id="logLevelFilter" onchange="loadLogs()">
+                                    <option value="ALL">所有级别</option>
+                                    <option value="DEBUG">DEBUG</option>
+                                    <option value="INFO" selected>INFO</option>
+                                    <option value="WARNING">WARNING</option>
+                                    <option value="ERROR">ERROR</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="logLines" class="form-label">显示行数</label>
+                                <select class="form-select" id="logLines" onchange="loadLogs()">
+                                    <option value="50">50 行</option>
+                                    <option value="100" selected>100 行</option>
+                                    <option value="200">200 行</option>
+                                    <option value="500">500 行</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="logSearch" class="form-label">搜索关键词</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="logSearch" placeholder="输入搜索关键词...">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="filterLogs()">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 日志显示区域 -->
+                        <div class="card shadow">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="m-0">
+                                    <i class="bi bi-file-text me-2"></i>系统日志
+                                </h6>
+                                <small class="text-muted" id="logTimestamp">最后更新：--</small>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="log-container" id="logContainer">
+                                    <div class="text-center text-muted p-3">
+                                        点击刷新按钮加载日志
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统监控页面 -->
+                    <div id="systemPage" class="page-content d-none">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">系统监控</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadSystemStatus()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>刷新状态
+                                </button>
+                                <button type="button" class="btn btn-sm btn-warning ms-2" onclick="restartSystem()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>重启系统
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 系统状态详情 -->
+                        <div class="row mb-4">
+                            <div class="col-lg-8">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-info-circle me-2"></i>系统信息
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <table class="table table-borderless">
+                                                    <tr>
+                                                        <td><strong>运行时间：</strong></td>
+                                                        <td id="detailUptime">--</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>内存使用：</strong></td>
+                                                        <td id="detailMemory">--</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>CPU 使用率：</strong></td>
+                                                        <td id="detailCpu">--</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>磁盘使用：</strong></td>
+                                                        <td id="detailDisk">--</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <table class="table table-borderless">
+                                                    <tr>
+                                                        <td><strong>Edge-TTS 状态：</strong></td>
+                                                        <td id="detailEdgeTts">--</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>活跃会话：</strong></td>
+                                                        <td id="detailSessions">--</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>配置更新时间：</strong></td>
+                                                        <td id="detailConfigTime">--</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><strong>系统版本：</strong></td>
+                                                        <td>v1.0.0</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-activity me-2"></i>实时监控
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">内存使用率</label>
+                                            <div class="progress">
+                                                <div class="progress-bar" id="memoryProgressBar" role="progressbar" 
+                                                     style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">CPU 使用率</label>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-info" id="cpuProgressBar" role="progressbar" 
+                                                     style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">磁盘使用率</label>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-warning" id="diskProgressBar" role="progressbar" 
+                                                     style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                            </div>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="autoRefresh">
+                                            <label class="form-check-label" for="autoRefresh">
+                                                自动刷新 (30秒)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 服务状态 -->
+                        <div class="card shadow">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="bi bi-list-check me-2"></i>服务状态检查
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="card border-left-success">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="status-indicator status-healthy me-2"></div>
+                                                    <div>
+                                                        <div class="text-xs font-weight-bold text-success text-uppercase">
+                                                            配置系统
+                                                        </div>
+                                                        <div class="small">正常运行</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="card border-left-success">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="status-indicator status-healthy me-2"></div>
+                                                    <div>
+                                                        <div class="text-xs font-weight-bold text-success text-uppercase">
+                                                            字典服务
+                                                        </div>
+                                                        <div class="small">正常运行</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="card border-left-success">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="status-indicator status-healthy me-2"></div>
+                                                    <div>
+                                                        <div class="text-xs font-weight-bold text-success text-uppercase">
+                                                            日志系统
+                                                        </div>
+                                                        <div class="small">正常运行</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="card border-left-success">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="status-indicator status-healthy me-2"></div>
+                                                    <div>
+                                                        <div class="text-xs font-weight-bold text-success text-uppercase">
+                                                            缓存系统
+                                                        </div>
+                                                        <div class="small">正常运行</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 个人设置页面 -->
+                    <div id="profilePage" class="page-content d-none">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">个人设置</h1>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-key me-2"></i>修改密码
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="changePasswordForm">
+                                            <div class="mb-3">
+                                                <label for="oldPassword" class="form-label">当前密码</label>
+                                                <input type="password" class="form-control" id="oldPassword" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="newPassword" class="form-label">新密码</label>
+                                                <input type="password" class="form-control" id="newPassword" required>
+                                                <div class="form-text">密码长度至少6位</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="confirmPassword" class="form-label">确认新密码</label>
+                                                <input type="password" class="form-control" id="confirmPassword" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle me-1"></i>更新密码
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-person me-2"></i>账户信息
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <td><strong>用户名：</strong></td>
+                                                <td id="profileUsername">admin</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>登录时间：</strong></td>
+                                                <td id="profileLoginTime">--</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>会话超时：</strong></td>
+                                                <td id="profileSessionTimeout">3600 秒</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>权限级别：</strong></td>
+                                                <td><span class="badge bg-success">管理员</span></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div> 
+   <!-- 添加规则模态框 -->
+    <div class="modal fade" id="addRuleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">添加字典规则</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addRuleForm">
+                        <div class="mb-3">
+                            <label for="ruleType" class="form-label">规则类型</label>
+                            <select class="form-select" id="ruleType" name="type" required>
+                                <option value="">请选择类型</option>
+                                <option value="pronunciation">发音替换</option>
+                                <option value="filter">内容过滤</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rulePattern" class="form-label">匹配模式</label>
+                            <input type="text" class="form-control" id="rulePattern" name="pattern" required>
+                            <div class="form-text">支持正则表达式，如：\\bGitHub\\b</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ruleReplacement" class="form-label">替换内容</label>
+                            <input type="text" class="form-control" id="ruleReplacement" name="replacement" required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ruleEnabled" name="enabled" checked>
+                                <label class="form-check-label" for="ruleEnabled">
+                                    启用此规则
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="addRule()">添加规则</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑规则模态框 -->
+    <div class="modal fade" id="editRuleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">编辑字典规则</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editRuleForm">
+                        <input type="hidden" id="editRuleId" name="id">
+                        <div class="mb-3">
+                            <label for="editRuleType" class="form-label">规则类型</label>
+                            <select class="form-select" id="editRuleType" name="type" required>
+                                <option value="pronunciation">发音替换</option>
+                                <option value="filter">内容过滤</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editRulePattern" class="form-label">匹配模式</label>
+                            <input type="text" class="form-control" id="editRulePattern" name="pattern" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editRuleReplacement" class="form-label">替换内容</label>
+                            <input type="text" class="form-control" id="editRuleReplacement" name="replacement" required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editRuleEnabled" name="enabled">
+                                <label class="form-check-label" for="editRuleEnabled">
+                                    启用此规则
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="updateRule()">保存更改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 全局变量
+        let currentUser = null;
+        let autoRefreshInterval = null;
+        let currentRules = [];
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            setupEventListeners();
+        });
+
+        // 检查认证状态
+        function checkAuthStatus() {
+            // 这里可以检查是否已登录，暂时直接显示登录页面
+            showLoginPage();
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 登录表单
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // 导航菜单
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        showPage(page);
+                        updateActiveNav(this);
+                    }
+                });
+            });
+
+            // 修改密码表单
+            document.getElementById('changePasswordForm').addEventListener('submit', handleChangePassword);
+
+            // 搜索和过滤
+            document.getElementById('ruleSearch').addEventListener('input', filterRules);
+            document.getElementById('ruleTypeFilter').addEventListener('change', filterRules);
+            document.getElementById('ruleStatusFilter').addEventListener('change', filterRules);
+
+            // 自动刷新
+            document.getElementById('autoRefresh').addEventListener('change', function() {
+                if (this.checked) {
+                    autoRefreshInterval = setInterval(loadSystemStatus, 30000);
+                } else {
+                    if (autoRefreshInterval) {
+                        clearInterval(autoRefreshInterval);
+                        autoRefreshInterval = null;
+                    }
+                }
+            });
+        }
+
+        // 显示登录页面
+        function showLoginPage() {
+            document.getElementById('loginPage').classList.remove('d-none');
+            document.getElementById('mainApp').classList.add('d-none');
+        }
+
+        // 显示主应用
+        function showMainApp() {
+            document.getElementById('loginPage').classList.add('d-none');
+            document.getElementById('mainApp').classList.remove('d-none');
+            showPage('dashboard');
+            loadDashboard();
+        }
+
+        // 处理登录
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+
+            try {
+                const response = await fetch('/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentUser = result.user;
+                    document.getElementById('currentUser').textContent = currentUser;
+                    showMainApp();
+                    errorDiv.classList.add('d-none');
+                } else {
+                    errorDiv.textContent = result.message || '登录失败';
+                    errorDiv.classList.remove('d-none');
+                }
+            } catch (error) {
+                errorDiv.textContent = '网络错误，请重试';
+                errorDiv.classList.remove('d-none');
+            }
+        }
+
+        // 登出
+        async function logout() {
+            try {
+                await fetch('/admin/logout', { method: 'POST' });
+            } catch (error) {
+                console.error('登出请求失败:', error);
+            }
+            
+            currentUser = null;
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+            showLoginPage();
+        }
+
+        // 显示指定页面
+        function showPage(pageName) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.add('d-none');
+            });
+
+            // 显示指定页面
+            const targetPage = document.getElementById(pageName + 'Page');
+            if (targetPage) {
+                targetPage.classList.remove('d-none');
+                
+                // 根据页面加载相应数据
+                switch (pageName) {
+                    case 'dashboard':
+                        loadDashboard();
+                        break;
+                    case 'config':
+                        loadConfig();
+                        break;
+                    case 'dictionary':
+                        loadDictionaryRules();
+                        break;
+                    case 'logs':
+                        loadLogs();
+                        break;
+                    case 'system':
+                        loadSystemStatus();
+                        break;
+                    case 'profile':
+                        loadProfile();
+                        break;
+                }
+            }
+        }
+
+        // 更新导航菜单激活状态
+        function updateActiveNav(activeLink) {
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            activeLink.classList.add('active');
+        }     
+   // 加载仪表板数据
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/admin/dashboard');
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    
+                    // 更新系统状态卡片
+                    document.getElementById('systemUptime').textContent = data.system_info.uptime_human || '--';
+                    document.getElementById('memoryUsage').textContent = 
+                        data.system_info.memory ? `${data.system_info.memory.percent.toFixed(1)}%` : '--';
+                    document.getElementById('cpuUsage').textContent = 
+                        data.system_info.cpu_percent ? `${data.system_info.cpu_percent.toFixed(1)}%` : '--';
+                    
+                    // 更新 Edge-TTS 状态
+                    const edgeTtsElement = document.getElementById('edgeTtsStatus');
+                    if (data.system_info.edge_tts_status) {
+                        edgeTtsElement.innerHTML = '<span class="status-indicator status-healthy"></span>正常';
+                    } else {
+                        edgeTtsElement.innerHTML = '<span class="status-indicator status-error"></span>异常';
+                    }
+
+                    // 更新配置摘要
+                    const configSummary = document.getElementById('configSummary');
+                    configSummary.innerHTML = `
+                        <p><strong>旁白语音：</strong> ${data.config_summary.tts.narration_voice}</p>
+                        <p><strong>对话语音：</strong> ${data.config_summary.tts.dialogue_voice}</p>
+                        <p><strong>默认语速：</strong> ${data.config_summary.tts.default_speed}</p>
+                    `;
+
+                    // 更新字典统计
+                    const dictionaryStats = document.getElementById('dictionaryStats');
+                    dictionaryStats.innerHTML = `
+                        <p><strong>状态：</strong> ${data.config_summary.dictionary.enabled ? '已启用' : '已禁用'}</p>
+                        <p><strong>规则数量：</strong> ${data.config_summary.dictionary.rules_count}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载仪表板数据失败:', error);
+            }
+        }
+
+        // 刷新仪表板
+        function refreshDashboard() {
+            loadDashboard();
+        }
+
+        // 加载配置
+        async function loadConfig() {
+            try {
+                const response = await fetch('/admin/config');
+                const result = await response.json();
+
+                if (result.success) {
+                    const config = result.data;
+                    
+                    // TTS 配置
+                    if (config.tts) {
+                        document.getElementById('narrationVoice').value = config.tts.narration_voice || '';
+                        document.getElementById('dialogueVoice').value = config.tts.dialogue_voice || '';
+                        document.getElementById('defaultSpeed').value = config.tts.default_speed || 1.2;
+                        document.getElementById('cacheSizeLimit').value = config.tts.cache_size_limit || 10485760;
+                        document.getElementById('cacheTimeLimit').value = config.tts.cache_time_limit || 1200;
+                    }
+
+                    // 系统配置
+                    if (config.system) {
+                        document.getElementById('systemHost').value = config.system.host || '0.0.0.0';
+                        document.getElementById('systemPort').value = config.system.port || 5000;
+                        document.getElementById('systemDebug').checked = config.system.debug || false;
+                        document.getElementById('maxWorkers').value = config.system.max_workers || 5;
+                    }
+
+                    // 日志配置
+                    if (config.logging) {
+                        document.getElementById('logLevel').value = config.logging.level || 'INFO';
+                        document.getElementById('logFile').value = config.logging.file || 'logs/app.log';
+                        document.getElementById('logMaxSize').value = config.logging.max_size || '10MB';
+                        document.getElementById('logBackupCount').value = config.logging.backup_count || 5;
+                    }
+
+                    // 字典配置
+                    if (config.dictionary) {
+                        document.getElementById('dictionaryEnabled').checked = config.dictionary.enabled || false;
+                        document.getElementById('rulesFile').value = config.dictionary.rules_file || 'dictionary/rules.json';
+                    }
+                }
+            } catch (error) {
+                console.error('加载配置失败:', error);
+                showAlert('加载配置失败', 'danger');
+            }
+        }
+
+        // 保存配置
+        async function saveConfig() {
+            try {
+                const configData = {
+                    tts: {
+                        narration_voice: document.getElementById('narrationVoice').value,
+                        dialogue_voice: document.getElementById('dialogueVoice').value,
+                        default_speed: parseFloat(document.getElementById('defaultSpeed').value),
+                        cache_size_limit: parseInt(document.getElementById('cacheSizeLimit').value),
+                        cache_time_limit: parseInt(document.getElementById('cacheTimeLimit').value)
+                    },
+                    system: {
+                        host: document.getElementById('systemHost').value,
+                        port: parseInt(document.getElementById('systemPort').value),
+                        debug: document.getElementById('systemDebug').checked,
+                        max_workers: parseInt(document.getElementById('maxWorkers').value)
+                    },
+                    logging: {
+                        level: document.getElementById('logLevel').value,
+                        file: document.getElementById('logFile').value,
+                        max_size: document.getElementById('logMaxSize').value,
+                        backup_count: parseInt(document.getElementById('logBackupCount').value)
+                    },
+                    dictionary: {
+                        enabled: document.getElementById('dictionaryEnabled').checked,
+                        rules_file: document.getElementById('rulesFile').value
+                    }
+                };
+
+                const response = await fetch('/admin/config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(configData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('配置保存成功', 'success');
+                } else {
+                    showAlert(result.message || '配置保存失败', 'danger');
+                }
+            } catch (error) {
+                console.error('保存配置失败:', error);
+                showAlert('保存配置失败', 'danger');
+            }
+        }
+
+        // 语音预览
+        async function previewVoice(type) {
+            const text = document.getElementById('previewText').value;
+            if (!text.trim()) {
+                showAlert('请输入预览文本', 'warning');
+                return;
+            }
+
+            const voice = type === 'narration' ? 
+                document.getElementById('narrationVoice').value : 
+                document.getElementById('dialogueVoice').value;
+            const speed = document.getElementById('defaultSpeed').value;
+
+            try {
+                const params = new URLSearchParams({
+                    text: text,
+                    speed: speed,
+                    [type === 'narration' ? 'narr' : 'dlg']: voice
+                });
+
+                const audioUrl = `/api?${params.toString()}`;
+                const audioElement = document.getElementById('previewAudio');
+                audioElement.src = audioUrl;
+                audioElement.classList.remove('d-none');
+                audioElement.play();
+            } catch (error) {
+                console.error('语音预览失败:', error);
+                showAlert('语音预览失败', 'danger');
+            }
+        }
+
+        // 加载字典规则
+        async function loadDictionaryRules() {
+            try {
+                const response = await fetch('/admin/dictionary');
+                const result = await response.json();
+
+                if (result.success) {
+                    currentRules = result.data;
+                    displayRules(currentRules);
+                }
+            } catch (error) {
+                console.error('加载字典规则失败:', error);
+                showAlert('加载字典规则失败', 'danger');
+            }
+        }
+
+        // 显示规则列表
+        function displayRules(rules) {
+            const tbody = document.getElementById('rulesTableBody');
+            
+            if (rules.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">暂无规则</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = rules.map(rule => `
+                <tr>
+                    <td>${rule.id}</td>
+                    <td>
+                        <span class="badge ${rule.type === 'pronunciation' ? 'bg-primary' : 'bg-info'}">
+                            ${rule.type === 'pronunciation' ? '发音替换' : '内容过滤'}
+                        </span>
+                    </td>
+                    <td><code>${rule.pattern}</code></td>
+                    <td>${rule.replacement}</td>
+                    <td>
+                        <span class="badge ${rule.enabled ? 'bg-success' : 'bg-secondary'}">
+                            ${rule.enabled ? '已启用' : '已禁用'}
+                        </span>
+                    </td>
+                    <td>${new Date(rule.created_at).toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editRule('${rule.id}')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteRule('${rule.id}')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="toggleRule('${rule.id}', ${!rule.enabled})">
+                            <i class="bi bi-${rule.enabled ? 'pause' : 'play'}"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 过滤规则
+        function filterRules() {
+            const searchTerm = document.getElementById('ruleSearch').value.toLowerCase();
+            const typeFilter = document.getElementById('ruleTypeFilter').value;
+            const statusFilter = document.getElementById('ruleStatusFilter').value;
+
+            let filteredRules = currentRules.filter(rule => {
+                const matchesSearch = !searchTerm || 
+                    rule.pattern.toLowerCase().includes(searchTerm) ||
+                    rule.replacement.toLowerCase().includes(searchTerm) ||
+                    rule.id.toLowerCase().includes(searchTerm);
+                
+                const matchesType = !typeFilter || rule.type === typeFilter;
+                
+                const matchesStatus = !statusFilter || 
+                    (statusFilter === 'enabled' && rule.enabled) ||
+                    (statusFilter === 'disabled' && !rule.enabled);
+
+                return matchesSearch && matchesType && matchesStatus;
+            });
+
+            displayRules(filteredRules);
+        }      
+  // 添加规则
+        async function addRule() {
+            const form = document.getElementById('addRuleForm');
+            const formData = new FormData(form);
+            
+            const ruleData = {
+                type: formData.get('type'),
+                pattern: formData.get('pattern'),
+                replacement: formData.get('replacement'),
+                enabled: document.getElementById('ruleEnabled').checked
+            };
+
+            try {
+                const response = await fetch('/admin/dictionary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(ruleData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('规则添加成功', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('addRuleModal')).hide();
+                    form.reset();
+                    loadDictionaryRules();
+                } else {
+                    showAlert(result.message || '规则添加失败', 'danger');
+                }
+            } catch (error) {
+                console.error('添加规则失败:', error);
+                showAlert('添加规则失败', 'danger');
+            }
+        }
+
+        // 编辑规则
+        function editRule(ruleId) {
+            const rule = currentRules.find(r => r.id === ruleId);
+            if (!rule) return;
+
+            document.getElementById('editRuleId').value = rule.id;
+            document.getElementById('editRuleType').value = rule.type;
+            document.getElementById('editRulePattern').value = rule.pattern;
+            document.getElementById('editRuleReplacement').value = rule.replacement;
+            document.getElementById('editRuleEnabled').checked = rule.enabled;
+
+            new bootstrap.Modal(document.getElementById('editRuleModal')).show();
+        }
+
+        // 更新规则
+        async function updateRule() {
+            const ruleId = document.getElementById('editRuleId').value;
+            const form = document.getElementById('editRuleForm');
+            const formData = new FormData(form);
+            
+            const ruleData = {
+                type: formData.get('type'),
+                pattern: formData.get('pattern'),
+                replacement: formData.get('replacement'),
+                enabled: document.getElementById('editRuleEnabled').checked
+            };
+
+            try {
+                const response = await fetch(`/admin/dictionary/${ruleId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(ruleData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('规则更新成功', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('editRuleModal')).hide();
+                    loadDictionaryRules();
+                } else {
+                    showAlert(result.message || '规则更新失败', 'danger');
+                }
+            } catch (error) {
+                console.error('更新规则失败:', error);
+                showAlert('更新规则失败', 'danger');
+            }
+        }
+
+        // 删除规则
+        async function deleteRule(ruleId) {
+            if (!confirm('确定要删除这个规则吗？')) return;
+
+            try {
+                const response = await fetch(`/admin/dictionary/${ruleId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('规则删除成功', 'success');
+                    loadDictionaryRules();
+                } else {
+                    showAlert(result.message || '规则删除失败', 'danger');
+                }
+            } catch (error) {
+                console.error('删除规则失败:', error);
+                showAlert('删除规则失败', 'danger');
+            }
+        }
+
+        // 切换规则状态
+        async function toggleRule(ruleId, enabled) {
+            try {
+                const response = await fetch(`/admin/dictionary/${ruleId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ enabled: enabled })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(`规则已${enabled ? '启用' : '禁用'}`, 'success');
+                    loadDictionaryRules();
+                } else {
+                    showAlert(result.message || '操作失败', 'danger');
+                }
+            } catch (error) {
+                console.error('切换规则状态失败:', error);
+                showAlert('操作失败', 'danger');
+            }
+        }
+
+        // 加载日志
+        async function loadLogs() {
+            const level = document.getElementById('logLevelFilter').value;
+            const lines = document.getElementById('logLines').value;
+
+            try {
+                const params = new URLSearchParams({
+                    level: level,
+                    lines: lines
+                });
+
+                const response = await fetch(`/admin/logs?${params.toString()}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayLogs(result.data.logs);
+                    document.getElementById('logTimestamp').textContent = 
+                        `最后更新：${new Date().toLocaleString()}`;
+                }
+            } catch (error) {
+                console.error('加载日志失败:', error);
+                showAlert('加载日志失败', 'danger');
+            }
+        }
+
+        // 显示日志
+        function displayLogs(logs) {
+            const container = document.getElementById('logContainer');
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted p-3">暂无日志</div>';
+                return;
+            }
+
+            container.innerHTML = logs.map(log => {
+                const timestamp = new Date(log.timestamp).toLocaleString();
+                return `
+                    <div class="log-entry log-level-${log.level}">
+                        <span class="text-muted">[${timestamp}]</span>
+                        <span class="badge bg-secondary">${log.level}</span>
+                        ${log.message}
+                    </div>
+                `;
+            }).join('');
+
+            // 滚动到底部
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 过滤日志
+        function filterLogs() {
+            const searchTerm = document.getElementById('logSearch').value.toLowerCase();
+            const logEntries = document.querySelectorAll('.log-entry');
+
+            logEntries.forEach(entry => {
+                const text = entry.textContent.toLowerCase();
+                if (!searchTerm || text.includes(searchTerm)) {
+                    entry.style.display = 'block';
+                } else {
+                    entry.style.display = 'none';
+                }
+            });
+        }
+
+        // 清空日志显示
+        function clearLogDisplay() {
+            document.getElementById('logContainer').innerHTML = 
+                '<div class="text-center text-muted p-3">日志已清空，点击刷新重新加载</div>';
+        }
+
+        // 加载系统状态
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('/admin/system/status');
+                const result = await response.json();
+
+                if (result.success) {
+                    const data = result.data;
+                    
+                    // 更新详细信息
+                    document.getElementById('detailUptime').textContent = data.uptime_human || '--';
+                    document.getElementById('detailMemory').textContent = 
+                        data.memory ? `${data.memory.percent.toFixed(1)}% (${formatBytes(data.memory.used)}/${formatBytes(data.memory.total)})` : '--';
+                    document.getElementById('detailCpu').textContent = 
+                        data.cpu_percent ? `${data.cpu_percent.toFixed(1)}%` : '--';
+                    document.getElementById('detailDisk').textContent = 
+                        data.disk ? `${data.disk.percent.toFixed(1)}% (${formatBytes(data.disk.used)}/${formatBytes(data.disk.total)})` : '--';
+                    document.getElementById('detailEdgeTts').innerHTML = 
+                        data.edge_tts_status ? '<span class="status-indicator status-healthy"></span>正常' : '<span class="status-indicator status-error"></span>异常';
+                    document.getElementById('detailSessions').textContent = data.active_sessions || '0';
+                    document.getElementById('detailConfigTime').textContent = 
+                        data.config_last_modified ? new Date(data.config_last_modified * 1000).toLocaleString() : '--';
+
+                    // 更新进度条
+                    if (data.memory) {
+                        updateProgressBar('memoryProgressBar', data.memory.percent);
+                    }
+                    if (data.cpu_percent !== undefined) {
+                        updateProgressBar('cpuProgressBar', data.cpu_percent);
+                    }
+                    if (data.disk) {
+                        updateProgressBar('diskProgressBar', data.disk.percent);
+                    }
+                }
+            } catch (error) {
+                console.error('加载系统状态失败:', error);
+                showAlert('加载系统状态失败', 'danger');
+            }
+        }
+
+        // 更新进度条
+        function updateProgressBar(id, percentage) {
+            const progressBar = document.getElementById(id);
+            progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute('aria-valuenow', percentage);
+            progressBar.textContent = `${percentage.toFixed(1)}%`;
+
+            // 根据使用率设置颜色
+            progressBar.className = 'progress-bar';
+            if (percentage > 80) {
+                progressBar.classList.add('bg-danger');
+            } else if (percentage > 60) {
+                progressBar.classList.add('bg-warning');
+            } else {
+                progressBar.classList.add('bg-success');
+            }
+        }
+
+        // 重启系统
+        async function restartSystem() {
+            if (!confirm('确定要重启系统吗？这将中断当前所有连接。')) return;
+
+            try {
+                const response = await fetch('/admin/system/restart', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('重启请求已提交', 'info');
+                } else {
+                    showAlert(result.message || '重启失败', 'danger');
+                }
+            } catch (error) {
+                console.error('重启系统失败:', error);
+                showAlert('重启系统失败', 'danger');
+            }
+        }
+
+        // 加载个人资料
+        function loadProfile() {
+            document.getElementById('profileUsername').textContent = currentUser || 'admin';
+            document.getElementById('profileLoginTime').textContent = new Date().toLocaleString();
+        }
+
+        // 处理修改密码
+        async function handleChangePassword(e) {
+            e.preventDefault();
+
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showAlert('新密码和确认密码不匹配', 'danger');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showAlert('密码长度至少6位', 'danger');
+                return;
+            }
+
+            try {
+                const response = await fetch('/admin/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('密码修改成功', 'success');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    showAlert(result.message || '密码修改失败', 'danger');
+                }
+            } catch (error) {
+                console.error('修改密码失败:', error);
+                showAlert('修改密码失败', 'danger');
+            }
+        }
+
+        // 显示提示信息
+        function showAlert(message, type = 'info') {
+            // 创建提示框
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(alertDiv);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // 格式化字节数
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
