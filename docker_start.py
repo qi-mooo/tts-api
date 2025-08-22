@@ -106,7 +106,7 @@ def main():
     
     # 导入并启动应用
     try:
-        from app_with_admin import app
+        from app_enhanced import app
         app.run(
             host=config['system']['host'],
             port=config['system']['port'],
