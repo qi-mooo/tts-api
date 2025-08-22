@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  tts-api:
+    image: ghcr.io/qi-mooo/tts-api:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - TTS_LOG_LEVEL=${TTS_LOG_LEVEL:-INFO}
+      - TTS_ADMIN_USERNAME=${TTS_ADMIN_USERNAME:-admin}
+      - TTS_ADMIN_PASSWORD=${TTS_ADMIN_PASSWORD:-admin123}
+      - TTS_NARRATION_VOICE=${TTS_NARRATION_VOICE:-zh-CN-YunjianNeural}
+      - TTS_DIALOGUE_VOICE=${TTS_DIALOGUE_VOICE:-zh-CN-XiaoyiNeural}
+      - TTS_DEFAULT_SPEED=${TTS_DEFAULT_SPEED:-1.2}
+    volumes:
+      - ./logs:/app/logs
+      - tts_audio_cache:/app/audio_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  tts_audio_cache:
+
+networks:
+  default:
+    name: tts-network

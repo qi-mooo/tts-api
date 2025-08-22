@@ -15,8 +15,7 @@ mkdir tts-api-deploy && cd tts-api-deploy
 
 # 下载必要文件
 curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/deploy.sh
-curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/docker-compose.prod.yml
-curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/config.json.template
+curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/docker-compose.simple.yml
 curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/.env.template
 ```
 
@@ -51,17 +50,17 @@ open http://localhost:5000/admin
 
 ```bash
 # 查看服务日志
-docker-compose -f docker-compose.prod.yml logs -f tts-api
+docker-compose -f docker-compose.simple.yml logs -f tts-api
 
 # 停止服务
-docker-compose -f docker-compose.prod.yml down
+docker-compose -f docker-compose.simple.yml down
 
 # 重启服务
-docker-compose -f docker-compose.prod.yml restart
+docker-compose -f docker-compose.simple.yml restart
 
 # 更新到最新版本
 docker pull ghcr.io/qi-mooo/tts-api:latest
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.simple.yml up -d
 ```
 
 ## 🌐 访问地址
@@ -84,7 +83,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ## 📞 技术支持
 
 如遇问题，请查看：
-1. 服务日志: `docker-compose -f docker-compose.prod.yml logs tts-api`
+1. 服务日志: `docker-compose -f docker-compose.simple.yml logs tts-api`
 2. 系统资源: `docker stats`
 3. 网络连接: `curl -I https://speech.platform.bing.com`
 
