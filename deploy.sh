@@ -119,7 +119,7 @@ read_input "请输入服务端口" "5000" "TTS_PORT"
 # 管理员账号配置
 print_info "配置管理员账号..."
 read_input "管理员用户名" "admin" "TTS_ADMIN_USERNAME"
-read_password "管理员密码（至少6位）" "TTS_ADMIN_PASSWORD"
+read_password "管理员密码（至少6位）" "admin123" "TTS_ADMIN_PASSWORD"
 
 echo
 
