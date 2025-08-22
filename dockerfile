@@ -23,7 +23,7 @@ RUN wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.t
     rm -rf /var/lib/apt/lists/*
 
 # 创建必要的目录
-RUN mkdir -p logs templates
+RUN mkdir -p logs templates audio_cache
 
 # 复制应用代码和模块
 COPY config/ ./config/
