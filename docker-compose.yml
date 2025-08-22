@@ -10,8 +10,6 @@
 # 3. 配置环境变量：
 #    复制 .env.template 为 .env 并修改配置
 
-version: '3.8'
-
 services:
   tts-api:
     # 使用环境变量选择镜像源：开发环境构建本地镜像，生产环境使用 GitHub Packages

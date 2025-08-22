@@ -160,5 +160,57 @@ def get_audio():
 
     return output_io.getvalue(), 200, {'Content-Type': 'audio/webm'}
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    """健康检查端点"""
+    return jsonify({
+        "status": "healthy",
+        "service": "TTS API",
+        "timestamp": time.time(),
+        "cache_size": len(audio_cache.cache),
+        "cache_memory": f"{audio_cache.current_size / 1024 / 1024:.2f} MB"
+    }), 200
+
+@app.route('/admin', methods=['GET'])
+def admin_panel():
+    """简单的管理面板"""
+    return jsonify({
+        "message": "TTS API 管理面板",
+        "service": "TTS API",
+        "status": "running",
+        "endpoints": {
+            "/api": "TTS 音频生成",
+            "/audio": "获取缓存音频",
+            "/health": "健康检查",
+            "/admin": "管理面板"
+        },
+        "cache_info": {
+            "segments": len(audio_cache.cache),
+            "memory_usage": f"{audio_cache.current_size / 1024 / 1024:.2f} MB",
+            "memory_limit": f"{audio_cache.size_limit / 1024 / 1024:.2f} MB"
+        }
+    }), 200
+
+@app.route('/favicon.ico')
+def favicon():
+    """处理 favicon 请求"""
+    return '', 204
+
+@app.route('/')
+def index():
+    """首页"""
+    return jsonify({
+        "service": "TTS API",
+        "version": "1.0.0",
+        "status": "running",
+        "endpoints": {
+            "/api": "TTS 音频生成 - GET ?text=文本&speed=语速&narr=旁白语音&dlg=对话语音&all=统一语音",
+            "/audio": "获取缓存音频 - GET",
+            "/health": "健康检查 - GET",
+            "/admin": "管理面板 - GET"
+        },
+        "example": "/api?text=你好世界&speed=1.2"
+    }), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
