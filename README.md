@@ -1,4 +1,4 @@
-# TTS API 优化项目
+# TTS API （该项目基于ai开发）
 
 一个功能完善的文本转语音（TTS）API 系统，基于 Microsoft Edge-TTS 服务，提供了完整的错误处理、Web 管理控制台、字典功能、结构化日志和系统监控等特性。
 
