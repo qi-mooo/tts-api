@@ -51,7 +51,9 @@ test.log
 custom_test.log
 
 # Cache
-audio_cache/
+audio_cache/*.wav
+audio_cache/*.mp3
+audio_cache/*.cache
 *.cache
 
 # Config files with sensitive data
