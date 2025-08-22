@@ -10,6 +10,7 @@ import logging
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 from functools import wraps
 from flask import Response, jsonify, request
+from werkzeug.exceptions import HTTPException, NotFound
 
 from .exceptions import (
     TTSError, ServiceUnavailableError, AudioGenerationError,
@@ -73,6 +74,10 @@ class ErrorHandler:
         """
         context = context or {}
         
+        # 对于 HTTP 异常（如 404），直接返回标准响应
+        if isinstance(error, HTTPException):
+            return self._handle_http_exception(error, context)
+        
         # 记录错误日志
         self._log_error(error, context)
         
@@ -88,6 +93,36 @@ class ErrorHandler:
         else:
             return self._handle_unknown_error(error, context)
     
+    def _handle_http_exception(self, error: HTTPException, context: Dict[str, Any]) -> Response:
+        """处理 HTTP 异常（如 404, 405 等）"""
+        # 对于 404 错误，提供友好的 API 响应
+        if isinstance(error, NotFound):
+            return jsonify({
+                'success': False,
+                'error': {
+                    'code': 'NOT_FOUND',
+                    'message': '请求的资源不存在',
+                    'details': {
+                        'path': getattr(request, 'path', 'unknown') if request else 'unknown',
+                        'method': getattr(request, 'method', 'unknown') if request else 'unknown'
+                    }
+                },
+                'timestamp': time.time(),
+                'request_id': context.get('request_id', 'unknown')
+            }), 404
+        
+        # 对于其他 HTTP 异常，返回标准响应
+        return jsonify({
+            'success': False,
+            'error': {
+                'code': error.__class__.__name__.upper(),
+                'message': error.description or str(error),
+                'details': {}
+            },
+            'timestamp': time.time(),
+            'request_id': context.get('request_id', 'unknown')
+        }), error.code
+
     def _handle_tts_error(self, error: TTSError, context: Dict[str, Any]) -> Response:
         """处理 TTS 相关错误"""
         status_code = self._get_status_code_for_error(error)
