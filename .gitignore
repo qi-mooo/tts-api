@@ -57,19 +57,13 @@ audio_cache/*.cache
 *.cache
 
 # Config files with sensitive data
+config.json
 .env
-# Note: config.json is now tracked as it contains default configuration
 
-# Test files (only ignore specific ones, keep core test files)
+# Test files - keep GitHub repo clean, tests are for local development only
+test_*.py
 demo_*.py
-test_admin_basic.py
-test_admin_interface.py
-test_audio_cache_integration.py
-test_enhanced_api_simple.py
-test_password_setup.py
-test_restart_functionality.py
-test_root_path.py
-test_routes.py
+tests/
 
 # Task completion summaries
 TASK_*.md
