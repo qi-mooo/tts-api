@@ -64,6 +64,7 @@ config.json
 test_*.py
 demo_*.py
 tests/
+*test*.py
 
 # Task completion summaries
 TASK_*.md
@@ -73,8 +74,9 @@ DEPLOYMENT_SUMMARY.md
 PORT_MIGRATION_GUIDE.md
 QUICK_DEPLOY.md
 
-# Kiro IDE files
+# Kiro IDE files - development environment only
 .kiro/
+*.kiro
 
 # Temporary files
 *.tmp
