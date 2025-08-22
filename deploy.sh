@@ -171,26 +171,22 @@ echo
 echo "📁 创建必要的目录..."
 mkdir -p logs
 
-# 检查环境配置
-if [ ! -f ".env" ]; then
-    echo "📝 创建环境配置文件..."
-    if [ -f ".env.template" ]; then
-        cp .env.template .env
-    else
-        cat > .env << EOF
+# 创建/更新环境配置文件
+echo "📝 创建环境配置文件..."
+cat > .env << EOF
 # TTS API 环境配置
-TTS_ADMIN_USERNAME=admin
-TTS_ADMIN_PASSWORD=admin123
-TTS_NARRATION_VOICE=zh-CN-YunjianNeural
-TTS_DIALOGUE_VOICE=zh-CN-XiaoyiNeural
-TTS_DEFAULT_SPEED=1.2
-TTS_LOG_LEVEL=INFO
-FLASK_ENV=production
-FLASK_DEBUG=0
+TTS_PORT=${TTS_PORT}
+TTS_ADMIN_USERNAME=${TTS_ADMIN_USERNAME}
+TTS_ADMIN_PASSWORD=${TTS_ADMIN_PASSWORD}
+TTS_NARRATION_VOICE=${TTS_NARRATION_VOICE}
+TTS_DIALOGUE_VOICE=${TTS_DIALOGUE_VOICE}
+TTS_DEFAULT_SPEED=${TTS_DEFAULT_SPEED}
+TTS_LOG_LEVEL=${TTS_LOG_LEVEL}
+FLASK_ENV=${FLASK_ENV}
+FLASK_DEBUG=${FLASK_DEBUG}
 EOF
-    fi
-    echo "⚠️  请编辑 .env 文件以配置您的 TTS 服务"
-fi
+
+print_success "环境配置文件已更新"
 
 # 加载环境变量
 if [ -f ".env" ]; then
@@ -215,11 +211,11 @@ echo "⏳ 等待服务启动..."
 sleep 10
 
 # 检查服务状态
-if curl -f http://localhost:5000/health &> /dev/null; then
+if curl -f http://localhost:${TTS_PORT}/health &> /dev/null; then
     echo "✅ TTS API 部署成功！"
-    echo "🌐 服务地址: http://localhost:5000"
-    echo "🏥 健康检查: http://localhost:5000/health"
-    echo "📊 管理面板: http://localhost:5000/admin"
+    echo "🌐 服务地址: http://localhost:${TTS_PORT}"
+    echo "🏥 健康检查: http://localhost:${TTS_PORT}/health"
+    echo "📊 管理面板: http://localhost:${TTS_PORT}/admin"
 else
     echo "❌ 服务启动失败，请检查日志:"
     docker-compose logs tts-api
