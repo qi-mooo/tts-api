@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  tts-api:
+    image: ghcr.io/qi-mooo/tts-api:latest
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - TTS_CONFIG_FILE=/app/config.json
+      - TTS_LOG_LEVEL=INFO
+      - TTS_ADMIN_USERNAME=${TTS_ADMIN_USERNAME:-admin}
+      - TTS_ADMIN_PASSWORD=${TTS_ADMIN_PASSWORD:-admin123}
+    volumes:
+      # 生产环境只挂载必要的配置和数据目录
+      - ./config.json:/app/config.json:ro
+      - ./logs:/app/logs
+      - tts_audio_cache:/app/audio_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 可选：添加 Redis 用于缓存
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    profiles:
+      - with-redis
+
+  # 可选：添加 Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - tts-api
+    restart: unless-stopped
+    profiles:
+      - with-nginx
+
+volumes:
+  redis_data:
+  tts_audio_cache:
+
+networks:
+  default:
+    name: tts-network

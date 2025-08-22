@@ -39,7 +39,23 @@
 
 ## 🛠️ 快速开始
 
-### 方式一：Docker Compose（推荐）
+### 方式一：GitHub Packages 快速部署（推荐）
+
+```bash
+# 1. 下载部署脚本
+curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/deploy.sh
+curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/config.json.template
+
+# 2. 运行部署脚本
+chmod +x deploy.sh
+./deploy.sh
+
+# 3. 访问服务
+curl http://localhost:5000/health
+```
+
+### 方式二：Docker Compose 开发环境
 
 ```bash
 # 1. 克隆项目
@@ -57,7 +73,7 @@ docker-compose up -d
 curl http://localhost:5000/health
 ```
 
-### 方式二：Python 环境
+### 方式三：Python 环境
 
 ```bash
 # 1. 创建虚拟环境
@@ -75,7 +91,7 @@ python3 setup.py --password your-password
 python3 enhanced_tts_api.py
 ```
 
-### 方式三：使用 Makefile
+### 方式四：使用 Makefile
 
 ```bash
 # 快速开发环境设置
@@ -274,7 +290,24 @@ python3 test_audio_cache_integration.py
 
 ## 🚀 部署
 
-### Docker 部署
+### GitHub Packages 部署（推荐）
+
+使用预构建的 Docker 镜像快速部署：
+
+```bash
+# 1. 使用快速部署脚本
+./deploy.sh
+
+# 2. 或手动部署
+docker pull ghcr.io/qi-mooo/tts-api:latest
+docker-compose -f docker-compose.prod.yml up -d
+
+# 3. 更新到最新版本
+docker pull ghcr.io/qi-mooo/tts-api:latest
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### 本地构建部署
 
 ```bash
 # 构建镜像
