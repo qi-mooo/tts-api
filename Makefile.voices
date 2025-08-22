@@ -1,0 +1,24 @@
+
+# 语音管理相关的 Makefile 目标
+
+.PHONY: install-voices update-voices test-voices
+
+install-voices:
+	@echo "安装语音列表..."
+	./venv/bin/python3 scripts/install_voices.py
+
+update-voices:
+	@echo "更新语音列表..."
+	./venv/bin/python3 scripts/update_voices.py
+
+test-voices:
+	@echo "测试语音管理器..."
+	./venv/bin/python3 voice_manager.py
+
+integrate-voices:
+	@echo "集成语音管理器..."
+	./venv/bin/python3 scripts/integrate_voice_manager.py
+
+voices-stats:
+	@echo "显示语音统计..."
+	./venv/bin/python3 -c "from voice_manager import voice_manager; import json; print(json.dumps(voice_manager.get_voice_stats(), indent=2, ensure_ascii=False))"

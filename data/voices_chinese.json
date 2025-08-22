@@ -1,0 +1,252 @@
+[
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-HK, HiuGaaiNeural)",
+    "ShortName": "zh-HK-HiuGaaiNeural",
+    "Gender": "Female",
+    "Locale": "zh-HK",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft HiuGaai Online (Natural) - Chinese (Cantonese Traditional)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "General"
+      ],
+      "VoicePersonalities": [
+        "Friendly",
+        "Positive"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-HK, HiuMaanNeural)",
+    "ShortName": "zh-HK-HiuMaanNeural",
+    "Gender": "Female",
+    "Locale": "zh-HK",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft HiuMaan Online (Natural) - Chinese (Hong Kong SAR)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "General"
+      ],
+      "VoicePersonalities": [
+        "Friendly",
+        "Positive"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-HK, WanLungNeural)",
+    "ShortName": "zh-HK-WanLungNeural",
+    "Gender": "Male",
+    "Locale": "zh-HK",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft WanLung Online (Natural) - Chinese (Hong Kong SAR)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "General"
+      ],
+      "VoicePersonalities": [
+        "Friendly",
+        "Positive"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural)",
+    "ShortName": "zh-CN-XiaoxiaoNeural",
+    "Gender": "Female",
+    "Locale": "zh-CN",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "News",
+        "Novel"
+      ],
+      "VoicePersonalities": [
+        "Warm"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoyiNeural)",
+    "ShortName": "zh-CN-XiaoyiNeural",
+    "Gender": "Female",
+    "Locale": "zh-CN",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "Cartoon",
+        "Novel"
+      ],
+      "VoicePersonalities": [
+        "Lively"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN, YunjianNeural)",
+    "ShortName": "zh-CN-YunjianNeural",
+    "Gender": "Male",
+    "Locale": "zh-CN",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft Yunjian Online (Natural) - Chinese (Mainland)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "Sports",
+        "Novel"
+      ],
+      "VoicePersonalities": [
+        "Passion"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN, YunxiNeural)",
+    "ShortName": "zh-CN-YunxiNeural",
+    "Gender": "Male",
+    "Locale": "zh-CN",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft Yunxi Online (Natural) - Chinese (Mainland)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "Novel"
+      ],
+      "VoicePersonalities": [
+        "Lively",
+        "Sunshine"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN, YunxiaNeural)",
+    "ShortName": "zh-CN-YunxiaNeural",
+    "Gender": "Male",
+    "Locale": "zh-CN",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft Yunxia Online (Natural) - Chinese (Mainland)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "Cartoon",
+        "Novel"
+      ],
+      "VoicePersonalities": [
+        "Cute"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN, YunyangNeural)",
+    "ShortName": "zh-CN-YunyangNeural",
+    "Gender": "Male",
+    "Locale": "zh-CN",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft Yunyang Online (Natural) - Chinese (Mainland)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "News"
+      ],
+      "VoicePersonalities": [
+        "Professional",
+        "Reliable"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN-liaoning, XiaobeiNeural)",
+    "ShortName": "zh-CN-liaoning-XiaobeiNeural",
+    "Gender": "Female",
+    "Locale": "zh-CN-liaoning",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft Xiaobei Online (Natural) - Chinese (Northeastern Mandarin)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "Dialect"
+      ],
+      "VoicePersonalities": [
+        "Humorous"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-TW, HsiaoChenNeural)",
+    "ShortName": "zh-TW-HsiaoChenNeural",
+    "Gender": "Female",
+    "Locale": "zh-TW",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft HsiaoChen Online (Natural) - Chinese (Taiwan)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "General"
+      ],
+      "VoicePersonalities": [
+        "Friendly",
+        "Positive"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-TW, YunJheNeural)",
+    "ShortName": "zh-TW-YunJheNeural",
+    "Gender": "Male",
+    "Locale": "zh-TW",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft YunJhe Online (Natural) - Chinese (Taiwan)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "General"
+      ],
+      "VoicePersonalities": [
+        "Friendly",
+        "Positive"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-TW, HsiaoYuNeural)",
+    "ShortName": "zh-TW-HsiaoYuNeural",
+    "Gender": "Female",
+    "Locale": "zh-TW",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft HsiaoYu Online (Natural) - Chinese (Taiwanese Mandarin)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "General"
+      ],
+      "VoicePersonalities": [
+        "Friendly",
+        "Positive"
+      ]
+    }
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (zh-CN-shaanxi, XiaoniNeural)",
+    "ShortName": "zh-CN-shaanxi-XiaoniNeural",
+    "Gender": "Female",
+    "Locale": "zh-CN-shaanxi",
+    "SuggestedCodec": "audio-24khz-48kbitrate-mono-mp3",
+    "FriendlyName": "Microsoft Xiaoni Online (Natural) - Chinese (Zhongyuan Mandarin Shaanxi)",
+    "Status": "GA",
+    "VoiceTag": {
+      "ContentCategories": [
+        "Dialect"
+      ],
+      "VoicePersonalities": [
+        "Bright"
+      ]
+    }
+  }
+]

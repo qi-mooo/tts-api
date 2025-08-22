@@ -1,0 +1,72 @@
+{
+  "zh-HK-HiuGaaiNeural": {
+    "name": "Microsoft HiuGaai Online (Natural) - Chinese (Cantonese Traditional)",
+    "gender": "Female",
+    "locale": "zh-HK"
+  },
+  "zh-HK-HiuMaanNeural": {
+    "name": "Microsoft HiuMaan Online (Natural) - Chinese (Hong Kong SAR)",
+    "gender": "Female",
+    "locale": "zh-HK"
+  },
+  "zh-HK-WanLungNeural": {
+    "name": "Microsoft WanLung Online (Natural) - Chinese (Hong Kong SAR)",
+    "gender": "Male",
+    "locale": "zh-HK"
+  },
+  "zh-CN-XiaoxiaoNeural": {
+    "name": "Microsoft Xiaoxiao Online (Natural) - Chinese (Mainland)",
+    "gender": "Female",
+    "locale": "zh-CN"
+  },
+  "zh-CN-XiaoyiNeural": {
+    "name": "Microsoft Xiaoyi Online (Natural) - Chinese (Mainland)",
+    "gender": "Female",
+    "locale": "zh-CN"
+  },
+  "zh-CN-YunjianNeural": {
+    "name": "Microsoft Yunjian Online (Natural) - Chinese (Mainland)",
+    "gender": "Male",
+    "locale": "zh-CN"
+  },
+  "zh-CN-YunxiNeural": {
+    "name": "Microsoft Yunxi Online (Natural) - Chinese (Mainland)",
+    "gender": "Male",
+    "locale": "zh-CN"
+  },
+  "zh-CN-YunxiaNeural": {
+    "name": "Microsoft Yunxia Online (Natural) - Chinese (Mainland)",
+    "gender": "Male",
+    "locale": "zh-CN"
+  },
+  "zh-CN-YunyangNeural": {
+    "name": "Microsoft Yunyang Online (Natural) - Chinese (Mainland)",
+    "gender": "Male",
+    "locale": "zh-CN"
+  },
+  "zh-CN-liaoning-XiaobeiNeural": {
+    "name": "Microsoft Xiaobei Online (Natural) - Chinese (Northeastern Mandarin)",
+    "gender": "Female",
+    "locale": "zh-CN-liaoning"
+  },
+  "zh-TW-HsiaoChenNeural": {
+    "name": "Microsoft HsiaoChen Online (Natural) - Chinese (Taiwan)",
+    "gender": "Female",
+    "locale": "zh-TW"
+  },
+  "zh-TW-YunJheNeural": {
+    "name": "Microsoft YunJhe Online (Natural) - Chinese (Taiwan)",
+    "gender": "Male",
+    "locale": "zh-TW"
+  },
+  "zh-TW-HsiaoYuNeural": {
+    "name": "Microsoft HsiaoYu Online (Natural) - Chinese (Taiwanese Mandarin)",
+    "gender": "Female",
+    "locale": "zh-TW"
+  },
+  "zh-CN-shaanxi-XiaoniNeural": {
+    "name": "Microsoft Xiaoni Online (Natural) - Chinese (Zhongyuan Mandarin Shaanxi)",
+    "gender": "Female",
+    "locale": "zh-CN-shaanxi"
+  }
+}
