@@ -52,7 +52,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5000/health || exit 1
 
 # 启动命令
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "enhanced_tts_api:app", \
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app", \
      "--workers=4", "--worker-class=sync", "--timeout=120", \
      "--log-level=info", "--capture-output", \
      "--access-logfile=-", "--error-logfile=-"]
