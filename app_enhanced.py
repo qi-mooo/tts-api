@@ -16,6 +16,7 @@ from logger.structured_logger import get_logger, performance_timer
 from config.config_manager import config_manager
 from health_check.health_monitor import HealthMonitor
 from admin.admin_controller import AdminController
+from voice_manager import get_voice_manager
 
 
 def create_enhanced_app() -> Flask:
@@ -350,6 +351,233 @@ def create_enhanced_app() -> Flask:
                 "details": str(e)
             }), 500
     
+    # 语音管理端点
+    @app.route('/api/voices', methods=['GET'])
+    def get_voices():
+        """获取可用语音列表"""
+        try:
+            vm = get_voice_manager()
+            
+            # 获取查询参数
+            chinese_only = request.args.get('chinese_only', 'true').lower() == 'true'
+            locale = request.args.get('locale')
+            gender = request.args.get('gender')
+            
+            # 获取语音列表
+            if chinese_only:
+                voices = vm.get_chinese_voices()
+            else:
+                voices = vm.get_all_voices()
+            
+            # 按地区筛选
+            if locale:
+                voices = [v for v in voices if v.get('Locale') == locale]
+            
+            # 按性别筛选
+            if gender:
+                voices = [v for v in voices if v.get('Gender') == gender]
+            
+            # 简化返回数据
+            simplified_voices = [
+                {
+                    'name': voice['ShortName'],
+                    'display_name': voice['FriendlyName'],
+                    'gender': voice['Gender'],
+                    'locale': voice['Locale']
+                }
+                for voice in voices
+            ]
+            
+            logger.info(
+                f"获取语音列表",
+                chinese_only=chinese_only,
+                locale=locale,
+                gender=gender,
+                result_count=len(simplified_voices)
+            )
+            
+            return jsonify({
+                'success': True,
+                'voices': simplified_voices,
+                'count': len(simplified_voices),
+                'filters': {
+                    'chinese_only': chinese_only,
+                    'locale': locale,
+                    'gender': gender
+                }
+            })
+            
+        except Exception as e:
+            logger.error("获取语音列表失败", error=e)
+            return jsonify({
+                'success': False,
+                'error': '获取语音列表失败',
+                'details': str(e)
+            }), 500
+
+    @app.route('/api/voices/stats', methods=['GET'])
+    def get_voice_stats():
+        """获取语音统计信息"""
+        try:
+            vm = get_voice_manager()
+            stats = vm.get_voice_stats()
+            
+            logger.info("获取语音统计信息", stats=stats)
+            
+            return jsonify({
+                'success': True,
+                'stats': stats,
+                'timestamp': time.time()
+            })
+            
+        except Exception as e:
+            logger.error("获取语音统计失败", error=e)
+            return jsonify({
+                'success': False,
+                'error': '获取语音统计失败',
+                'details': str(e)
+            }), 500
+
+    @app.route('/api/voices/validate', methods=['POST'])
+    def validate_voice():
+        """验证语音名称是否有效"""
+        try:
+            data = request.get_json()
+            voice_name = data.get('voice_name') if data else None
+            
+            if not voice_name:
+                return jsonify({
+                    'success': False,
+                    'error': '缺少 voice_name 参数'
+                }), 400
+            
+            vm = get_voice_manager()
+            is_valid = vm.validate_voice(voice_name)
+            voice_info = vm.get_voice_by_name(voice_name) if is_valid else None
+            
+            # 简化语音信息
+            simplified_info = None
+            if voice_info:
+                simplified_info = {
+                    'name': voice_info['ShortName'],
+                    'display_name': voice_info['FriendlyName'],
+                    'gender': voice_info['Gender'],
+                    'locale': voice_info['Locale'],
+                    'status': voice_info.get('Status', 'Unknown')
+                }
+            
+            logger.info(
+                f"验证语音",
+                voice_name=voice_name,
+                is_valid=is_valid
+            )
+            
+            return jsonify({
+                'success': True,
+                'voice_name': voice_name,
+                'valid': is_valid,
+                'voice_info': simplified_info
+            })
+            
+        except Exception as e:
+            logger.error("验证语音失败", error=e)
+            return jsonify({
+                'success': False,
+                'error': '验证语音失败',
+                'details': str(e)
+            }), 500
+
+    @app.route('/api/voices/locales', methods=['GET'])
+    def get_voice_locales():
+        """获取可用的语音地区列表"""
+        try:
+            vm = get_voice_manager()
+            chinese_only = request.args.get('chinese_only', 'true').lower() == 'true'
+            
+            locales = vm.get_available_locales(chinese_only=chinese_only)
+            
+            # 为每个地区添加语音数量信息
+            locale_info = []
+            for locale in locales:
+                voices = vm.get_voices_by_locale(locale)
+                locale_info.append({
+                    'locale': locale,
+                    'voice_count': len(voices),
+                    'male_count': len([v for v in voices if v.get('Gender') == 'Male']),
+                    'female_count': len([v for v in voices if v.get('Gender') == 'Female'])
+                })
+            
+            logger.info(
+                f"获取语音地区列表",
+                chinese_only=chinese_only,
+                locale_count=len(locales)
+            )
+            
+            return jsonify({
+                'success': True,
+                'locales': locale_info,
+                'count': len(locales),
+                'chinese_only': chinese_only
+            })
+            
+        except Exception as e:
+            logger.error("获取语音地区列表失败", error=e)
+            return jsonify({
+                'success': False,
+                'error': '获取语音地区列表失败',
+                'details': str(e)
+            }), 500
+
+    @app.route('/api/voices/search', methods=['GET'])
+    def search_voices():
+        """搜索语音"""
+        try:
+            query = request.args.get('q', '').strip()
+            chinese_only = request.args.get('chinese_only', 'true').lower() == 'true'
+            
+            if not query:
+                return jsonify({
+                    'success': False,
+                    'error': '缺少搜索查询参数 q'
+                }), 400
+            
+            vm = get_voice_manager()
+            results = vm.search_voices(query, chinese_only=chinese_only)
+            
+            # 简化搜索结果
+            simplified_results = [
+                {
+                    'name': voice['ShortName'],
+                    'display_name': voice['FriendlyName'],
+                    'gender': voice['Gender'],
+                    'locale': voice['Locale']
+                }
+                for voice in results
+            ]
+            
+            logger.info(
+                f"搜索语音",
+                query=query,
+                chinese_only=chinese_only,
+                result_count=len(results)
+            )
+            
+            return jsonify({
+                'success': True,
+                'query': query,
+                'results': simplified_results,
+                'count': len(simplified_results),
+                'chinese_only': chinese_only
+            })
+            
+        except Exception as e:
+            logger.error("搜索语音失败", error=e)
+            return jsonify({
+                'success': False,
+                'error': '搜索语音失败',
+                'details': str(e)
+            }), 500
+    
     # 健康检查端点（集成现有的健康检查模块）
     try:
         health_monitor = HealthMonitor()
@@ -385,7 +613,7 @@ def create_enhanced_app() -> Flask:
         """根路径 - API 信息"""
         return jsonify({
             "service": "Enhanced TTS API",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "endpoints": {
                 "tts": "/api",
                 "cached_audio": "/audio",
@@ -393,7 +621,25 @@ def create_enhanced_app() -> Flask:
                 "health": "/health",
                 "dictionary": "/api/dictionary/*",
                 "config": "/api/config",
+                "voices": "/api/voices",
+                "voice_stats": "/api/voices/stats",
+                "voice_validate": "/api/voices/validate",
+                "voice_locales": "/api/voices/locales",
+                "voice_search": "/api/voices/search",
                 "admin": "/admin"
+            },
+            "features": [
+                "Text-to-Speech conversion",
+                "Audio caching",
+                "Dictionary management",
+                "Voice management (322+ voices)",
+                "Health monitoring",
+                "Admin interface"
+            ],
+            "voice_stats": {
+                "total_voices": "322+",
+                "chinese_voices": "14",
+                "supported_locales": "5 Chinese regions"
             },
             "documentation": "https://github.com/your-repo/tts-api"
         })
