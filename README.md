@@ -44,7 +44,7 @@
 ```bash
 # 1. 下载部署脚本
 curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/deploy.sh
-curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/docker-compose.yml
 curl -O https://raw.githubusercontent.com/qi-mooo/tts-api/main/config.json.template
 
 # 2. 运行部署脚本
@@ -300,11 +300,10 @@ python3 test_audio_cache_integration.py
 
 # 2. 或手动部署
 docker pull ghcr.io/qi-mooo/tts-api:latest
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose up -d
 
 # 3. 更新到最新版本
-docker pull ghcr.io/qi-mooo/tts-api:latest
-docker-compose -f docker-compose.prod.yml up -d
+docker pull ghcr.io/qi-mooo/tts-api:latest && docker-compose up -d
 ```
 
 ### 本地构建部署
