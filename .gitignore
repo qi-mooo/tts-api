@@ -57,12 +57,19 @@ audio_cache/*.cache
 *.cache
 
 # Config files with sensitive data
-config.json
 .env
+# Note: config.json is now tracked as it contains default configuration
 
-# Test files
-test_*.py
+# Test files (only ignore specific ones, keep core test files)
 demo_*.py
+test_admin_basic.py
+test_admin_interface.py
+test_audio_cache_integration.py
+test_enhanced_api_simple.py
+test_password_setup.py
+test_restart_functionality.py
+test_root_path.py
+test_routes.py
 
 # Task completion summaries
 TASK_*.md
