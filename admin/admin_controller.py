@@ -65,7 +65,12 @@ class AdminController:
         self.blueprint.route('/dictionary', methods=['POST'])(self.require_auth(self.add_dictionary_rule))
         self.blueprint.route('/dictionary/<rule_id>', methods=['PUT'])(self.require_auth(self.update_dictionary_rule))
         self.blueprint.route('/dictionary/<rule_id>', methods=['DELETE'])(self.require_auth(self.delete_dictionary_rule))
+        self.blueprint.route('/dictionary/import', methods=['POST'])(self.require_auth(self.import_dictionary_rules))
+        self.blueprint.route('/dictionary/export', methods=['GET'])(self.require_auth(self.export_dictionary_rules))
+        self.blueprint.route('/voices', methods=['GET'])(self.require_auth(self.get_voices))
+        self.blueprint.route('/voices/refresh', methods=['POST'])(self.require_auth(self.refresh_voices))
         self.blueprint.route('/system/status', methods=['GET'])(self.require_auth(self.system_status))
+        self.blueprint.route('/system/monitoring', methods=['GET'])(self.require_auth(self.unified_monitoring))
         self.blueprint.route('/system/restart', methods=['POST'])(self.require_auth(self.system_restart))
         self.blueprint.route('/system/restart/status', methods=['GET'])(self.require_auth(self.get_restart_status))
         self.blueprint.route('/system/restart/cancel', methods=['POST'])(self.require_auth(self.cancel_restart))
@@ -172,10 +177,20 @@ class AdminController:
             return self.error_handler.handle_error(e)
     
     def dashboard(self) -> Response:
-        """管理控制台仪表板"""
+        """管理控制台仪表板 - 整合健康监控数据"""
         try:
-            # 获取系统状态
-            system_info = self._get_system_info()
+            # 使用健康监控器获取系统状态
+            from health_check.health_monitor import health_monitor
+            import asyncio
+            
+            # 获取详细的系统状态
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                system_status = loop.run_until_complete(health_monitor.get_system_status())
+                system_info = system_status.to_dict()
+            finally:
+                loop.close()
             
             # 获取配置摘要
             config_summary = {
@@ -190,11 +205,21 @@ class AdminController:
                 }
             }
             
+            # 获取服务统计信息
+            service_stats = {
+                'active_requests': system_info.get('active_requests', 0),
+                'cache_size': system_info.get('cache_size', 0),
+                'cache_hit_rate': system_info.get('cache_hit_rate', 0.0),
+                'error_count_1h': system_info.get('error_count_1h', 0),
+                'error_count_24h': system_info.get('error_count_24h', 0)
+            }
+            
             return jsonify({
                 'success': True,
                 'data': {
                     'system_info': system_info,
                     'config_summary': config_summary,
+                    'service_stats': service_stats,
                     'timestamp': datetime.now().isoformat()
                 }
             })
@@ -352,14 +377,220 @@ class AdminController:
         except Exception as e:
             return self.error_handler.handle_error(e)
     
-    def system_status(self) -> Response:
-        """系统状态监控"""
+    def import_dictionary_rules(self) -> Response:
+        """批量导入字典规则"""
         try:
-            status_data = self._get_system_info()
+            data = request.get_json()
+            if not data:
+                raise ValidationError("导入数据", "请求体不能为空")
+            
+            rules_data = data.get('rules', [])
+            overwrite = data.get('overwrite', False)
+            
+            if not isinstance(rules_data, list):
+                raise ValidationError("规则数据", "规则数据必须是数组格式")
+            
+            if not rules_data:
+                raise ValidationError("规则数据", "规则数据不能为空")
+            
+            # 执行导入
+            result = self.dictionary_service.import_rules(rules_data, overwrite)
+            
+            # 记录审计日志
+            self.logger.audit('dictionary_rules_import', session.get('user_id', 'unknown'),
+                            total_rules=len(rules_data),
+                            success_count=result['success_count'],
+                            error_count=result['error_count'],
+                            overwrite=overwrite)
+            
+            return jsonify({
+                'success': True,
+                'message': f"导入完成: 成功 {result['success_count']} 条，失败 {result['error_count']} 条，跳过 {result['skipped_count']} 条",
+                'data': result
+            })
+            
+        except Exception as e:
+            return self.error_handler.handle_error(e)
+    
+    def export_dictionary_rules(self) -> Response:
+        """导出字典规则"""
+        try:
+            # 获取查询参数
+            rule_type = request.args.get('type')
+            enabled_only = request.args.get('enabled_only', 'false').lower() == 'true'
+            format_type = request.args.get('format', 'json')  # json 或 csv
+            
+            # 导出规则
+            rules_data = self.dictionary_service.export_rules(rule_type, enabled_only)
+            
+            if format_type == 'csv':
+                # CSV 格式导出
+                import csv
+                import io
+                
+                output = io.StringIO()
+                writer = csv.DictWriter(output, fieldnames=['id', 'type', 'pattern', 'replacement', 'enabled', 'created_at', 'updated_at'])
+                writer.writeheader()
+                writer.writerows(rules_data)
+                
+                csv_content = output.getvalue()
+                output.close()
+                
+                filename = f"dictionary_rules_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                
+                return Response(
+                    csv_content,
+                    mimetype='text/csv',
+                    headers={
+                        'Content-Disposition': f'attachment; filename="{filename}"',
+                        'Content-Type': 'text/csv; charset=utf-8'
+                    }
+                )
+            else:
+                # JSON 格式导出
+                export_data = {
+                    'version': '2.0',
+                    'exported_at': datetime.now().isoformat(),
+                    'filters': {
+                        'type': rule_type,
+                        'enabled_only': enabled_only
+                    },
+                    'rules': rules_data,
+                    'metadata': {
+                        'total_rules': len(rules_data),
+                        'type_counts': {}
+                    }
+                }
+                
+                # 统计类型
+                for rule in rules_data:
+                    rule_type_key = rule['type']
+                    export_data['metadata']['type_counts'][rule_type_key] = export_data['metadata']['type_counts'].get(rule_type_key, 0) + 1
+                
+                # 记录审计日志
+                self.logger.audit('dictionary_rules_export', session.get('user_id', 'unknown'),
+                                total_rules=len(rules_data),
+                                format=format_type,
+                                filters={'type': rule_type, 'enabled_only': enabled_only})
+                
+                return jsonify({
+                    'success': True,
+                    'data': export_data
+                })
+            
+        except Exception as e:
+            return self.error_handler.handle_error(e)
+    
+    def system_status(self) -> Response:
+        """系统状态监控 - 使用统一的健康监控数据"""
+        try:
+            # 使用健康监控器获取完整的系统状态
+            from health_check.health_monitor import health_monitor
+            import asyncio
+            
+            # 获取详细的系统状态
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                system_status = loop.run_until_complete(health_monitor.get_system_status(force_refresh=True))
+                status_data = system_status.to_dict()
+            finally:
+                loop.close()
+            
+            # 添加额外的管理信息
+            status_data['management_info'] = {
+                'admin_session_active': True,
+                'last_config_update': getattr(config_manager, '_last_update', None),
+                'dictionary_rules_count': len(self.dictionary_service.get_all_rules()),
+                'system_start_time': self.start_time.isoformat()
+            }
             
             return jsonify({
                 'success': True,
                 'data': status_data
+            })
+            
+        except Exception as e:
+            return self.error_handler.handle_error(e)
+    
+    def unified_monitoring(self) -> Response:
+        """统一监控数据接口 - 整合系统监控和仪表盘数据"""
+        try:
+            # 使用健康监控器获取完整的系统状态
+            from health_check.health_monitor import health_monitor
+            import asyncio
+            
+            # 获取详细的系统状态
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                system_status = loop.run_until_complete(health_monitor.get_system_status(force_refresh=True))
+                system_info = system_status.to_dict()
+            finally:
+                loop.close()
+            
+            # 获取配置摘要
+            config_summary = {
+                'tts': {
+                    'narration_voice': config_manager.tts.narration_voice,
+                    'dialogue_voice': config_manager.tts.dialogue_voice,
+                    'default_speed': config_manager.tts.default_speed,
+                    'cache_size_limit': getattr(config_manager.tts, 'cache_size_limit', 0),
+                    'cache_time_limit': getattr(config_manager.tts, 'cache_time_limit', 0)
+                },
+                'dictionary': {
+                    'enabled': config_manager.dictionary.enabled,
+                    'rules_count': len(self.dictionary_service.get_all_rules()),
+                    'rules_file': config_manager.dictionary.rules_file
+                },
+                'system': {
+                    'host': config_manager.system.host,
+                    'port': config_manager.system.port,
+                    'debug': config_manager.system.debug,
+                    'max_workers': getattr(config_manager.system, 'max_workers', 5)
+                }
+            }
+            
+            # 获取服务统计信息
+            service_stats = {
+                'active_requests': system_info.get('active_requests', 0),
+                'cache_size': system_info.get('cache_size', 0),
+                'cache_hit_rate': system_info.get('cache_hit_rate', 0.0),
+                'error_count_1h': system_info.get('error_count_1h', 0),
+                'error_count_24h': system_info.get('error_count_24h', 0)
+            }
+            
+            # 获取管理信息
+            management_info = {
+                'admin_session_active': True,
+                'current_user': session.get('user_id', 'unknown'),
+                'session_timeout': config_manager.admin.session_timeout,
+                'last_config_update': getattr(config_manager, '_last_update', None),
+                'dictionary_rules_count': len(self.dictionary_service.get_all_rules()),
+                'system_start_time': self.start_time.isoformat(),
+                'login_time': session.get('login_time')
+            }
+            
+            # 获取性能指标
+            performance_metrics = {
+                'uptime_seconds': system_info.get('uptime', 0),
+                'memory_usage_percent': system_info.get('memory_usage', 0),
+                'cpu_usage_percent': system_info.get('cpu_usage', 0),
+                'disk_usage_percent': system_info.get('disk_usage', 0),
+                'edge_tts_status': system_info.get('edge_tts_status', False),
+                'edge_tts_response_time': system_info.get('edge_tts_response_time', None)
+            }
+            
+            return jsonify({
+                'success': True,
+                'data': {
+                    'system_info': system_info,
+                    'config_summary': config_summary,
+                    'service_stats': service_stats,
+                    'management_info': management_info,
+                    'performance_metrics': performance_metrics,
+                    'timestamp': datetime.now().isoformat()
+                }
             })
             
         except Exception as e:
@@ -448,8 +679,10 @@ class AdminController:
             # 获取查询参数
             lines = request.args.get('lines', 100, type=int)
             level = request.args.get('level')  # None 表示所有级别
-            log_type = request.args.get('type')  # 日志类型过滤
+            log_type = request.args.get('type', 'audio')  # 默认只显示音频相关日志
             search = request.args.get('search')  # 搜索关键词
+            start_time = request.args.get('start_time')  # 开始时间
+            end_time = request.args.get('end_time')  # 结束时间
             
             # 读取日志文件
             log_file = config_manager.logging.file
@@ -466,7 +699,9 @@ class AdminController:
                 formatted_logs, 
                 level=level, 
                 log_type=log_type, 
-                search=search
+                search=search,
+                start_time=start_time,
+                end_time=end_time
             )
             
             # 限制返回数量
@@ -501,7 +736,9 @@ class AdminController:
                         'level': level,
                         'type': log_type,
                         'search': search,
-                        'lines': lines
+                        'lines': lines,
+                        'start_time': start_time,
+                        'end_time': end_time
                     }
                 }
             })
@@ -671,61 +908,8 @@ class AdminController:
                 if not isinstance(port, int) or not (1 <= port <= 65535):
                     raise ValidationError("端口号", "端口号必须是1-65535之间的整数")
     
-    def _get_system_info(self) -> Dict[str, Any]:
-        """获取系统信息"""
-        try:
-            # 系统运行时间
-            uptime = datetime.now() - self.start_time
-            
-            # 内存使用情况
-            memory = psutil.virtual_memory()
-            
-            # CPU使用率
-            cpu_percent = psutil.cpu_percent(interval=1)
-            
-            # 磁盘使用情况
-            disk = psutil.disk_usage('/')
-            
-            # Edge-TTS 服务状态（简单检查）
-            edge_tts_status = self._check_edge_tts_status()
-            
-            return {
-                'uptime_seconds': int(uptime.total_seconds()),
-                'uptime_human': str(uptime).split('.')[0],
-                'memory': {
-                    'total': memory.total,
-                    'available': memory.available,
-                    'percent': memory.percent,
-                    'used': memory.used
-                },
-                'cpu_percent': cpu_percent,
-                'disk': {
-                    'total': disk.total,
-                    'used': disk.used,
-                    'free': disk.free,
-                    'percent': (disk.used / disk.total) * 100
-                },
-                'edge_tts_status': edge_tts_status,
-                'active_sessions': len([k for k in session.keys() if k.startswith('user_')]),
-                'config_last_modified': os.path.getmtime(config_manager.config_file) if os.path.exists(config_manager.config_file) else None
-            }
-            
-        except Exception as e:
-            self.logger.error(f"获取系统信息失败: {e}")
-            return {
-                'error': '无法获取系统信息',
-                'uptime_seconds': 0,
-                'edge_tts_status': False
-            }
-    
-    def _check_edge_tts_status(self) -> bool:
-        """检查 Edge-TTS 服务状态"""
-        try:
-            # 这里可以实现实际的 Edge-TTS 服务检查
-            # 暂时返回 True
-            return True
-        except Exception:
-            return False
+    # 移除重复的系统信息获取方法，现在使用健康监控器统一提供
+    # _get_system_info 和 _check_edge_tts_status 方法已被健康监控器替代
     
     def _read_log_file_raw(self, log_file: str, lines: int) -> List[str]:
         """读取原始日志文件行"""
@@ -744,6 +928,86 @@ class AdminController:
         except Exception as e:
             self.logger.error(f"读取日志文件失败: {e}")
             return []
+    
+    def get_voices(self) -> Response:
+        """获取可用语音列表"""
+        try:
+            from enhanced_tts_api import EnhancedVoiceSelector
+            
+            voice_selector = EnhancedVoiceSelector()
+            
+            # 获取可用语音
+            available_voices = voice_selector.get_available_voices()
+            
+            # 获取缓存信息
+            cache_info = voice_selector.get_voice_cache_info()
+            
+            # 按语言分组
+            voice_groups = {}
+            for voice in available_voices:
+                if 'zh-CN' in voice:
+                    lang = 'zh-CN'
+                elif 'en-US' in voice:
+                    lang = 'en-US'
+                elif 'ja-JP' in voice:
+                    lang = 'ja-JP'
+                elif 'ko-KR' in voice:
+                    lang = 'ko-KR'
+                else:
+                    lang = 'other'
+                
+                if lang not in voice_groups:
+                    voice_groups[lang] = []
+                voice_groups[lang].append(voice)
+            
+            return jsonify({
+                'success': True,
+                'data': {
+                    'voices': available_voices,
+                    'voice_groups': voice_groups,
+                    'total_count': len(available_voices),
+                    'cache_info': cache_info
+                }
+            })
+            
+        except Exception as e:
+            return self.error_handler.handle_error(e)
+    
+    def refresh_voices(self) -> Response:
+        """刷新语音缓存"""
+        try:
+            from enhanced_tts_api import EnhancedVoiceSelector
+            
+            voice_selector = EnhancedVoiceSelector()
+            
+            # 刷新缓存
+            success = voice_selector.refresh_voice_cache()
+            
+            if success:
+                # 获取更新后的语音列表
+                available_voices = voice_selector.get_available_voices()
+                cache_info = voice_selector.get_voice_cache_info()
+                
+                # 记录审计日志
+                self.logger.audit('voices_refresh', session.get('user_id', 'unknown'),
+                                voice_count=len(available_voices))
+                
+                return jsonify({
+                    'success': True,
+                    'message': f'语音缓存刷新成功，获取到 {len(available_voices)} 个语音',
+                    'data': {
+                        'voice_count': len(available_voices),
+                        'cache_info': cache_info
+                    }
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': '语音缓存刷新失败'
+                }), 500
+            
+        except Exception as e:
+            return self.error_handler.handle_error(e)
 
 
 # 创建全局实例

@@ -64,22 +64,11 @@ class RequestValidator:
         
         validated['text'] = text
         
-        # 验证语速参数
-        try:
-            speed = float(args.get('speed', config_manager.tts.default_speed))
-            if not (0.1 <= speed <= 3.0):
-                raise ValidationError(
-                    field_name='speed',
-                    message='语速必须在0.1到3.0之间',
-                    details={'provided_value': speed, 'valid_range': [0.1, 3.0]}
-                )
-            validated['speed'] = speed
-        except (ValueError, TypeError):
-            raise ValidationError(
-                field_name='speed',
-                message='语速参数必须是有效的数字',
-                details={'provided_value': args.get('speed')}
-            )
+        # 智能语速参数处理
+        validated_speed_result = self._validate_speed_smart(args.get('speed', config_manager.tts.default_speed))
+        validated['speed'] = validated_speed_result['speed']
+        validated['speed_adjusted'] = validated_speed_result['adjusted']
+        validated['original_speed'] = validated_speed_result['original']
         
         # 验证语音参数
         narr_voice = args.get('narr', config_manager.tts.narration_voice)
@@ -116,6 +105,401 @@ class RequestValidator:
         validated['all_voice'] = all_voice
         
         return validated
+    
+    def _validate_speed_smart(self, speed_input: Any) -> Dict[str, Any]:
+        """
+        智能语速参数验证和调整
+        
+        Args:
+            speed_input: 输入的语速值
+            
+        Returns:
+            包含调整后语速信息的字典
+        """
+        result = {
+            'speed': 1.0,
+            'adjusted': False,
+            'original': speed_input
+        }
+        
+        try:
+            # 尝试转换为浮点数
+            speed = float(speed_input)
+            result['original'] = speed
+            
+            # 智能调整语速范围
+            if speed < 0.5:
+                result['speed'] = 0.5
+                result['adjusted'] = True
+                self.logger.info(f"语速自动调整: {speed} -> 0.5 (低于最小值)")
+            elif speed > 3.0:
+                result['speed'] = 3.0
+                result['adjusted'] = True
+                self.logger.info(f"语速自动调整: {speed} -> 3.0 (超过最大值)")
+            else:
+                result['speed'] = speed
+                
+        except (ValueError, TypeError):
+            # 无效输入，使用默认值
+            result['speed'] = 1.0
+            result['adjusted'] = True
+            self.logger.warning(f"无效语速参数 '{speed_input}'，使用默认值 1.0")
+            
+        return result
+
+
+class EnhancedVoiceSelector:
+    """增强版语音选择器"""
+    
+    def __init__(self):
+        self.logger = get_logger('voice_selector')
+        
+        # 语音缓存
+        self._voice_cache = None
+        self._cache_timestamp = None
+        self._cache_ttl = 300  # 缓存5分钟
+        
+        # 语言检测器
+        try:
+            from langdetect import detect
+            self._detect_language = detect
+        except ImportError:
+            self.logger.warning("langdetect 未安装，将使用简单的语言检测")
+            self._detect_language = self._simple_language_detect
+        
+        # 语音配置
+        self.voice_config = {
+            'zh': ['zh-CN-XiaoxiaoNeural', 'zh-CN-YunxiNeural', 'zh-CN-YunjianNeural'],
+            'en': ['en-US-AriaNeural', 'en-US-JennyNeural', 'en-US-GuyNeural'],
+            'ja': ['ja-JP-NanamiNeural', 'ja-JP-KeitaNeural'],
+            'ko': ['ko-KR-SunHiNeural', 'ko-KR-InJoonNeural'],
+            'default': 'zh-CN-XiaoxiaoNeural'
+        }
+    
+    def select_voice(self, requested_voice: Optional[str], text: str, language: str = 'auto') -> Optional[str]:
+        """
+        智能语音选择（增强版）
+        
+        Args:
+            requested_voice: 用户请求的语音
+            text: 要合成的文本
+            language: 语言代码
+            
+        Returns:
+            选择的语音名称，如果没有找到合适的语音则返回None
+        """
+        try:
+            # 获取可用语音列表
+            available_voices = self.get_available_voices()
+            if not available_voices:
+                self.logger.error("没有可用的语音")
+                return None
+            
+            # 如果指定了语音，先验证是否可用
+            if requested_voice:
+                # 精确匹配
+                if requested_voice in available_voices:
+                    self.logger.info(f"使用指定语音: {requested_voice}")
+                    return requested_voice
+                
+                # 模糊匹配（忽略大小写）
+                for voice in available_voices:
+                    if voice.lower() == requested_voice.lower():
+                        self.logger.info(f"使用指定语音（模糊匹配）: {voice}")
+                        return voice
+                
+                # 部分匹配
+                for voice in available_voices:
+                    if requested_voice.lower() in voice.lower() or voice.lower() in requested_voice.lower():
+                        self.logger.info(f"使用指定语音（部分匹配）: {voice}")
+                        return voice
+                
+                self.logger.warning(f"指定语音不可用: {requested_voice}，将自动选择")
+            
+            # 自动检测语言
+            if language == 'auto':
+                language = self.detect_language(text)
+                self.logger.debug(f"检测到语言: {language}")
+            
+            # 根据语言选择合适的语音
+            suitable_voices = self.get_voices_by_language(language)
+            
+            # 过滤出实际可用的语音
+            available_suitable_voices = [v for v in suitable_voices if v in available_voices]
+            
+            if available_suitable_voices:
+                # 从合适的语音中选择最佳的
+                best_voice = self.select_best_voice(available_suitable_voices, text)
+                if best_voice:
+                    self.logger.info(f"选择最佳语音: {best_voice}")
+                    return best_voice
+                
+                # 如果没有最佳语音，选择第一个可用的
+                selected_voice = available_suitable_voices[0]
+                self.logger.info(f"选择合适语音: {selected_voice}")
+                return selected_voice
+            
+            # 如果没有找到对应语言的语音，使用默认语音
+            default_voice = self.get_default_voice()
+            if default_voice and default_voice in available_voices:
+                self.logger.info(f"使用默认语音: {default_voice}")
+                return default_voice
+            
+            # 最后的回退：使用第一个可用语音
+            if available_voices:
+                fallback_voice = available_voices[0]
+                self.logger.info(f"使用备用语音: {fallback_voice}")
+                return fallback_voice
+            
+            self.logger.error("没有找到任何可用的语音")
+            return None
+            
+        except Exception as e:
+            self.logger.error(f"语音选择失败: {e}")
+            # 紧急回退
+            try:
+                fallback_voices = self._get_fallback_voices()
+                if fallback_voices:
+                    emergency_voice = fallback_voices[0]
+                    self.logger.warning(f"使用紧急备用语音: {emergency_voice}")
+                    return emergency_voice
+            except Exception as fallback_error:
+                self.logger.error(f"紧急回退也失败: {fallback_error}")
+            return None
+    
+    def get_available_voices(self) -> List[str]:
+        """
+        获取所有可用的语音（带缓存）
+        
+        Returns:
+            可用语音列表
+        """
+        try:
+            import time
+            current_time = time.time()
+            
+            # 检查缓存是否有效
+            if (self._voice_cache is not None and 
+                self._cache_timestamp is not None and 
+                current_time - self._cache_timestamp < self._cache_ttl):
+                self.logger.debug("使用缓存的语音列表")
+                return self._voice_cache
+            
+            # 从TTS引擎获取实际可用的语音
+            try:
+                from tts.enhanced_tts_engine import EnhancedTTSEngine
+            except ImportError:
+                # 如果TTS模块不存在，使用备用列表
+                self.logger.warning("TTS引擎模块不可用，使用备用语音列表")
+                fallback_voices = self._get_fallback_voices()
+                self._voice_cache = fallback_voices
+                self._cache_timestamp = current_time - self._cache_ttl + 60
+                return fallback_voices
+            
+            # 创建TTS引擎实例
+            tts_engine = EnhancedTTSEngine()
+            
+            # 获取可用语音
+            voices = tts_engine.get_available_voices()
+            
+            if voices:
+                self.logger.info(f"获取到 {len(voices)} 个可用语音")
+                # 更新缓存
+                self._voice_cache = voices
+                self._cache_timestamp = current_time
+                return voices
+            else:
+                # 如果无法获取实际语音，返回备用列表
+                self.logger.warning("无法获取实际语音列表，使用备用列表")
+                fallback_voices = self._get_fallback_voices()
+                # 缓存备用列表（较短的TTL）
+                self._voice_cache = fallback_voices
+                self._cache_timestamp = current_time - self._cache_ttl + 60  # 1分钟后重试
+                return fallback_voices
+                
+        except Exception as e:
+            self.logger.error(f"获取可用语音失败: {e}，使用备用列表")
+            fallback_voices = self._get_fallback_voices()
+            # 缓存备用列表（较短的TTL）
+            if self._voice_cache is None:
+                self._voice_cache = fallback_voices
+                self._cache_timestamp = current_time - self._cache_ttl + 60  # 1分钟后重试
+            return fallback_voices
+    
+    def detect_language(self, text: str) -> str:
+        """
+        检测文本语言
+        
+        Args:
+            text: 输入文本
+            
+        Returns:
+            语言代码
+        """
+        try:
+            # 使用langdetect库检测语言
+            detected = self._detect_language(text)
+            
+            # 映射到支持的语言
+            language_mapping = {
+                'zh-cn': 'zh',
+                'zh': 'zh',
+                'en': 'en',
+                'ja': 'ja',
+                'ko': 'ko'
+            }
+            
+            return language_mapping.get(detected, 'zh')  # 默认中文
+            
+        except Exception as e:
+            self.logger.warning(f"语言检测失败: {e}，使用默认语言")
+            return 'zh'
+    
+    def _simple_language_detect(self, text: str) -> str:
+        """
+        简单的语言检测（当langdetect不可用时）
+        
+        Args:
+            text: 输入文本
+            
+        Returns:
+            语言代码
+        """
+        # 统计中文字符
+        chinese_chars = sum(1 for char in text if '\u4e00' <= char <= '\u9fff')
+        # 统计英文字符
+        english_chars = sum(1 for char in text if char.isalpha() and ord(char) < 128)
+        # 统计日文字符
+        japanese_chars = sum(1 for char in text if '\u3040' <= char <= '\u309f' or '\u30a0' <= char <= '\u30ff')
+        # 统计韩文字符
+        korean_chars = sum(1 for char in text if '\uac00' <= char <= '\ud7af')
+        
+        total_chars = len(text)
+        if total_chars == 0:
+            return 'zh'
+        
+        # 计算比例
+        chinese_ratio = chinese_chars / total_chars
+        english_ratio = english_chars / total_chars
+        japanese_ratio = japanese_chars / total_chars
+        korean_ratio = korean_chars / total_chars
+        
+        # 选择比例最高的语言
+        ratios = {
+            'zh': chinese_ratio,
+            'en': english_ratio,
+            'ja': japanese_ratio,
+            'ko': korean_ratio
+        }
+        
+        detected_lang = max(ratios, key=ratios.get)
+        
+        # 如果最高比例太低，默认为中文
+        if ratios[detected_lang] < 0.1:
+            return 'zh'
+        
+        return detected_lang
+    
+    def get_voices_by_language(self, language: str) -> List[str]:
+        """
+        根据语言获取合适的语音
+        
+        Args:
+            language: 语言代码
+            
+        Returns:
+            语音列表
+        """
+        return self.voice_config.get(language, self.voice_config.get('zh', []))
+    
+    def select_best_voice(self, voices: List[str], text: str) -> Optional[str]:
+        """
+        从候选语音中选择最佳语音
+        
+        Args:
+            voices: 候选语音列表
+            text: 文本内容
+            
+        Returns:
+            最佳语音名称
+        """
+        if not voices:
+            return None
+        
+        # 简单策略：返回第一个语音
+        # 可以根据需要实现更复杂的选择逻辑
+        return voices[0]
+    
+    def get_default_voice(self) -> str:
+        """获取默认语音"""
+        return self.voice_config['default']
+    
+    def _get_fallback_voices(self) -> List[str]:
+        """
+        获取备用语音列表
+        
+        Returns:
+            备用语音列表
+        """
+        return [
+            "zh-CN-XiaoxiaoNeural",
+            "zh-CN-YunxiNeural", 
+            "zh-CN-YunjianNeural",
+            "zh-CN-XiaoyiNeural",
+            "zh-CN-YunyangNeural",
+            "en-US-AriaNeural",
+            "en-US-JennyNeural",
+            "en-US-GuyNeural"
+        ]
+    
+    def refresh_voice_cache(self) -> bool:
+        """
+        刷新语音缓存
+        
+        Returns:
+            是否成功刷新
+        """
+        try:
+            self._voice_cache = None
+            self._cache_timestamp = None
+            
+            # 重新获取语音列表
+            voices = self.get_available_voices()
+            
+            if voices:
+                self.logger.info(f"语音缓存刷新成功，获取到 {len(voices)} 个语音")
+                return True
+            else:
+                self.logger.warning("语音缓存刷新失败")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"刷新语音缓存失败: {e}")
+            return False
+    
+    def get_voice_cache_info(self) -> Dict[str, Any]:
+        """
+        获取语音缓存信息
+        
+        Returns:
+            缓存信息字典
+        """
+        import time
+        current_time = time.time()
+        
+        cache_info = {
+            'cached_voices_count': len(self._voice_cache) if self._voice_cache else 0,
+            'cache_timestamp': self._cache_timestamp,
+            'cache_age_seconds': current_time - self._cache_timestamp if self._cache_timestamp else None,
+            'cache_ttl_seconds': self._cache_ttl,
+            'is_cache_valid': (
+                self._voice_cache is not None and 
+                self._cache_timestamp is not None and 
+                current_time - self._cache_timestamp < self._cache_ttl
+            )
+        }
+        
+        return cache_info
 
 
 class EnhancedSpeechRule:
@@ -123,6 +507,7 @@ class EnhancedSpeechRule:
     
     def __init__(self):
         self.logger = get_logger('speech_rule')
+        self.voice_selector = EnhancedVoiceSelector()
     
     def handle_text(self, text: str) -> List[Dict[str, str]]:
         """
@@ -337,14 +722,30 @@ class EnhancedTTSService:
                 cache_stats=self.audio_cache.get_stats()
             )
             
+            # 准备响应头
+            response_headers = {
+                'X-Audio-Duration': str(len(combined_audio)),
+                'X-Request-ID': request_id,
+                'X-Processing-Time': f"{duration:.3f}s",
+                'X-Speed-Used': str(validated_params['speed'])
+            }
+            
+            # 如果语速被调整，添加相关信息
+            if validated_params.get('speed_adjusted', False):
+                response_headers['X-Speed-Adjusted'] = 'true'
+                response_headers['X-Speed-Original'] = str(validated_params.get('original_speed', 'unknown'))
+                
+                self.logger.info(
+                    "语速参数已自动调整",
+                    request_id=request_id,
+                    original_speed=validated_params.get('original_speed'),
+                    adjusted_speed=validated_params['speed']
+                )
+            
             return Response(
                 output_io,
                 mimetype='audio/webm',
-                headers={
-                    'X-Audio-Duration': str(len(combined_audio)),
-                    'X-Request-ID': request_id,
-                    'X-Processing-Time': f"{duration:.3f}s"
-                }
+                headers=response_headers
             )
             
         except Exception as e:
@@ -411,14 +812,39 @@ class EnhancedTTSService:
     
     def _get_voice_for_segment(self, segment: Dict[str, str], 
                               params: Dict[str, Any]) -> str:
-        """获取段落对应的语音"""
-        if params['all_voice']:
-            return params['all_voice']
+        """获取段落对应的语音（增强版）"""
+        # 如果指定了统一语音，直接使用
+        if params.get('all_voice'):
+            selected_voice = self.speech_rule.voice_selector.select_voice(
+                requested_voice=params['all_voice'],
+                text=segment['text'],
+                language=params.get('language', 'auto')
+            )
+            return selected_voice or params['all_voice']
         
-        return (
-            params['narr_voice'] if segment['tag'] == 'narration' 
-            else params['dlg_voice']
+        # 根据段落类型选择语音
+        requested_voice = (
+            params.get('narr_voice') if segment['tag'] == 'narration' 
+            else params.get('dlg_voice')
         )
+        
+        # 使用智能语音选择
+        if requested_voice:
+            selected_voice = self.speech_rule.voice_selector.select_voice(
+                requested_voice=requested_voice,
+                text=segment['text'],
+                language=params.get('language', 'auto')
+            )
+            return selected_voice or requested_voice
+        
+        # 如果没有指定语音，自动选择
+        selected_voice = self.speech_rule.voice_selector.select_voice(
+            requested_voice=None,
+            text=segment['text'],
+            language=params.get('language', 'auto')
+        )
+        
+        return selected_voice or self.speech_rule.voice_selector.get_default_voice()
     
     def _fetch_audio_with_retry(self, segment: Dict[str, str], 
                                speed: float, voice_name: str) -> Optional[AudioSegment]:

@@ -156,7 +156,14 @@ class WebLogFormatter:
         if log_data.get('log_type'):
             return log_data['log_type']
         elif 'method' in log_data and 'path' in log_data:
-            return 'http'
+            # 检查是否是音频相关请求
+            path = log_data.get('path', '')
+            if '/api' in path and any(param in log_data.get('query_string', '') for param in ['text=', 'narr=', 'dlg=']):
+                return 'audio'
+            elif path.startswith('/api'):
+                return 'api'
+            else:
+                return 'http'
         elif 'duration_ms' in log_data:
             return 'performance'
         elif 'error_type' in log_data:
@@ -338,7 +345,9 @@ class WebLogFormatter:
     def filter_logs(self, log_entries: List[Dict[str, Any]], 
                    level: Optional[str] = None,
                    log_type: Optional[str] = None,
-                   search: Optional[str] = None) -> List[Dict[str, Any]]:
+                   search: Optional[str] = None,
+                   start_time: Optional[str] = None,
+                   end_time: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         过滤日志条目
         
@@ -347,6 +356,8 @@ class WebLogFormatter:
             level: 日志级别过滤
             log_type: 日志类型过滤
             search: 搜索关键词
+            start_time: 开始时间 (ISO格式)
+            end_time: 结束时间 (ISO格式)
             
         Returns:
             过滤后的日志条目列表
@@ -354,12 +365,25 @@ class WebLogFormatter:
         filtered = log_entries
         
         # 按级别过滤
-        if level:
+        if level and level != 'ALL':
             filtered = [entry for entry in filtered if entry.get('level') == level]
         
         # 按类型过滤
-        if log_type:
-            filtered = [entry for entry in filtered if entry.get('type') == log_type]
+        if log_type and log_type != 'ALL':
+            if log_type == 'audio':
+                # 音频相关日志：包含TTS API请求和音频处理
+                filtered = [
+                    entry for entry in filtered 
+                    if entry.get('type') == 'audio' or
+                       (entry.get('type') == 'http' and self._is_audio_related(entry)) or
+                       (entry.get('type') == 'api' and self._is_audio_related(entry))
+                ]
+            else:
+                filtered = [entry for entry in filtered if entry.get('type') == log_type]
+        
+        # 按时间范围过滤
+        if start_time or end_time:
+            filtered = self._filter_by_time_range(filtered, start_time, end_time)
         
         # 按关键词搜索
         if search:
@@ -368,10 +392,91 @@ class WebLogFormatter:
                 entry for entry in filtered
                 if search_lower in entry.get('message', '').lower() or
                    search_lower in entry.get('module', '').lower() or
+                   search_lower in entry.get('http_path', '').lower() or
                    search_lower in str(entry.get('raw_data', {})).lower()
             ]
         
         return filtered
+    
+    def _is_audio_related(self, entry: Dict[str, Any]) -> bool:
+        """判断日志条目是否与音频相关"""
+        # 检查路径
+        path = entry.get('http_path', '')
+        if '/api' in path:
+            return True
+        
+        # 检查消息内容
+        message = entry.get('message', '').lower()
+        audio_keywords = ['tts', 'audio', 'voice', 'speech', 'synthesis', '语音', '音频']
+        if any(keyword in message for keyword in audio_keywords):
+            return True
+        
+        # 检查原始数据
+        raw_data = entry.get('raw_data', {})
+        if isinstance(raw_data, dict):
+            query_string = raw_data.get('query_string', '')
+            if any(param in query_string for param in ['text=', 'narr=', 'dlg=', 'speed=']):
+                return True
+        
+        return False
+    
+    def _filter_by_time_range(self, entries: List[Dict[str, Any]], 
+                             start_time: Optional[str], 
+                             end_time: Optional[str]) -> List[Dict[str, Any]]:
+        """按时间范围过滤日志条目"""
+        if not start_time and not end_time:
+            return entries
+        
+        filtered = []
+        
+        for entry in entries:
+            entry_time = self._parse_entry_timestamp(entry)
+            if not entry_time:
+                continue
+            
+            # 检查时间范围
+            if start_time:
+                try:
+                    start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    if entry_time < start_dt:
+                        continue
+                except:
+                    pass
+            
+            if end_time:
+                try:
+                    end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                    if entry_time > end_dt:
+                        continue
+                except:
+                    pass
+            
+            filtered.append(entry)
+        
+        return filtered
+    
+    def _parse_entry_timestamp(self, entry: Dict[str, Any]) -> Optional[datetime]:
+        """解析日志条目的时间戳"""
+        raw_data = entry.get('raw_data', {})
+        
+        # 尝试从原始数据获取时间戳
+        if isinstance(raw_data, dict) and 'timestamp' in raw_data:
+            try:
+                return datetime.fromisoformat(raw_data['timestamp'].replace('Z', '+00:00'))
+            except:
+                pass
+        
+        # 尝试从格式化的时间戳获取（今天的时间）
+        timestamp_str = entry.get('timestamp', '')
+        if timestamp_str and ':' in timestamp_str:
+            try:
+                today = datetime.now().date()
+                time_part = datetime.strptime(timestamp_str, '%H:%M:%S').time()
+                return datetime.combine(today, time_part)
+            except:
+                pass
+        
+        return None
 
 
 # 全局实例

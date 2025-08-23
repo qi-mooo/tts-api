@@ -30,12 +30,13 @@ print(processed)  # 输出: 我在 吉特哈布 上开发 A P I 接口
 ### 规则管理
 
 ```python
-# 添加发音规则
+# 添加发音规则 - 自动生成简化ID
 rule_id = service.add_rule(
     pattern=r"\bPython\b",
     replacement="派森",
     rule_type="pronunciation"
 )
+print(f"生成的规则ID: {rule_id}")  # 输出: 1
 
 # 添加过滤规则
 service.add_rule(
@@ -51,26 +52,55 @@ rules = service.get_all_rules()
 pronunciation_rules = service.get_rules_by_type("pronunciation")
 filter_rules = service.get_rules_by_type("filter")
 
-# 启用/禁用规则
-service.disable_rule("pronunciation_001")
-service.enable_rule("pronunciation_001")
+# 启用/禁用规则 - 使用简化ID
+service.disable_rule("1")
+service.enable_rule("1")
 
 # 更新规则
-service.update_rule("pronunciation_001", replacement="新的替换")
+service.update_rule("1", replacement="新的替换")
 
 # 删除规则
-service.remove_rule("pronunciation_001")
+service.remove_rule("1")
+```
+
+### 批量导入导出
+
+```python
+# 批量导入规则
+import_data = [
+    {
+        "type": "pronunciation",
+        "pattern": r"\bAPI\b",
+        "replacement": "A P I",
+        "enabled": True
+    },
+    {
+        "type": "filter",
+        "pattern": "不当内容",
+        "replacement": "[已过滤]",
+        "enabled": True
+    }
+]
+
+result = service.import_rules(import_data, overwrite=False)
+print(f"导入结果: 成功 {result['success_count']}, 失败 {result['error_count']}")
+
+# 导出规则
+all_rules = service.export_rules()  # 导出所有规则
+pronunciation_only = service.export_rules(rule_type="pronunciation")  # 按类型导出
+enabled_only = service.export_rules(enabled_only=True)  # 只导出启用的规则
 ```
 
 ## 规则配置文件格式
 
-规则存储在 JSON 文件中，格式如下：
+规则存储在 JSON 文件中，使用简化的结构格式：
 
 ```json
 {
+  "version": "2.0",
   "rules": [
     {
-      "id": "pronunciation_001",
+      "id": "1",
       "type": "pronunciation",
       "pattern": "\\bGitHub\\b",
       "replacement": "吉特哈布",
@@ -79,7 +109,7 @@ service.remove_rule("pronunciation_001")
       "updated_at": "2024-01-01T00:00:00"
     },
     {
-      "id": "filter_001",
+      "id": "2",
       "type": "filter",
       "pattern": "敏感词",
       "replacement": "***",
@@ -88,9 +118,23 @@ service.remove_rule("pronunciation_001")
       "updated_at": "2024-01-01T00:00:00"
     }
   ],
-  "updated_at": "2024-01-01T00:00:00"
+  "metadata": {
+    "updated_at": "2024-01-01T00:00:00",
+    "total_rules": 2,
+    "enabled_rules": 2,
+    "type_counts": {
+      "pronunciation": 1,
+      "filter": 1
+    }
+  }
 }
 ```
+
+### 版本 2.0 的改进
+
+- **简化的ID格式**: 使用纯数字ID (如 "1", "2") 替代复杂的前缀格式
+- **元数据支持**: 包含规则统计和更新信息
+- **向后兼容**: 自动升级旧格式文件
 
 ## 规则类型
 
@@ -136,7 +180,7 @@ DictionaryService(rules_file: str = "dictionary/rules.json")
 #### 主要方法
 
 - `process_text(text: str) -> str`: 处理文本，应用所有启用的规则
-- `add_rule(pattern: str, replacement: str, rule_type: str, rule_id: Optional[str] = None) -> str`: 添加新规则
+- `add_rule(pattern: str, replacement: str, rule_type: str, rule_id: Optional[str] = None) -> str`: 添加新规则（自动生成简化ID）
 - `remove_rule(rule_id: str) -> bool`: 删除规则
 - `update_rule(rule_id: str, **kwargs) -> bool`: 更新规则
 - `get_rule(rule_id: str) -> Optional[DictionaryRule]`: 获取指定规则
@@ -146,6 +190,8 @@ DictionaryService(rules_file: str = "dictionary/rules.json")
 - `disable_rule(rule_id: str) -> bool`: 禁用规则
 - `reload_rules() -> None`: 重新加载规则文件
 - `validate_rule(pattern: str) -> bool`: 验证正则表达式
+- `import_rules(rules_data: List[Dict], overwrite: bool = False) -> Dict`: 批量导入规则
+- `export_rules(rule_type: Optional[str] = None, enabled_only: bool = False) -> List[Dict]`: 导出规则
 
 ### DictionaryRule 类
 
@@ -164,7 +210,11 @@ DictionaryService(rules_file: str = "dictionary/rules.json")
 运行示例脚本查看完整功能演示：
 
 ```bash
+# 基础功能演示
 python3 dictionary/example_usage.py
+
+# 优化功能演示（包含批量导入导出、简化ID等）
+python3 dictionary/example_optimization.py
 ```
 
 ## 测试
@@ -182,6 +232,8 @@ python3 -m unittest tests.test_dictionary_service -v
 3. **性能考虑**: 大量规则可能影响处理性能，建议合理控制规则数量
 4. **文件权限**: 确保规则文件具有读写权限
 5. **正则表达式安全**: 避免使用可能导致性能问题的复杂正则表达式
+6. **ID格式**: 新版本使用简化的数字ID，旧格式会自动升级
+7. **批量导入**: 支持JSON和CSV格式，建议使用JSON格式以获得更好的兼容性
 
 ## 集成到 TTS 系统
 

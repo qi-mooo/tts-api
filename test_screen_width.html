@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>屏幕宽度检测测试</title>
+    <script src="/static/js/mobile-detector.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .device-mobile .test-result {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .device-tablet .test-result {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        .device-desktop .test-result {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+        }
+        .resize-test {
+            border: 2px dashed #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>📐 屏幕宽度检测测试</h1>
+    
+    <div class="test-result" id="deviceInfo">
+        <h3>设备信息</h3>
+        <p>正在检测...</p>
+    </div>
+    
+    <div class="resize-test">
+        <h3>🔄 窗口大小测试</h3>
+        <p>调整浏览器窗口大小，观察设备类型变化</p>
+        <button onclick="updateDeviceInfo()">🔄 刷新检测</button>
+        <button onclick="toggleDebug()">🐛 调试模式</button>
+    </div>
+    
+    <div class="test-result">
+        <h3>📊 检测标准</h3>
+        <ul>
+            <li><strong>移动端:</strong> 屏幕宽度 ≤ 768px</li>
+            <li><strong>平板端:</strong> 屏幕宽度 769px - 1024px (需触摸支持)</li>
+            <li><strong>桌面端:</strong> 屏幕宽度 > 1024px</li>
+        </ul>
+    </div>
+    
+    <div id="resizeLog" class="test-result">
+        <h3>📝 检测日志</h3>
+        <div id="logContent"></div>
+    </div>
+
+    <script>
+        let debugMode = false;
+        
+        function updateDeviceInfo() {
+            if (typeof mobileDetector === 'undefined') {
+                document.getElementById('deviceInfo').innerHTML = `
+                    <h3>❌ 错误</h3>
+                    <p>移动端检测器未加载</p>
+                `;
+                return;
+            }
+            
+            const info = mobileDetector.getDeviceInfo();
+            
+            document.getElementById('deviceInfo').innerHTML = `
+                <h3>📱 当前设备信息</h3>
+                <p><strong>设备类型:</strong> ${info.deviceType}</p>
+                <p><strong>屏幕尺寸:</strong> ${info.screenWidth} x ${info.screenHeight}</p>
+                <p><strong>屏幕分类:</strong> ${info.screenSize}</p>
+                <p><strong>是否移动端:</strong> ${info.isMobile ? '是' : '否'}</p>
+                <p><strong>是否平板:</strong> ${info.isTablet ? '是' : '否'}</p>
+                <p><strong>触摸支持:</strong> ${info.touchSupport ? '是' : '否'}</p>
+                <p><strong>屏幕方向:</strong> ${info.orientation}</p>
+                <p><strong>像素比:</strong> ${info.pixelRatio}</p>
+                <p><strong>检测方法:</strong> ${info.detectionMethod}</p>
+            `;
+            
+            // 添加日志
+            addLog(`设备检测: ${info.deviceType} (${info.screenWidth}x${info.screenHeight})`);
+        }
+        
+        function toggleDebug() {
+            debugMode = !debugMode;
+            if (debugMode && typeof mobileDetector !== 'undefined') {
+                mobileDetector.enableDebugMode();
+                addLog('调试模式已启用');
+            } else {
+                const debugInfo = document.getElementById('mobile-debug-info');
+                if (debugInfo) {
+                    debugInfo.remove();
+                }
+                addLog('调试模式已关闭');
+            }
+        }
+        
+        function addLog(message) {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            logContent.innerHTML += `<p>[${timestamp}] ${message}</p>`;
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+        
+        // 监听设备变化
+        document.addEventListener('deviceresize', function(event) {
+            const info = event.detail;
+            if (info.changed) {
+                addLog(`设备类型变化: ${info.previousType} → ${info.deviceType}`);
+                updateDeviceInfo();
+            }
+        });
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(updateDeviceInfo, 500);
+            addLog('页面加载完成，开始检测');
+        });
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', function() {
+            addLog(`窗口大小变化: ${window.innerWidth}x${window.innerHeight}`);
+        });
+    </script>
+</body>
+</html>
+    

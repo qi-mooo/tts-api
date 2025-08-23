@@ -1,0 +1,1485 @@
+{
+  "af": {
+    "all": [
+      "af-ZA-AdriNeural",
+      "af-ZA-WillemNeural"
+    ],
+    "narration": [
+      "af-ZA-AdriNeural",
+      "af-ZA-WillemNeural"
+    ],
+    "dialogue": [
+      "af-ZA-AdriNeural",
+      "af-ZA-WillemNeural"
+    ]
+  },
+  "sq": {
+    "all": [
+      "sq-AL-AnilaNeural",
+      "sq-AL-IlirNeural"
+    ],
+    "narration": [
+      "sq-AL-AnilaNeural",
+      "sq-AL-IlirNeural"
+    ],
+    "dialogue": [
+      "sq-AL-AnilaNeural",
+      "sq-AL-IlirNeural"
+    ]
+  },
+  "am": {
+    "all": [
+      "am-ET-AmehaNeural",
+      "am-ET-MekdesNeural"
+    ],
+    "narration": [
+      "am-ET-AmehaNeural",
+      "am-ET-MekdesNeural"
+    ],
+    "dialogue": [
+      "am-ET-AmehaNeural",
+      "am-ET-MekdesNeural"
+    ]
+  },
+  "ar": {
+    "all": [
+      "ar-DZ-AminaNeural",
+      "ar-DZ-IsmaelNeural",
+      "ar-BH-AliNeural",
+      "ar-BH-LailaNeural",
+      "ar-EG-SalmaNeural",
+      "ar-EG-ShakirNeural",
+      "ar-IQ-BasselNeural",
+      "ar-IQ-RanaNeural",
+      "ar-JO-SanaNeural",
+      "ar-JO-TaimNeural",
+      "ar-KW-FahedNeural",
+      "ar-KW-NouraNeural",
+      "ar-LB-LaylaNeural",
+      "ar-LB-RamiNeural",
+      "ar-LY-ImanNeural",
+      "ar-LY-OmarNeural",
+      "ar-MA-JamalNeural",
+      "ar-MA-MounaNeural",
+      "ar-OM-AbdullahNeural",
+      "ar-OM-AyshaNeural",
+      "ar-QA-AmalNeural",
+      "ar-QA-MoazNeural",
+      "ar-SA-HamedNeural",
+      "ar-SA-ZariyahNeural",
+      "ar-SY-AmanyNeural",
+      "ar-SY-LaithNeural",
+      "ar-TN-HediNeural",
+      "ar-TN-ReemNeural",
+      "ar-AE-FatimaNeural",
+      "ar-AE-HamdanNeural",
+      "ar-YE-MaryamNeural",
+      "ar-YE-SalehNeural"
+    ],
+    "narration": [
+      "ar-DZ-IsmaelNeural",
+      "ar-BH-AliNeural",
+      "ar-EG-ShakirNeural",
+      "ar-IQ-BasselNeural",
+      "ar-JO-TaimNeural",
+      "ar-KW-FahedNeural",
+      "ar-LB-RamiNeural",
+      "ar-LY-OmarNeural",
+      "ar-MA-JamalNeural",
+      "ar-OM-AbdullahNeural",
+      "ar-QA-MoazNeural",
+      "ar-SA-HamedNeural",
+      "ar-SY-LaithNeural",
+      "ar-TN-HediNeural",
+      "ar-AE-HamdanNeural",
+      "ar-YE-SalehNeural"
+    ],
+    "dialogue": [
+      "ar-DZ-AminaNeural",
+      "ar-DZ-IsmaelNeural",
+      "ar-BH-AliNeural",
+      "ar-BH-LailaNeural",
+      "ar-EG-SalmaNeural",
+      "ar-IQ-RanaNeural",
+      "ar-JO-SanaNeural",
+      "ar-KW-NouraNeural",
+      "ar-LB-LaylaNeural",
+      "ar-LY-ImanNeural",
+      "ar-MA-MounaNeural",
+      "ar-OM-AyshaNeural",
+      "ar-QA-AmalNeural",
+      "ar-SA-ZariyahNeural",
+      "ar-SY-AmanyNeural",
+      "ar-TN-ReemNeural",
+      "ar-AE-FatimaNeural",
+      "ar-YE-MaryamNeural"
+    ]
+  },
+  "az": {
+    "all": [
+      "az-AZ-BabekNeural",
+      "az-AZ-BanuNeural"
+    ],
+    "narration": [
+      "az-AZ-BabekNeural"
+    ],
+    "dialogue": [
+      "az-AZ-BanuNeural"
+    ]
+  },
+  "bn": {
+    "all": [
+      "bn-BD-NabanitaNeural",
+      "bn-BD-PradeepNeural",
+      "bn-IN-BashkarNeural",
+      "bn-IN-TanishaaNeural"
+    ],
+    "narration": [
+      "bn-BD-PradeepNeural",
+      "bn-IN-BashkarNeural"
+    ],
+    "dialogue": [
+      "bn-BD-NabanitaNeural",
+      "bn-IN-TanishaaNeural"
+    ]
+  },
+  "bs": {
+    "all": [
+      "bs-BA-VesnaNeural",
+      "bs-BA-GoranNeural"
+    ],
+    "narration": [
+      "bs-BA-GoranNeural"
+    ],
+    "dialogue": [
+      "bs-BA-VesnaNeural"
+    ]
+  },
+  "bg": {
+    "all": [
+      "bg-BG-BorislavNeural",
+      "bg-BG-KalinaNeural"
+    ],
+    "narration": [
+      "bg-BG-BorislavNeural"
+    ],
+    "dialogue": [
+      "bg-BG-KalinaNeural"
+    ]
+  },
+  "my": {
+    "all": [
+      "my-MM-NilarNeural",
+      "my-MM-ThihaNeural"
+    ],
+    "narration": [
+      "my-MM-ThihaNeural"
+    ],
+    "dialogue": [
+      "my-MM-NilarNeural"
+    ]
+  },
+  "ca": {
+    "all": [
+      "ca-ES-EnricNeural",
+      "ca-ES-JoanaNeural"
+    ],
+    "narration": [
+      "ca-ES-EnricNeural"
+    ],
+    "dialogue": [
+      "ca-ES-JoanaNeural"
+    ]
+  },
+  "zh": {
+    "all": [
+      "zh-HK-HiuGaaiNeural",
+      "zh-HK-HiuMaanNeural",
+      "zh-HK-WanLungNeural",
+      "zh-CN-XiaoxiaoNeural",
+      "zh-CN-XiaoyiNeural",
+      "zh-CN-YunjianNeural",
+      "zh-CN-YunxiNeural",
+      "zh-CN-YunxiaNeural",
+      "zh-CN-YunyangNeural",
+      "zh-CN-liaoning-XiaobeiNeural",
+      "zh-TW-HsiaoChenNeural",
+      "zh-TW-YunJheNeural",
+      "zh-TW-HsiaoYuNeural",
+      "zh-CN-shaanxi-XiaoniNeural"
+    ],
+    "narration": [
+      "zh-HK-WanLungNeural",
+      "zh-CN-YunjianNeural",
+      "zh-CN-YunxiNeural",
+      "zh-CN-YunxiaNeural",
+      "zh-CN-YunyangNeural",
+      "zh-TW-YunJheNeural"
+    ],
+    "dialogue": [
+      "zh-HK-HiuGaaiNeural",
+      "zh-HK-HiuMaanNeural",
+      "zh-CN-XiaoxiaoNeural",
+      "zh-CN-XiaoyiNeural",
+      "zh-CN-liaoning-XiaobeiNeural",
+      "zh-TW-HsiaoChenNeural",
+      "zh-TW-HsiaoYuNeural",
+      "zh-CN-shaanxi-XiaoniNeural"
+    ]
+  },
+  "hr": {
+    "all": [
+      "hr-HR-GabrijelaNeural",
+      "hr-HR-SreckoNeural"
+    ],
+    "narration": [
+      "hr-HR-GabrijelaNeural",
+      "hr-HR-SreckoNeural"
+    ],
+    "dialogue": [
+      "hr-HR-GabrijelaNeural",
+      "hr-HR-SreckoNeural"
+    ]
+  },
+  "cs": {
+    "all": [
+      "cs-CZ-AntoninNeural",
+      "cs-CZ-VlastaNeural"
+    ],
+    "narration": [
+      "cs-CZ-AntoninNeural",
+      "cs-CZ-VlastaNeural"
+    ],
+    "dialogue": [
+      "cs-CZ-AntoninNeural",
+      "cs-CZ-VlastaNeural"
+    ]
+  },
+  "da": {
+    "all": [
+      "da-DK-ChristelNeural",
+      "da-DK-JeppeNeural"
+    ],
+    "narration": [
+      "da-DK-ChristelNeural",
+      "da-DK-JeppeNeural"
+    ],
+    "dialogue": [
+      "da-DK-ChristelNeural",
+      "da-DK-JeppeNeural"
+    ]
+  },
+  "nl": {
+    "all": [
+      "nl-BE-ArnaudNeural",
+      "nl-BE-DenaNeural",
+      "nl-NL-ColetteNeural",
+      "nl-NL-FennaNeural",
+      "nl-NL-MaartenNeural"
+    ],
+    "narration": [
+      "nl-BE-ArnaudNeural",
+      "nl-BE-DenaNeural",
+      "nl-NL-ColetteNeural",
+      "nl-NL-FennaNeural",
+      "nl-NL-MaartenNeural"
+    ],
+    "dialogue": [
+      "nl-BE-ArnaudNeural",
+      "nl-BE-DenaNeural",
+      "nl-NL-ColetteNeural",
+      "nl-NL-FennaNeural",
+      "nl-NL-MaartenNeural"
+    ]
+  },
+  "en": {
+    "all": [
+      "en-AU-WilliamMultilingualNeural",
+      "en-AU-NatashaNeural",
+      "en-CA-ClaraNeural",
+      "en-CA-LiamNeural",
+      "en-HK-YanNeural",
+      "en-HK-SamNeural",
+      "en-IN-NeerjaExpressiveNeural",
+      "en-IN-NeerjaNeural",
+      "en-IN-PrabhatNeural",
+      "en-IE-ConnorNeural",
+      "en-IE-EmilyNeural",
+      "en-KE-AsiliaNeural",
+      "en-KE-ChilembaNeural",
+      "en-NZ-MitchellNeural",
+      "en-NZ-MollyNeural",
+      "en-NG-AbeoNeural",
+      "en-NG-EzinneNeural",
+      "en-PH-JamesNeural",
+      "en-PH-RosaNeural",
+      "en-US-AvaNeural",
+      "en-US-AndrewNeural",
+      "en-US-EmmaNeural",
+      "en-US-BrianNeural",
+      "en-SG-LunaNeural",
+      "en-SG-WayneNeural",
+      "en-ZA-LeahNeural",
+      "en-ZA-LukeNeural",
+      "en-TZ-ElimuNeural",
+      "en-TZ-ImaniNeural",
+      "en-GB-LibbyNeural",
+      "en-GB-MaisieNeural",
+      "en-GB-RyanNeural",
+      "en-GB-SoniaNeural",
+      "en-GB-ThomasNeural",
+      "en-US-AnaNeural",
+      "en-US-AndrewMultilingualNeural",
+      "en-US-AriaNeural",
+      "en-US-AvaMultilingualNeural",
+      "en-US-BrianMultilingualNeural",
+      "en-US-ChristopherNeural",
+      "en-US-EmmaMultilingualNeural",
+      "en-US-EricNeural",
+      "en-US-GuyNeural",
+      "en-US-JennyNeural",
+      "en-US-MichelleNeural",
+      "en-US-RogerNeural",
+      "en-US-SteffanNeural"
+    ],
+    "narration": [
+      "en-AU-WilliamMultilingualNeural",
+      "en-AU-NatashaNeural",
+      "en-CA-ClaraNeural",
+      "en-CA-LiamNeural",
+      "en-HK-YanNeural",
+      "en-HK-SamNeural",
+      "en-IN-NeerjaExpressiveNeural",
+      "en-IN-NeerjaNeural",
+      "en-IN-PrabhatNeural",
+      "en-IE-ConnorNeural",
+      "en-IE-EmilyNeural",
+      "en-KE-AsiliaNeural",
+      "en-KE-ChilembaNeural",
+      "en-NZ-MitchellNeural",
+      "en-NZ-MollyNeural",
+      "en-NG-AbeoNeural",
+      "en-NG-EzinneNeural",
+      "en-PH-JamesNeural",
+      "en-PH-RosaNeural",
+      "en-US-AndrewNeural",
+      "en-US-BrianNeural",
+      "en-SG-LunaNeural",
+      "en-SG-WayneNeural",
+      "en-ZA-LeahNeural",
+      "en-ZA-LukeNeural",
+      "en-TZ-ElimuNeural",
+      "en-GB-LibbyNeural",
+      "en-GB-MaisieNeural",
+      "en-GB-RyanNeural",
+      "en-GB-SoniaNeural",
+      "en-GB-ThomasNeural",
+      "en-US-AndrewMultilingualNeural",
+      "en-US-BrianMultilingualNeural",
+      "en-US-ChristopherNeural",
+      "en-US-EricNeural",
+      "en-US-GuyNeural",
+      "en-US-RogerNeural",
+      "en-US-SteffanNeural"
+    ],
+    "dialogue": [
+      "en-AU-WilliamMultilingualNeural",
+      "en-AU-NatashaNeural",
+      "en-CA-ClaraNeural",
+      "en-CA-LiamNeural",
+      "en-HK-YanNeural",
+      "en-HK-SamNeural",
+      "en-IN-NeerjaExpressiveNeural",
+      "en-IN-NeerjaNeural",
+      "en-IN-PrabhatNeural",
+      "en-IE-ConnorNeural",
+      "en-IE-EmilyNeural",
+      "en-KE-AsiliaNeural",
+      "en-KE-ChilembaNeural",
+      "en-NZ-MitchellNeural",
+      "en-NZ-MollyNeural",
+      "en-NG-AbeoNeural",
+      "en-NG-EzinneNeural",
+      "en-PH-JamesNeural",
+      "en-PH-RosaNeural",
+      "en-US-AvaNeural",
+      "en-US-AndrewNeural",
+      "en-US-EmmaNeural",
+      "en-SG-LunaNeural",
+      "en-SG-WayneNeural",
+      "en-ZA-LeahNeural",
+      "en-ZA-LukeNeural",
+      "en-TZ-ElimuNeural",
+      "en-TZ-ImaniNeural",
+      "en-GB-LibbyNeural",
+      "en-GB-MaisieNeural",
+      "en-GB-RyanNeural",
+      "en-GB-SoniaNeural",
+      "en-GB-ThomasNeural",
+      "en-US-AnaNeural",
+      "en-US-AndrewMultilingualNeural",
+      "en-US-AriaNeural",
+      "en-US-AvaMultilingualNeural",
+      "en-US-ChristopherNeural",
+      "en-US-EmmaMultilingualNeural",
+      "en-US-EricNeural",
+      "en-US-JennyNeural",
+      "en-US-MichelleNeural",
+      "en-US-RogerNeural",
+      "en-US-SteffanNeural"
+    ]
+  },
+  "et": {
+    "all": [
+      "et-EE-AnuNeural",
+      "et-EE-KertNeural"
+    ],
+    "narration": [
+      "et-EE-AnuNeural",
+      "et-EE-KertNeural"
+    ],
+    "dialogue": [
+      "et-EE-AnuNeural",
+      "et-EE-KertNeural"
+    ]
+  },
+  "fil": {
+    "all": [
+      "fil-PH-AngeloNeural",
+      "fil-PH-BlessicaNeural"
+    ],
+    "narration": [
+      "fil-PH-AngeloNeural",
+      "fil-PH-BlessicaNeural"
+    ],
+    "dialogue": [
+      "fil-PH-AngeloNeural",
+      "fil-PH-BlessicaNeural"
+    ]
+  },
+  "fi": {
+    "all": [
+      "fi-FI-HarriNeural",
+      "fi-FI-NooraNeural"
+    ],
+    "narration": [
+      "fi-FI-HarriNeural",
+      "fi-FI-NooraNeural"
+    ],
+    "dialogue": [
+      "fi-FI-HarriNeural",
+      "fi-FI-NooraNeural"
+    ]
+  },
+  "fr": {
+    "all": [
+      "fr-BE-CharlineNeural",
+      "fr-BE-GerardNeural",
+      "fr-CA-ThierryNeural",
+      "fr-CA-AntoineNeural",
+      "fr-CA-JeanNeural",
+      "fr-CA-SylvieNeural",
+      "fr-FR-VivienneMultilingualNeural",
+      "fr-FR-RemyMultilingualNeural",
+      "fr-FR-DeniseNeural",
+      "fr-FR-EloiseNeural",
+      "fr-FR-HenriNeural",
+      "fr-CH-ArianeNeural",
+      "fr-CH-FabriceNeural"
+    ],
+    "narration": [
+      "fr-BE-CharlineNeural",
+      "fr-BE-GerardNeural",
+      "fr-CA-ThierryNeural",
+      "fr-CA-AntoineNeural",
+      "fr-CA-JeanNeural",
+      "fr-CA-SylvieNeural",
+      "fr-FR-VivienneMultilingualNeural",
+      "fr-FR-RemyMultilingualNeural",
+      "fr-FR-DeniseNeural",
+      "fr-FR-EloiseNeural",
+      "fr-FR-HenriNeural",
+      "fr-CH-FabriceNeural"
+    ],
+    "dialogue": [
+      "fr-BE-CharlineNeural",
+      "fr-BE-GerardNeural",
+      "fr-CA-ThierryNeural",
+      "fr-CA-AntoineNeural",
+      "fr-CA-JeanNeural",
+      "fr-CA-SylvieNeural",
+      "fr-FR-VivienneMultilingualNeural",
+      "fr-FR-RemyMultilingualNeural",
+      "fr-FR-DeniseNeural",
+      "fr-FR-EloiseNeural",
+      "fr-CH-ArianeNeural",
+      "fr-CH-FabriceNeural"
+    ]
+  },
+  "gl": {
+    "all": [
+      "gl-ES-RoiNeural",
+      "gl-ES-SabelaNeural"
+    ],
+    "narration": [
+      "gl-ES-RoiNeural",
+      "gl-ES-SabelaNeural"
+    ],
+    "dialogue": [
+      "gl-ES-RoiNeural",
+      "gl-ES-SabelaNeural"
+    ]
+  },
+  "ka": {
+    "all": [
+      "ka-GE-EkaNeural",
+      "ka-GE-GiorgiNeural"
+    ],
+    "narration": [
+      "ka-GE-EkaNeural",
+      "ka-GE-GiorgiNeural"
+    ],
+    "dialogue": [
+      "ka-GE-EkaNeural",
+      "ka-GE-GiorgiNeural"
+    ]
+  },
+  "de": {
+    "all": [
+      "de-AT-IngridNeural",
+      "de-AT-JonasNeural",
+      "de-DE-SeraphinaMultilingualNeural",
+      "de-DE-FlorianMultilingualNeural",
+      "de-DE-AmalaNeural",
+      "de-DE-ConradNeural",
+      "de-DE-KatjaNeural",
+      "de-DE-KillianNeural",
+      "de-CH-JanNeural",
+      "de-CH-LeniNeural"
+    ],
+    "narration": [
+      "de-AT-IngridNeural",
+      "de-AT-JonasNeural",
+      "de-DE-SeraphinaMultilingualNeural",
+      "de-DE-FlorianMultilingualNeural",
+      "de-DE-ConradNeural",
+      "de-DE-KatjaNeural",
+      "de-DE-KillianNeural",
+      "de-CH-JanNeural",
+      "de-CH-LeniNeural"
+    ],
+    "dialogue": [
+      "de-AT-IngridNeural",
+      "de-AT-JonasNeural",
+      "de-DE-SeraphinaMultilingualNeural",
+      "de-DE-FlorianMultilingualNeural",
+      "de-DE-AmalaNeural",
+      "de-DE-KatjaNeural",
+      "de-DE-KillianNeural",
+      "de-CH-JanNeural",
+      "de-CH-LeniNeural"
+    ]
+  },
+  "el": {
+    "all": [
+      "el-GR-AthinaNeural",
+      "el-GR-NestorasNeural"
+    ],
+    "narration": [
+      "el-GR-AthinaNeural",
+      "el-GR-NestorasNeural"
+    ],
+    "dialogue": [
+      "el-GR-AthinaNeural",
+      "el-GR-NestorasNeural"
+    ]
+  },
+  "gu": {
+    "all": [
+      "gu-IN-DhwaniNeural",
+      "gu-IN-NiranjanNeural"
+    ],
+    "narration": [
+      "gu-IN-DhwaniNeural",
+      "gu-IN-NiranjanNeural"
+    ],
+    "dialogue": [
+      "gu-IN-DhwaniNeural",
+      "gu-IN-NiranjanNeural"
+    ]
+  },
+  "he": {
+    "all": [
+      "he-IL-AvriNeural",
+      "he-IL-HilaNeural"
+    ],
+    "narration": [
+      "he-IL-AvriNeural",
+      "he-IL-HilaNeural"
+    ],
+    "dialogue": [
+      "he-IL-AvriNeural",
+      "he-IL-HilaNeural"
+    ]
+  },
+  "hi": {
+    "all": [
+      "hi-IN-MadhurNeural",
+      "hi-IN-SwaraNeural"
+    ],
+    "narration": [
+      "hi-IN-MadhurNeural",
+      "hi-IN-SwaraNeural"
+    ],
+    "dialogue": [
+      "hi-IN-MadhurNeural",
+      "hi-IN-SwaraNeural"
+    ]
+  },
+  "hu": {
+    "all": [
+      "hu-HU-NoemiNeural",
+      "hu-HU-TamasNeural"
+    ],
+    "narration": [
+      "hu-HU-NoemiNeural",
+      "hu-HU-TamasNeural"
+    ],
+    "dialogue": [
+      "hu-HU-NoemiNeural",
+      "hu-HU-TamasNeural"
+    ]
+  },
+  "is": {
+    "all": [
+      "is-IS-GudrunNeural",
+      "is-IS-GunnarNeural"
+    ],
+    "narration": [
+      "is-IS-GudrunNeural",
+      "is-IS-GunnarNeural"
+    ],
+    "dialogue": [
+      "is-IS-GudrunNeural",
+      "is-IS-GunnarNeural"
+    ]
+  },
+  "id": {
+    "all": [
+      "id-ID-ArdiNeural",
+      "id-ID-GadisNeural"
+    ],
+    "narration": [
+      "id-ID-ArdiNeural",
+      "id-ID-GadisNeural"
+    ],
+    "dialogue": [
+      "id-ID-ArdiNeural",
+      "id-ID-GadisNeural"
+    ]
+  },
+  "iu": {
+    "all": [
+      "iu-Latn-CA-SiqiniqNeural",
+      "iu-Latn-CA-TaqqiqNeural",
+      "iu-Cans-CA-SiqiniqNeural",
+      "iu-Cans-CA-TaqqiqNeural"
+    ],
+    "narration": [
+      "iu-Latn-CA-SiqiniqNeural",
+      "iu-Latn-CA-TaqqiqNeural",
+      "iu-Cans-CA-SiqiniqNeural",
+      "iu-Cans-CA-TaqqiqNeural"
+    ],
+    "dialogue": [
+      "iu-Latn-CA-SiqiniqNeural",
+      "iu-Latn-CA-TaqqiqNeural",
+      "iu-Cans-CA-SiqiniqNeural",
+      "iu-Cans-CA-TaqqiqNeural"
+    ]
+  },
+  "ga": {
+    "all": [
+      "ga-IE-ColmNeural",
+      "ga-IE-OrlaNeural"
+    ],
+    "narration": [
+      "ga-IE-ColmNeural",
+      "ga-IE-OrlaNeural"
+    ],
+    "dialogue": [
+      "ga-IE-ColmNeural",
+      "ga-IE-OrlaNeural"
+    ]
+  },
+  "it": {
+    "all": [
+      "it-IT-GiuseppeMultilingualNeural",
+      "it-IT-DiegoNeural",
+      "it-IT-ElsaNeural",
+      "it-IT-IsabellaNeural"
+    ],
+    "narration": [
+      "it-IT-GiuseppeMultilingualNeural",
+      "it-IT-DiegoNeural",
+      "it-IT-ElsaNeural",
+      "it-IT-IsabellaNeural"
+    ],
+    "dialogue": [
+      "it-IT-GiuseppeMultilingualNeural",
+      "it-IT-DiegoNeural",
+      "it-IT-ElsaNeural",
+      "it-IT-IsabellaNeural"
+    ]
+  },
+  "ja": {
+    "all": [
+      "ja-JP-KeitaNeural",
+      "ja-JP-NanamiNeural"
+    ],
+    "narration": [
+      "ja-JP-KeitaNeural",
+      "ja-JP-NanamiNeural"
+    ],
+    "dialogue": [
+      "ja-JP-KeitaNeural",
+      "ja-JP-NanamiNeural"
+    ]
+  },
+  "jv": {
+    "all": [
+      "jv-ID-DimasNeural",
+      "jv-ID-SitiNeural"
+    ],
+    "narration": [
+      "jv-ID-DimasNeural",
+      "jv-ID-SitiNeural"
+    ],
+    "dialogue": [
+      "jv-ID-DimasNeural",
+      "jv-ID-SitiNeural"
+    ]
+  },
+  "kn": {
+    "all": [
+      "kn-IN-GaganNeural",
+      "kn-IN-SapnaNeural"
+    ],
+    "narration": [
+      "kn-IN-GaganNeural",
+      "kn-IN-SapnaNeural"
+    ],
+    "dialogue": [
+      "kn-IN-GaganNeural",
+      "kn-IN-SapnaNeural"
+    ]
+  },
+  "kk": {
+    "all": [
+      "kk-KZ-AigulNeural",
+      "kk-KZ-DauletNeural"
+    ],
+    "narration": [
+      "kk-KZ-AigulNeural",
+      "kk-KZ-DauletNeural"
+    ],
+    "dialogue": [
+      "kk-KZ-AigulNeural",
+      "kk-KZ-DauletNeural"
+    ]
+  },
+  "km": {
+    "all": [
+      "km-KH-PisethNeural",
+      "km-KH-SreymomNeural"
+    ],
+    "narration": [
+      "km-KH-PisethNeural",
+      "km-KH-SreymomNeural"
+    ],
+    "dialogue": [
+      "km-KH-PisethNeural",
+      "km-KH-SreymomNeural"
+    ]
+  },
+  "ko": {
+    "all": [
+      "ko-KR-HyunsuMultilingualNeural",
+      "ko-KR-InJoonNeural",
+      "ko-KR-SunHiNeural"
+    ],
+    "narration": [
+      "ko-KR-HyunsuMultilingualNeural",
+      "ko-KR-InJoonNeural",
+      "ko-KR-SunHiNeural"
+    ],
+    "dialogue": [
+      "ko-KR-HyunsuMultilingualNeural",
+      "ko-KR-InJoonNeural",
+      "ko-KR-SunHiNeural"
+    ]
+  },
+  "lo": {
+    "all": [
+      "lo-LA-ChanthavongNeural",
+      "lo-LA-KeomanyNeural"
+    ],
+    "narration": [
+      "lo-LA-ChanthavongNeural",
+      "lo-LA-KeomanyNeural"
+    ],
+    "dialogue": [
+      "lo-LA-ChanthavongNeural",
+      "lo-LA-KeomanyNeural"
+    ]
+  },
+  "lv": {
+    "all": [
+      "lv-LV-EveritaNeural",
+      "lv-LV-NilsNeural"
+    ],
+    "narration": [
+      "lv-LV-EveritaNeural",
+      "lv-LV-NilsNeural"
+    ],
+    "dialogue": [
+      "lv-LV-EveritaNeural",
+      "lv-LV-NilsNeural"
+    ]
+  },
+  "lt": {
+    "all": [
+      "lt-LT-LeonasNeural",
+      "lt-LT-OnaNeural"
+    ],
+    "narration": [
+      "lt-LT-LeonasNeural",
+      "lt-LT-OnaNeural"
+    ],
+    "dialogue": [
+      "lt-LT-LeonasNeural",
+      "lt-LT-OnaNeural"
+    ]
+  },
+  "mk": {
+    "all": [
+      "mk-MK-AleksandarNeural",
+      "mk-MK-MarijaNeural"
+    ],
+    "narration": [
+      "mk-MK-AleksandarNeural",
+      "mk-MK-MarijaNeural"
+    ],
+    "dialogue": [
+      "mk-MK-AleksandarNeural",
+      "mk-MK-MarijaNeural"
+    ]
+  },
+  "ms": {
+    "all": [
+      "ms-MY-OsmanNeural",
+      "ms-MY-YasminNeural"
+    ],
+    "narration": [
+      "ms-MY-OsmanNeural",
+      "ms-MY-YasminNeural"
+    ],
+    "dialogue": [
+      "ms-MY-OsmanNeural",
+      "ms-MY-YasminNeural"
+    ]
+  },
+  "ml": {
+    "all": [
+      "ml-IN-MidhunNeural",
+      "ml-IN-SobhanaNeural"
+    ],
+    "narration": [
+      "ml-IN-MidhunNeural",
+      "ml-IN-SobhanaNeural"
+    ],
+    "dialogue": [
+      "ml-IN-MidhunNeural",
+      "ml-IN-SobhanaNeural"
+    ]
+  },
+  "mt": {
+    "all": [
+      "mt-MT-GraceNeural",
+      "mt-MT-JosephNeural"
+    ],
+    "narration": [
+      "mt-MT-GraceNeural",
+      "mt-MT-JosephNeural"
+    ],
+    "dialogue": [
+      "mt-MT-GraceNeural",
+      "mt-MT-JosephNeural"
+    ]
+  },
+  "mr": {
+    "all": [
+      "mr-IN-AarohiNeural",
+      "mr-IN-ManoharNeural"
+    ],
+    "narration": [
+      "mr-IN-AarohiNeural",
+      "mr-IN-ManoharNeural"
+    ],
+    "dialogue": [
+      "mr-IN-AarohiNeural",
+      "mr-IN-ManoharNeural"
+    ]
+  },
+  "mn": {
+    "all": [
+      "mn-MN-BataaNeural",
+      "mn-MN-YesuiNeural"
+    ],
+    "narration": [
+      "mn-MN-BataaNeural",
+      "mn-MN-YesuiNeural"
+    ],
+    "dialogue": [
+      "mn-MN-BataaNeural",
+      "mn-MN-YesuiNeural"
+    ]
+  },
+  "ne": {
+    "all": [
+      "ne-NP-HemkalaNeural",
+      "ne-NP-SagarNeural"
+    ],
+    "narration": [
+      "ne-NP-HemkalaNeural",
+      "ne-NP-SagarNeural"
+    ],
+    "dialogue": [
+      "ne-NP-HemkalaNeural",
+      "ne-NP-SagarNeural"
+    ]
+  },
+  "nb": {
+    "all": [
+      "nb-NO-FinnNeural",
+      "nb-NO-PernilleNeural"
+    ],
+    "narration": [
+      "nb-NO-FinnNeural",
+      "nb-NO-PernilleNeural"
+    ],
+    "dialogue": [
+      "nb-NO-FinnNeural",
+      "nb-NO-PernilleNeural"
+    ]
+  },
+  "ps": {
+    "all": [
+      "ps-AF-GulNawazNeural",
+      "ps-AF-LatifaNeural"
+    ],
+    "narration": [
+      "ps-AF-GulNawazNeural",
+      "ps-AF-LatifaNeural"
+    ],
+    "dialogue": [
+      "ps-AF-GulNawazNeural",
+      "ps-AF-LatifaNeural"
+    ]
+  },
+  "fa": {
+    "all": [
+      "fa-IR-DilaraNeural",
+      "fa-IR-FaridNeural"
+    ],
+    "narration": [
+      "fa-IR-DilaraNeural",
+      "fa-IR-FaridNeural"
+    ],
+    "dialogue": [
+      "fa-IR-DilaraNeural",
+      "fa-IR-FaridNeural"
+    ]
+  },
+  "pl": {
+    "all": [
+      "pl-PL-MarekNeural",
+      "pl-PL-ZofiaNeural"
+    ],
+    "narration": [
+      "pl-PL-MarekNeural",
+      "pl-PL-ZofiaNeural"
+    ],
+    "dialogue": [
+      "pl-PL-MarekNeural",
+      "pl-PL-ZofiaNeural"
+    ]
+  },
+  "pt": {
+    "all": [
+      "pt-BR-ThalitaMultilingualNeural",
+      "pt-BR-AntonioNeural",
+      "pt-BR-FranciscaNeural",
+      "pt-PT-DuarteNeural",
+      "pt-PT-RaquelNeural"
+    ],
+    "narration": [
+      "pt-BR-ThalitaMultilingualNeural",
+      "pt-BR-AntonioNeural",
+      "pt-BR-FranciscaNeural",
+      "pt-PT-DuarteNeural",
+      "pt-PT-RaquelNeural"
+    ],
+    "dialogue": [
+      "pt-BR-ThalitaMultilingualNeural",
+      "pt-BR-AntonioNeural",
+      "pt-BR-FranciscaNeural",
+      "pt-PT-RaquelNeural"
+    ]
+  },
+  "ro": {
+    "all": [
+      "ro-RO-AlinaNeural",
+      "ro-RO-EmilNeural"
+    ],
+    "narration": [
+      "ro-RO-AlinaNeural",
+      "ro-RO-EmilNeural"
+    ],
+    "dialogue": [
+      "ro-RO-AlinaNeural",
+      "ro-RO-EmilNeural"
+    ]
+  },
+  "ru": {
+    "all": [
+      "ru-RU-DmitryNeural",
+      "ru-RU-SvetlanaNeural"
+    ],
+    "narration": [
+      "ru-RU-DmitryNeural",
+      "ru-RU-SvetlanaNeural"
+    ],
+    "dialogue": [
+      "ru-RU-SvetlanaNeural"
+    ]
+  },
+  "sr": {
+    "all": [
+      "sr-RS-NicholasNeural",
+      "sr-RS-SophieNeural"
+    ],
+    "narration": [
+      "sr-RS-NicholasNeural",
+      "sr-RS-SophieNeural"
+    ],
+    "dialogue": [
+      "sr-RS-NicholasNeural",
+      "sr-RS-SophieNeural"
+    ]
+  },
+  "si": {
+    "all": [
+      "si-LK-SameeraNeural",
+      "si-LK-ThiliniNeural"
+    ],
+    "narration": [
+      "si-LK-SameeraNeural",
+      "si-LK-ThiliniNeural"
+    ],
+    "dialogue": [
+      "si-LK-SameeraNeural",
+      "si-LK-ThiliniNeural"
+    ]
+  },
+  "sk": {
+    "all": [
+      "sk-SK-LukasNeural",
+      "sk-SK-ViktoriaNeural"
+    ],
+    "narration": [
+      "sk-SK-LukasNeural",
+      "sk-SK-ViktoriaNeural"
+    ],
+    "dialogue": [
+      "sk-SK-LukasNeural",
+      "sk-SK-ViktoriaNeural"
+    ]
+  },
+  "sl": {
+    "all": [
+      "sl-SI-PetraNeural",
+      "sl-SI-RokNeural"
+    ],
+    "narration": [
+      "sl-SI-PetraNeural",
+      "sl-SI-RokNeural"
+    ],
+    "dialogue": [
+      "sl-SI-PetraNeural",
+      "sl-SI-RokNeural"
+    ]
+  },
+  "so": {
+    "all": [
+      "so-SO-MuuseNeural",
+      "so-SO-UbaxNeural"
+    ],
+    "narration": [
+      "so-SO-MuuseNeural",
+      "so-SO-UbaxNeural"
+    ],
+    "dialogue": [
+      "so-SO-MuuseNeural",
+      "so-SO-UbaxNeural"
+    ]
+  },
+  "es": {
+    "all": [
+      "es-AR-ElenaNeural",
+      "es-AR-TomasNeural",
+      "es-BO-MarceloNeural",
+      "es-BO-SofiaNeural",
+      "es-CL-CatalinaNeural",
+      "es-CL-LorenzoNeural",
+      "es-CO-GonzaloNeural",
+      "es-CO-SalomeNeural",
+      "es-ES-XimenaNeural",
+      "es-CR-JuanNeural",
+      "es-CR-MariaNeural",
+      "es-CU-BelkysNeural",
+      "es-CU-ManuelNeural",
+      "es-DO-EmilioNeural",
+      "es-DO-RamonaNeural",
+      "es-EC-AndreaNeural",
+      "es-EC-LuisNeural",
+      "es-SV-LorenaNeural",
+      "es-SV-RodrigoNeural",
+      "es-GQ-JavierNeural",
+      "es-GQ-TeresaNeural",
+      "es-GT-AndresNeural",
+      "es-GT-MartaNeural",
+      "es-HN-CarlosNeural",
+      "es-HN-KarlaNeural",
+      "es-MX-DaliaNeural",
+      "es-MX-JorgeNeural",
+      "es-NI-FedericoNeural",
+      "es-NI-YolandaNeural",
+      "es-PA-MargaritaNeural",
+      "es-PA-RobertoNeural",
+      "es-PY-MarioNeural",
+      "es-PY-TaniaNeural",
+      "es-PE-AlexNeural",
+      "es-PE-CamilaNeural",
+      "es-PR-KarinaNeural",
+      "es-PR-VictorNeural",
+      "es-ES-AlvaroNeural",
+      "es-ES-ElviraNeural",
+      "es-US-AlonsoNeural",
+      "es-US-PalomaNeural",
+      "es-UY-MateoNeural",
+      "es-UY-ValentinaNeural",
+      "es-VE-PaolaNeural",
+      "es-VE-SebastianNeural"
+    ],
+    "narration": [
+      "es-AR-ElenaNeural",
+      "es-AR-TomasNeural",
+      "es-BO-MarceloNeural",
+      "es-BO-SofiaNeural",
+      "es-CL-CatalinaNeural",
+      "es-CL-LorenzoNeural",
+      "es-CO-GonzaloNeural",
+      "es-CO-SalomeNeural",
+      "es-ES-XimenaNeural",
+      "es-CR-JuanNeural",
+      "es-CR-MariaNeural",
+      "es-CU-BelkysNeural",
+      "es-CU-ManuelNeural",
+      "es-DO-EmilioNeural",
+      "es-DO-RamonaNeural",
+      "es-EC-AndreaNeural",
+      "es-EC-LuisNeural",
+      "es-SV-LorenaNeural",
+      "es-SV-RodrigoNeural",
+      "es-GQ-JavierNeural",
+      "es-GQ-TeresaNeural",
+      "es-GT-AndresNeural",
+      "es-GT-MartaNeural",
+      "es-HN-CarlosNeural",
+      "es-HN-KarlaNeural",
+      "es-MX-DaliaNeural",
+      "es-MX-JorgeNeural",
+      "es-NI-FedericoNeural",
+      "es-NI-YolandaNeural",
+      "es-PA-MargaritaNeural",
+      "es-PA-RobertoNeural",
+      "es-PY-MarioNeural",
+      "es-PY-TaniaNeural",
+      "es-PE-AlexNeural",
+      "es-PE-CamilaNeural",
+      "es-PR-KarinaNeural",
+      "es-PR-VictorNeural",
+      "es-ES-AlvaroNeural",
+      "es-ES-ElviraNeural",
+      "es-US-AlonsoNeural",
+      "es-US-PalomaNeural",
+      "es-UY-MateoNeural",
+      "es-UY-ValentinaNeural",
+      "es-VE-PaolaNeural",
+      "es-VE-SebastianNeural"
+    ],
+    "dialogue": [
+      "es-AR-ElenaNeural",
+      "es-AR-TomasNeural",
+      "es-BO-MarceloNeural",
+      "es-BO-SofiaNeural",
+      "es-CL-CatalinaNeural",
+      "es-CL-LorenzoNeural",
+      "es-CO-GonzaloNeural",
+      "es-CO-SalomeNeural",
+      "es-ES-XimenaNeural",
+      "es-CR-JuanNeural",
+      "es-CR-MariaNeural",
+      "es-CU-BelkysNeural",
+      "es-CU-ManuelNeural",
+      "es-DO-EmilioNeural",
+      "es-DO-RamonaNeural",
+      "es-EC-AndreaNeural",
+      "es-EC-LuisNeural",
+      "es-SV-LorenaNeural",
+      "es-SV-RodrigoNeural",
+      "es-GQ-JavierNeural",
+      "es-GQ-TeresaNeural",
+      "es-GT-AndresNeural",
+      "es-GT-MartaNeural",
+      "es-HN-CarlosNeural",
+      "es-HN-KarlaNeural",
+      "es-MX-DaliaNeural",
+      "es-MX-JorgeNeural",
+      "es-NI-FedericoNeural",
+      "es-NI-YolandaNeural",
+      "es-PA-MargaritaNeural",
+      "es-PA-RobertoNeural",
+      "es-PY-MarioNeural",
+      "es-PY-TaniaNeural",
+      "es-PE-AlexNeural",
+      "es-PE-CamilaNeural",
+      "es-PR-KarinaNeural",
+      "es-PR-VictorNeural",
+      "es-ES-AlvaroNeural",
+      "es-ES-ElviraNeural",
+      "es-US-AlonsoNeural",
+      "es-US-PalomaNeural",
+      "es-UY-MateoNeural",
+      "es-UY-ValentinaNeural",
+      "es-VE-PaolaNeural",
+      "es-VE-SebastianNeural"
+    ]
+  },
+  "su": {
+    "all": [
+      "su-ID-JajangNeural",
+      "su-ID-TutiNeural"
+    ],
+    "narration": [
+      "su-ID-JajangNeural",
+      "su-ID-TutiNeural"
+    ],
+    "dialogue": [
+      "su-ID-JajangNeural",
+      "su-ID-TutiNeural"
+    ]
+  },
+  "sw": {
+    "all": [
+      "sw-KE-RafikiNeural",
+      "sw-KE-ZuriNeural",
+      "sw-TZ-DaudiNeural",
+      "sw-TZ-RehemaNeural"
+    ],
+    "narration": [
+      "sw-KE-RafikiNeural",
+      "sw-KE-ZuriNeural",
+      "sw-TZ-DaudiNeural",
+      "sw-TZ-RehemaNeural"
+    ],
+    "dialogue": [
+      "sw-KE-RafikiNeural",
+      "sw-KE-ZuriNeural",
+      "sw-TZ-DaudiNeural",
+      "sw-TZ-RehemaNeural"
+    ]
+  },
+  "sv": {
+    "all": [
+      "sv-SE-MattiasNeural",
+      "sv-SE-SofieNeural"
+    ],
+    "narration": [
+      "sv-SE-MattiasNeural",
+      "sv-SE-SofieNeural"
+    ],
+    "dialogue": [
+      "sv-SE-SofieNeural"
+    ]
+  },
+  "ta": {
+    "all": [
+      "ta-IN-PallaviNeural",
+      "ta-IN-ValluvarNeural",
+      "ta-MY-KaniNeural",
+      "ta-MY-SuryaNeural",
+      "ta-SG-AnbuNeural",
+      "ta-SG-VenbaNeural",
+      "ta-LK-KumarNeural",
+      "ta-LK-SaranyaNeural"
+    ],
+    "narration": [
+      "ta-IN-PallaviNeural",
+      "ta-IN-ValluvarNeural",
+      "ta-MY-KaniNeural",
+      "ta-MY-SuryaNeural",
+      "ta-SG-AnbuNeural",
+      "ta-SG-VenbaNeural",
+      "ta-LK-KumarNeural"
+    ],
+    "dialogue": [
+      "ta-IN-PallaviNeural",
+      "ta-IN-ValluvarNeural",
+      "ta-MY-KaniNeural",
+      "ta-MY-SuryaNeural",
+      "ta-SG-AnbuNeural",
+      "ta-SG-VenbaNeural",
+      "ta-LK-KumarNeural",
+      "ta-LK-SaranyaNeural"
+    ]
+  },
+  "te": {
+    "all": [
+      "te-IN-MohanNeural",
+      "te-IN-ShrutiNeural"
+    ],
+    "narration": [
+      "te-IN-MohanNeural",
+      "te-IN-ShrutiNeural"
+    ],
+    "dialogue": [
+      "te-IN-MohanNeural",
+      "te-IN-ShrutiNeural"
+    ]
+  },
+  "th": {
+    "all": [
+      "th-TH-NiwatNeural",
+      "th-TH-PremwadeeNeural"
+    ],
+    "narration": [
+      "th-TH-NiwatNeural",
+      "th-TH-PremwadeeNeural"
+    ],
+    "dialogue": [
+      "th-TH-PremwadeeNeural"
+    ]
+  },
+  "tr": {
+    "all": [
+      "tr-TR-EmelNeural",
+      "tr-TR-AhmetNeural"
+    ],
+    "narration": [
+      "tr-TR-EmelNeural",
+      "tr-TR-AhmetNeural"
+    ],
+    "dialogue": [
+      "tr-TR-EmelNeural"
+    ]
+  },
+  "uk": {
+    "all": [
+      "uk-UA-OstapNeural",
+      "uk-UA-PolinaNeural"
+    ],
+    "narration": [
+      "uk-UA-OstapNeural",
+      "uk-UA-PolinaNeural"
+    ],
+    "dialogue": [
+      "uk-UA-PolinaNeural"
+    ]
+  },
+  "ur": {
+    "all": [
+      "ur-IN-GulNeural",
+      "ur-IN-SalmanNeural",
+      "ur-PK-AsadNeural",
+      "ur-PK-UzmaNeural"
+    ],
+    "narration": [
+      "ur-IN-GulNeural",
+      "ur-PK-AsadNeural",
+      "ur-PK-UzmaNeural"
+    ],
+    "dialogue": [
+      "ur-IN-GulNeural",
+      "ur-IN-SalmanNeural",
+      "ur-PK-AsadNeural",
+      "ur-PK-UzmaNeural"
+    ]
+  },
+  "uz": {
+    "all": [
+      "uz-UZ-MadinaNeural",
+      "uz-UZ-SardorNeural"
+    ],
+    "narration": [
+      "uz-UZ-MadinaNeural",
+      "uz-UZ-SardorNeural"
+    ],
+    "dialogue": [
+      "uz-UZ-MadinaNeural",
+      "uz-UZ-SardorNeural"
+    ]
+  },
+  "vi": {
+    "all": [
+      "vi-VN-HoaiMyNeural",
+      "vi-VN-NamMinhNeural"
+    ],
+    "narration": [
+      "vi-VN-HoaiMyNeural",
+      "vi-VN-NamMinhNeural"
+    ],
+    "dialogue": [
+      "vi-VN-HoaiMyNeural"
+    ]
+  },
+  "cy": {
+    "all": [
+      "cy-GB-AledNeural",
+      "cy-GB-NiaNeural"
+    ],
+    "narration": [
+      "cy-GB-AledNeural",
+      "cy-GB-NiaNeural"
+    ],
+    "dialogue": [
+      "cy-GB-AledNeural",
+      "cy-GB-NiaNeural"
+    ]
+  },
+  "zu": {
+    "all": [
+      "zu-ZA-ThandoNeural",
+      "zu-ZA-ThembaNeural"
+    ],
+    "narration": [
+      "zu-ZA-ThandoNeural",
+      "zu-ZA-ThembaNeural"
+    ],
+    "dialogue": [
+      "zu-ZA-ThandoNeural",
+      "zu-ZA-ThembaNeural"
+    ]
+  }
+}

@@ -1,10 +1,578 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <title>文本转语音生成器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>文本转语音生成器 - 移动端优化版</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        input[type="radio"] {
+            width: auto;
+            margin-right: 5px;
+        }
+        
+        .voice-mode-section {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .feedback {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .feedback-success {
+            color: #28a745;
+        }
+        
+        .feedback-warning {
+            color: #ffc107;
+        }
+        
+        .feedback-error {
+            color: #dc3545;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        .result-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .link-display {
+            word-break: break-all;
+            background: white;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        .feedback {
+            font-size: 0.85em;
+            margin-top: 5px;
+            padding: 5px;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .feedback-success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .feedback-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .feedback-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .voice-mode-section {
+            transition: all 0.3s ease;
+        }
+        
+        #single-voice-section, #multi-voice-section {
+            transition: opacity 0.3s ease;
+        }
+        
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .character-count {
+            font-size: 0.8em;
+            color: #666;
+            float: right;
+        }
+        
+        .voice-preview {
+            font-size: 0.9em;
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .voice-preview:hover {
+            color: #0056b3;
+        }
+        
+        /* 增强的用户体验样式 */
+        .form-group.loading {
+            position: relative;
+        }
+        
+        .form-group.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .voice-selection-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .voice-selection-status.selected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .voice-selection-status.partial {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .voice-selection-status.empty {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .input-validation-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+        
+        .input-validation-icon.valid {
+            color: #28a745;
+        }
+        
+        .input-validation-icon.invalid {
+            color: #dc3545;
+        }
+        
+        .input-validation-icon.warning {
+            color: #ffc107;
+        }
+        
+        .form-group {
+            position: relative;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            padding-right: 35px;
+        }
+        
+        .voice-mode-section {
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+        
+        .voice-mode-section.active {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .progress-indicator {
+            width: 100%;
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .validation-summary {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .validation-summary.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .validation-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        
+        .validation-item .icon {
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        
+        .validation-item.valid .icon {
+            color: #28a745;
+        }
+        
+        .validation-item.invalid .icon {
+            color: #dc3545;
+        }
+        
+        .validation-item.warning .icon {
+            color: #ffc107;
+        }
+        
+        /* 移动端导航样式 */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 10px 15px;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+            display: none;
+        }
+        
+        .mobile-nav-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .mobile-nav-menu {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #333;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .mobile-nav-menu:hover {
+            background: #f8f9fa;
+        }
+        
+        .mobile-menu {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 999;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            max-height: 400px;
+        }
+        
+        .mobile-menu-item {
+            display: block;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            border-bottom: 1px solid #eee;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .mobile-menu-item:hover,
+        .mobile-menu-item:active {
+            background: #f8f9fa;
+            color: #007bff;
+        }
+        
+        /* 移动端响应式样式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                font-size: 16px;
+            }
+            
+            .container {
+                max-width: 100%;
+                padding: 0 10px;
+            }
+            
+            /* 显示移动端导航 */
+            .mobile-nav {
+                display: flex !important;
+            }
+            
+            .main-content {
+                padding-top: 70px;
+            }
+            
+            /* 触摸友好的表单元素 */
+            input, select, textarea, button {
+                min-height: 44px;
+                font-size: 16px;
+                padding: 12px 16px;
+                border-radius: 8px;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+            
+            button {
+                min-width: 44px;
+                padding: 12px 20px;
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            textarea {
+                min-height: 120px;
+                resize: vertical;
+            }
+            
+            select {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+                background-position: right 12px center;
+                background-repeat: no-repeat;
+                background-size: 16px;
+                padding-right: 40px;
+            }
+            
+            /* 移动端布局优化 */
+            .form-group {
+                margin-bottom: 20px;
+            }
+            
+            label {
+                font-size: 16px;
+                margin-bottom: 8px;
+                display: block;
+            }
+            
+            .voice-mode-section {
+                margin-bottom: 15px;
+                padding: 15px;
+                border-radius: 12px;
+            }
+            
+            /* 移动端反馈信息 */
+            .feedback {
+                font-size: 14px;
+                padding: 8px 12px;
+                border-radius: 6px;
+                margin-top: 8px;
+            }
+            
+            /* 移动端结果区域 */
+            .result-section {
+                margin-top: 15px;
+                padding: 15px;
+                border-radius: 8px;
+            }
+            
+            .link-display {
+                word-break: break-all;
+                font-size: 14px;
+                padding: 8px;
+                margin: 8px 0;
+            }
+        }
+        
+        /* 平板端样式 */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                max-width: 900px;
+                padding: 0 20px;
+            }
+            
+            input, select, textarea, button {
+                min-height: 40px;
+                font-size: 15px;
+            }
+        }
+        
+        /* 小屏幕移动设备优化 */
+        @media (max-width: 480px) {
+            body {
+                font-size: 14px;
+                padding: 5px;
+            }
+            
+            .container {
+                padding: 0 5px;
+            }
+            
+            input, select, textarea, button {
+                font-size: 16px; /* 防止iOS缩放 */
+            }
+            
+            .voice-mode-section {
+                padding: 10px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+        }
+        
+        /* 触摸设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+            button:hover {
+                background: #007bff; /* 禁用悬停效果 */
+            }
+            
+            button:active {
+                transform: scale(0.98);
+                transition: transform 0.1s ease;
+            }
+        }
+        
+        /* 横屏优化 */
+        @media (orientation: landscape) and (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+        }
+        
+        /* 设备类型样式 */
+        .device-mobile body {
+            font-size: 16px;
+            line-height: 1.5;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .touch-device button,
+        .touch-device .btn,
+        .touch-device input[type="submit"],
+        .touch-device input[type="button"] {
+            min-height: 44px;
+            min-width: 44px;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .touch-device input,
+        .touch-device select,
+        .touch-device textarea {
+            min-height: 44px;
+            padding: 12px 16px;
+            font-size: 16px;
+            border-radius: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+    </style>
+    <script src="/static/js/voice-processor.js"></script>
+    <script src="/static/js/mobile-detector.js"></script>
     <script>
-        const voices = {
+        // 声音数据处理器实例
+        const voiceProcessor = new VoiceDataProcessor();
+        
+        // 原始声音数据
+        const rawVoices = {
             "ar": [
               "No",
               "ar-AE-FatimaNeural",
@@ -465,100 +1033,1326 @@
             ]
         };
 
+        // 初始化声音数据处理器
+        let processedVoices = {};
+        
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 防抖的声音更新函数
+        const debouncedUpdateVoices = debounce(updateVoices, 300);
+
+        // 页面加载时处理声音数据
+        document.addEventListener('DOMContentLoaded', function() {
+            processedVoices = voiceProcessor.processVoiceData(rawVoices);
+            console.log('声音数据已处理完成', processedVoices);
+            
+            // 添加实时验证
+            setupRealTimeValidation();
+            
+            // 初始化用户体验增强
+            initializeUXEnhancements();
+            
+            // 初始化移动端优化
+            initializeMobileOptimizations();
+        });
+
+        // 切换声音选择模式
+        function toggleVoiceMode() {
+            const singleVoiceMode = document.getElementById('single-voice').checked;
+            const singleSection = document.getElementById('single-voice-section');
+            const multiSection = document.getElementById('multi-voice-section');
+            
+            // 添加过渡效果
+            singleSection.style.transition = 'opacity 0.3s ease';
+            multiSection.style.transition = 'opacity 0.3s ease';
+            
+            if (singleVoiceMode) {
+                multiSection.style.opacity = '0';
+                setTimeout(() => {
+                    multiSection.style.display = 'none';
+                    singleSection.style.display = 'block';
+                    singleSection.style.opacity = '1';
+                }, 150);
+            } else {
+                singleSection.style.opacity = '0';
+                setTimeout(() => {
+                    singleSection.style.display = 'none';
+                    multiSection.style.display = 'block';
+                    multiSection.style.opacity = '1';
+                }, 150);
+            }
+            
+            // 使用防抖更新声音选项
+            debouncedUpdateVoices();
+            
+            // 重新验证声音选择
+            setTimeout(validateVoiceSelection, 200);
+        }
+
         function updateVoices() {
             const countrySelect = document.getElementById('country');
-            const voiceSelect = document.getElementById('voice');
             const selectedCountry = countrySelect.value;
-            const isNarration = document.getElementById('narration').checked;
-            const isDialogue = document.getElementById('dialogue').checked;
+            const singleVoiceMode = document.getElementById('single-voice').checked;
 
-            // 清空声音下拉框
-            voiceSelect.innerHTML = '';
+            if (!selectedCountry || !processedVoices[selectedCountry]) {
+                clearVoiceSelections();
+                return;
+            }
 
-            if (selectedCountry in voices) {
-                let selectedVoices = voices[selectedCountry]["all"];
-                if (isNarration && !isDialogue) {
-                    selectedVoices = voices[selectedCountry]["narration"];
-                } else if (!isNarration && isDialogue) {
-                    selectedVoices = voices[selectedCountry]["dialogue"];
+            // 显示加载状态
+            showVoiceLoadingState();
+
+            // 模拟加载延迟以显示用户反馈
+            setTimeout(() => {
+                if (singleVoiceMode) {
+                    // 统一声音模式
+                    updateSingleVoiceSelect(selectedCountry);
+                } else {
+                    // 旁白对话分离模式
+                    updateMultiVoiceSelects(selectedCountry);
                 }
+                
+                // 隐藏加载状态
+                hideVoiceLoadingState();
+                
+                // 更新表单进度
+                updateFormProgress();
+            }, 200);
+        }
 
-                selectedVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.value = voice;
-                    option.textContent = voice;
-                    voiceSelect.appendChild(option);
-                });
+        function showVoiceLoadingState() {
+            const voiceSections = document.querySelectorAll('#single-voice-section, #multi-voice-section');
+            voiceSections.forEach(section => {
+                section.classList.add('loading');
+            });
+        }
+
+        function hideVoiceLoadingState() {
+            const voiceSections = document.querySelectorAll('#single-voice-section, #multi-voice-section');
+            voiceSections.forEach(section => {
+                section.classList.remove('loading');
+            });
+        }
+
+        function clearVoiceSelections() {
+            const selects = ['voice', 'narration-voice', 'dialogue-voice'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = '<option value="">请先选择语言</option>';
+                }
+            });
+            
+            // 清除状态指示器
+            const indicators = document.querySelectorAll('.voice-selection-status');
+            indicators.forEach(indicator => {
+                indicator.className = 'voice-selection-status empty';
+                indicator.textContent = '未选择';
+            });
+        }
+
+        function updateSingleVoiceSelect(selectedCountry) {
+            const voiceSelect = document.getElementById('voice');
+            const allVoices = processedVoices[selectedCountry].all;
+            
+            // 清空并重新填充选项
+            voiceSelect.innerHTML = '';
+            
+            // 添加默认选项
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '请选择声音';
+            voiceSelect.appendChild(defaultOption);
+
+            // 添加所有声音选项
+            allVoices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice;
+                option.textContent = voice;
+                voiceSelect.appendChild(option);
+            });
+            
+            // 更新反馈信息
+            updateSelectionFeedback(allVoices.length, 'voice-feedback');
+            
+            // 触发验证图标更新
+            const icon = voiceSelect.parentNode.querySelector('.input-validation-icon');
+            if (icon) {
+                updateValidationIcon(voiceSelect, icon);
+            }
+        }
+
+        function updateMultiVoiceSelects(selectedCountry) {
+            const narrationSelect = document.getElementById('narration-voice');
+            const dialogueSelect = document.getElementById('dialogue-voice');
+            
+            const narrationVoices = processedVoices[selectedCountry].narration;
+            const dialogueVoices = processedVoices[selectedCountry].dialogue;
+            
+            // 更新旁白声音选择器
+            populateVoiceSelect(narrationSelect, narrationVoices, '请选择旁白声音');
+            
+            // 更新对话声音选择器
+            populateVoiceSelect(dialogueSelect, dialogueVoices, '请选择对话声音');
+            
+            // 更新反馈信息
+            const feedbackElement = document.getElementById('voice-feedback');
+            if (feedbackElement) {
+                feedbackElement.innerHTML = `
+                    <div>旁白声音: ${narrationVoices.length} 个可选</div>
+                    <div>对话声音: ${dialogueVoices.length} 个可选</div>
+                `;
+                feedbackElement.className = 'feedback feedback-success';
+            }
+        }
+
+        function populateVoiceSelect(selectElement, voices, placeholder) {
+            // 清空选项
+            selectElement.innerHTML = '';
+            
+            // 添加默认选项
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = placeholder;
+            selectElement.appendChild(defaultOption);
+            
+            // 添加声音选项
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice;
+                option.textContent = voice;
+                selectElement.appendChild(option);
+            });
+        }
+        
+        // 添加选择状态的视觉反馈
+        function updateSelectionFeedback(voiceCount, feedbackId = 'voice-feedback') {
+            const feedbackElement = document.getElementById(feedbackId);
+            if (feedbackElement) {
+                feedbackElement.textContent = `找到 ${voiceCount} 个可用声音`;
+                feedbackElement.className = voiceCount > 0 ? 'feedback feedback-success' : 'feedback feedback-warning';
             }
         }
 
         function generateLink(event) {
             event.preventDefault(); // 阻止表单默认提交行为
             
-            const text = document.getElementById('text').value;
-            const speed = document.getElementById('speed').value;
-            const voice = document.getElementById('voice').value;
+            // 验证输入参数
+            const validationResult = validateInputs();
+            if (!validationResult.valid) {
+                alert(validationResult.message);
+                return;
+            }
+            
+            const { text, speed, singleVoiceMode } = validationResult.data;
 
             // 构建链接
             let baseUrl = window.location.origin + '/api?';
-            let params = `text=${encodeURIComponent(text)}&speed=${speed}&narr=${encodeURIComponent(voice)}`;
+            let params = `text=${encodeURIComponent(text)}&speed=${speed}`;
+            
+            if (singleVoiceMode) {
+                // 统一声音模式
+                const voice = document.getElementById('voice').value;
+                if (!voice) {
+                    alert('请选择声音');
+                    return;
+                }
+                
+                // 验证声音名称格式
+                if (!validateVoiceName(voice)) {
+                    alert('选择的声音名称格式无效');
+                    return;
+                }
+                
+                params += `&all=${encodeURIComponent(voice)}`;
+            } else {
+                // 旁白对话分离模式
+                const narrationVoice = document.getElementById('narration-voice').value;
+                const dialogueVoice = document.getElementById('dialogue-voice').value;
+                
+                if (!narrationVoice && !dialogueVoice) {
+                    alert('请至少选择一个声音（旁白或对话）');
+                    return;
+                }
+                
+                // 验证声音名称格式
+                if (narrationVoice && !validateVoiceName(narrationVoice)) {
+                    alert('旁白声音名称格式无效');
+                    return;
+                }
+                
+                if (dialogueVoice && !validateVoiceName(dialogueVoice)) {
+                    alert('对话声音名称格式无效');
+                    return;
+                }
+                
+                if (narrationVoice) {
+                    params += `&narr=${encodeURIComponent(narrationVoice)}`;
+                }
+                if (dialogueVoice) {
+                    params += `&dlg=${encodeURIComponent(dialogueVoice)}`;
+                }
+            }
+            
             const link = baseUrl + params;
 
-            // 显示弹窗
-            alert(`生成的链接: ${link}`);
+            // 显示链接和预览按钮
+            showLinkResult(link, validationResult.data);
+        }
+
+        function validateInputs() {
+            const text = document.getElementById('text').value;
+            const speed = document.getElementById('speed').value;
+            const singleVoiceMode = document.getElementById('single-voice').checked;
+            
+            // 验证文本
+            if (!text.trim()) {
+                return { valid: false, message: '请输入要转换的文本' };
+            }
+            
+            if (text.length > 5000) {
+                return { valid: false, message: '文本长度不能超过5000个字符' };
+            }
+            
+            // 验证语速
+            const speedNum = parseFloat(speed);
+            if (isNaN(speedNum) || speedNum < 0.5 || speedNum > 3.0) {
+                return { valid: false, message: '语速必须在0.5到3.0之间' };
+            }
+            
+            return {
+                valid: true,
+                data: { text, speed: speedNum, singleVoiceMode }
+            };
+        }
+
+        function validateVoiceName(voiceName) {
+            // 验证声音名称格式：xx-XX-NameNeural
+            const voicePattern = /^[a-zA-Z]{2}-[a-zA-Z]{2}-\w+Neural$/;
+            return voicePattern.test(voiceName);
+        }
+
+        function showLinkResult(link, inputData) {
+            const singleVoiceMode = document.getElementById('single-voice').checked;
+            let voiceInfo = '';
+            
+            if (singleVoiceMode) {
+                const voice = document.getElementById('voice').value;
+                voiceInfo = `<p><strong>声音模式:</strong> 统一声音 (${voice})</p>`;
+            } else {
+                const narrationVoice = document.getElementById('narration-voice').value;
+                const dialogueVoice = document.getElementById('dialogue-voice').value;
+                voiceInfo = `
+                    <p><strong>声音模式:</strong> 旁白对话分离</p>
+                    <p><strong>旁白声音:</strong> ${narrationVoice || '未设置'}</p>
+                    <p><strong>对话声音:</strong> ${dialogueVoice || '未设置'}</p>
+                `;
+            }
+            
+            const resultHtml = `
+                <div class="result-section">
+                    <h3>生成的音频链接</h3>
+                    ${voiceInfo}
+                    <p><strong>语速:</strong> ${inputData.speed}</p>
+                    <p><strong>文本长度:</strong> ${inputData.text.length} 字符</p>
+                    <div class="link-display">${link}</div>
+                    <div style="margin-top: 10px;">
+                        <button onclick="copyToClipboard('${link}')" style="margin-right: 10px;">复制链接</button>
+                        <button onclick="previewAudio('${link}')">预览音频</button>
+                        <button onclick="downloadAudio('${link}')" style="margin-left: 10px;">下载音频</button>
+                    </div>
+                    <div id="audio-status" style="margin-top: 10px; font-size: 0.9em; color: #666;"></div>
+                </div>
+            `;
+            
+            // 显示结果
+            let resultDiv = document.getElementById('link-result');
+            if (!resultDiv) {
+                resultDiv = document.createElement('div');
+                resultDiv.id = 'link-result';
+                document.body.appendChild(resultDiv);
+            }
+            resultDiv.innerHTML = resultHtml;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('链接已复制到剪贴板');
+            }).catch(() => {
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('链接已复制到剪贴板');
+            });
+        }
+
+        function previewAudio(link) {
+            const statusDiv = document.getElementById('audio-status');
+            statusDiv.textContent = '正在加载音频...';
+            statusDiv.className = 'feedback-warning';
+            
+            // 创建音频元素进行预览
+            const audio = new Audio(link);
+            
+            audio.addEventListener('loadstart', () => {
+                statusDiv.textContent = '音频加载中...';
+            });
+            
+            audio.addEventListener('canplay', () => {
+                statusDiv.textContent = '音频已准备就绪，正在播放...';
+                statusDiv.className = 'feedback-success';
+            });
+            
+            audio.addEventListener('ended', () => {
+                statusDiv.textContent = '音频播放完成';
+                statusDiv.className = 'feedback-success';
+            });
+            
+            audio.addEventListener('error', (error) => {
+                console.error('音频播放失败:', error);
+                statusDiv.textContent = '音频播放失败，请检查链接是否正确';
+                statusDiv.className = 'feedback-error';
+            });
+            
+            audio.play().catch(error => {
+                console.error('音频播放失败:', error);
+                statusDiv.textContent = '音频播放失败，请检查链接是否正确';
+                statusDiv.className = 'feedback-error';
+            });
+        }
+
+        function downloadAudio(link) {
+            const statusDiv = document.getElementById('audio-status');
+            statusDiv.textContent = '正在准备下载...';
+            statusDiv.className = 'feedback-warning';
+            
+            // 创建下载链接
+            const downloadLink = document.createElement('a');
+            downloadLink.href = link;
+            downloadLink.download = `tts_audio_${new Date().getTime()}.webm`;
+            
+            // 触发下载
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            statusDiv.textContent = '下载已开始';
+            statusDiv.className = 'feedback-success';
+        }
+
+        function setupRealTimeValidation() {
+            // 文本输入验证
+            const textArea = document.getElementById('text');
+            const textFeedback = createFeedbackElement('text-feedback');
+            textArea.parentNode.appendChild(textFeedback);
+            
+            textArea.addEventListener('input', debounce(function() {
+                validateTextInput(this.value, textFeedback);
+            }, 500));
+            
+            // 语速输入验证
+            const speedInput = document.getElementById('speed');
+            const speedFeedback = createFeedbackElement('speed-feedback');
+            speedInput.parentNode.appendChild(speedFeedback);
+            
+            speedInput.addEventListener('input', debounce(function() {
+                validateSpeedInput(this.value, speedFeedback);
+            }, 300));
+            
+            // 声音选择验证
+            setupVoiceValidation();
+        }
+
+        function createFeedbackElement(id) {
+            const feedback = document.createElement('div');
+            feedback.id = id;
+            feedback.className = 'feedback';
+            return feedback;
+        }
+
+        function validateTextInput(text, feedbackElement) {
+            if (!text.trim()) {
+                feedbackElement.textContent = '请输入要转换的文本';
+                feedbackElement.className = 'feedback feedback-warning';
+                return false;
+            }
+            
+            if (text.length > 5000) {
+                feedbackElement.textContent = `文本过长 (${text.length}/5000 字符)`;
+                feedbackElement.className = 'feedback feedback-error';
+                return false;
+            }
+            
+            // 检查是否包含引号（用于旁白对话分离）
+            const hasQuotes = /[""]/.test(text);
+            if (hasQuotes) {
+                feedbackElement.textContent = `文本包含引号，适合使用旁白对话分离模式 (${text.length} 字符)`;
+                feedbackElement.className = 'feedback feedback-success';
+            } else {
+                feedbackElement.textContent = `文本正常 (${text.length} 字符)`;
+                feedbackElement.className = 'feedback feedback-success';
+            }
+            
+            return true;
+        }
+
+        function validateSpeedInput(speed, feedbackElement) {
+            const speedNum = parseFloat(speed);
+            
+            if (isNaN(speedNum)) {
+                feedbackElement.textContent = '请输入有效的数字';
+                feedbackElement.className = 'feedback feedback-error';
+                return false;
+            }
+            
+            if (speedNum < 0.5) {
+                feedbackElement.textContent = '语速过慢，将自动调整为 0.5';
+                feedbackElement.className = 'feedback feedback-warning';
+                return true;
+            }
+            
+            if (speedNum > 3.0) {
+                feedbackElement.textContent = '语速过快，将自动调整为 3.0';
+                feedbackElement.className = 'feedback feedback-warning';
+                return true;
+            }
+            
+            feedbackElement.textContent = '语速设置正常';
+            feedbackElement.className = 'feedback feedback-success';
+            return true;
+        }
+
+        function setupVoiceValidation() {
+            const voiceSelects = [
+                document.getElementById('voice'),
+                document.getElementById('narration-voice'),
+                document.getElementById('dialogue-voice')
+            ];
+            
+            voiceSelects.forEach(select => {
+                if (select) {
+                    select.addEventListener('change', function() {
+                        validateVoiceSelection();
+                    });
+                }
+            });
+        }
+
+        function validateVoiceSelection() {
+            const singleVoiceMode = document.getElementById('single-voice').checked;
+            let isValid = true;
+            let message = '';
+            
+            if (singleVoiceMode) {
+                const voice = document.getElementById('voice').value;
+                if (!voice) {
+                    isValid = false;
+                    message = '请选择一个声音';
+                } else {
+                    message = '声音选择正常';
+                }
+            } else {
+                const narrationVoice = document.getElementById('narration-voice').value;
+                const dialogueVoice = document.getElementById('dialogue-voice').value;
+                
+                if (!narrationVoice && !dialogueVoice) {
+                    isValid = false;
+                    message = '请至少选择一个声音（旁白或对话）';
+                } else if (narrationVoice && dialogueVoice) {
+                    message = '旁白和对话声音都已设置';
+                } else if (narrationVoice) {
+                    message = '已设置旁白声音，对话将使用默认声音';
+                } else {
+                    message = '已设置对话声音，旁白将使用默认声音';
+                }
+            }
+            
+            // 更新反馈信息
+            const feedbackElement = document.getElementById('voice-feedback');
+            if (feedbackElement) {
+                feedbackElement.textContent = message;
+                feedbackElement.className = isValid ? 'feedback feedback-success' : 'feedback feedback-warning';
+            }
+            
+            return isValid;
+        }
+
+        function updateCharCount() {
+            const textArea = document.getElementById('text');
+            const charCount = document.getElementById('char-count');
+            const currentLength = textArea.value.length;
+            const maxLength = 5000;
+            
+            charCount.textContent = `${currentLength}/${maxLength}`;
+            
+            if (currentLength > maxLength) {
+                charCount.style.color = '#dc3545';
+            } else if (currentLength > maxLength * 0.8) {
+                charCount.style.color = '#ffc107';
+            } else {
+                charCount.style.color = '#28a745';
+            }
+        }
+
+        // 初始化用户体验增强功能
+        function initializeUXEnhancements() {
+            // 添加验证摘要区域
+            createValidationSummary();
+            
+            // 添加进度指示器
+            createProgressIndicator();
+            
+            // 设置声音选择状态指示器
+            setupVoiceSelectionIndicators();
+            
+            // 添加输入验证图标
+            addValidationIcons();
+            
+            // 设置表单状态监听
+            setupFormStateMonitoring();
+        }
+
+        function createValidationSummary() {
+            const form = document.querySelector('form');
+            const summaryDiv = document.createElement('div');
+            summaryDiv.id = 'validation-summary';
+            summaryDiv.className = 'validation-summary';
+            summaryDiv.innerHTML = `
+                <h4>表单验证状态</h4>
+                <div id="validation-items"></div>
+            `;
+            form.insertBefore(summaryDiv, form.querySelector('button'));
+        }
+
+        function createProgressIndicator() {
+            const form = document.querySelector('form');
+            const progressDiv = document.createElement('div');
+            progressDiv.className = 'progress-indicator';
+            progressDiv.innerHTML = '<div class="progress-bar" id="form-progress"></div>';
+            form.insertBefore(progressDiv, form.querySelector('button'));
+        }
+
+        function setupVoiceSelectionIndicators() {
+            // 为声音选择器添加状态指示器
+            const voiceSelects = [
+                { id: 'voice', label: '统一声音' },
+                { id: 'narration-voice', label: '旁白声音' },
+                { id: 'dialogue-voice', label: '对话声音' }
+            ];
+
+            voiceSelects.forEach(({ id, label }) => {
+                const select = document.getElementById(id);
+                if (select) {
+                    const indicator = document.createElement('span');
+                    indicator.className = 'voice-selection-status empty';
+                    indicator.textContent = '未选择';
+                    select.parentNode.appendChild(indicator);
+                    
+                    // 监听选择变化
+                    select.addEventListener('change', function() {
+                        updateVoiceSelectionIndicator(select, indicator, label);
+                    });
+                }
+            });
+        }
+
+        function updateVoiceSelectionIndicator(select, indicator, label) {
+            const hasValue = select.value.trim() !== '';
+            
+            if (hasValue) {
+                indicator.className = 'voice-selection-status selected';
+                indicator.textContent = '已选择';
+            } else {
+                indicator.className = 'voice-selection-status empty';
+                indicator.textContent = '未选择';
+            }
+            
+            // 更新整体验证状态
+            updateValidationSummary();
+        }
+
+        function addValidationIcons() {
+            const inputs = [
+                { id: 'text', type: 'textarea' },
+                { id: 'speed', type: 'input' },
+                { id: 'country', type: 'select' }
+            ];
+
+            inputs.forEach(({ id, type }) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    const icon = document.createElement('span');
+                    icon.className = 'input-validation-icon';
+                    icon.innerHTML = '⚠️';
+                    element.parentNode.appendChild(icon);
+                    
+                    // 监听输入变化
+                    const eventType = type === 'select' ? 'change' : 'input';
+                    element.addEventListener(eventType, debounce(function() {
+                        updateValidationIcon(element, icon);
+                    }, 300));
+                }
+            });
+        }
+
+        function updateValidationIcon(element, icon) {
+            let isValid = false;
+            let iconText = '⚠️';
+            let className = 'input-validation-icon warning';
+
+            switch (element.id) {
+                case 'text':
+                    const text = element.value.trim();
+                    if (!text) {
+                        iconText = '❌';
+                        className = 'input-validation-icon invalid';
+                    } else if (text.length > 5000) {
+                        iconText = '❌';
+                        className = 'input-validation-icon invalid';
+                    } else {
+                        iconText = '✅';
+                        className = 'input-validation-icon valid';
+                        isValid = true;
+                    }
+                    break;
+                    
+                case 'speed':
+                    const speed = parseFloat(element.value);
+                    if (isNaN(speed)) {
+                        iconText = '❌';
+                        className = 'input-validation-icon invalid';
+                    } else if (speed < 0.5 || speed > 3.0) {
+                        iconText = '⚠️';
+                        className = 'input-validation-icon warning';
+                        isValid = true; // 会自动调整，所以算有效
+                    } else {
+                        iconText = '✅';
+                        className = 'input-validation-icon valid';
+                        isValid = true;
+                    }
+                    break;
+                    
+                case 'country':
+                    if (element.value) {
+                        iconText = '✅';
+                        className = 'input-validation-icon valid';
+                        isValid = true;
+                    } else {
+                        iconText = '❌';
+                        className = 'input-validation-icon invalid';
+                    }
+                    break;
+            }
+
+            icon.innerHTML = iconText;
+            icon.className = className;
+            
+            // 更新整体验证状态
+            updateValidationSummary();
+        }
+
+        function setupFormStateMonitoring() {
+            // 监听表单状态变化
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', debounce(updateFormProgress, 200));
+                input.addEventListener('change', debounce(updateFormProgress, 200));
+            });
+            
+            // 初始更新
+            updateFormProgress();
+        }
+
+        function updateFormProgress() {
+            const progressBar = document.getElementById('form-progress');
+            const validationItems = [];
+            
+            // 检查各个字段的完成状态
+            const checks = [
+                { 
+                    name: '文本内容', 
+                    valid: document.getElementById('text').value.trim().length > 0 && 
+                           document.getElementById('text').value.length <= 5000,
+                    element: document.getElementById('text')
+                },
+                { 
+                    name: '语速设置', 
+                    valid: !isNaN(parseFloat(document.getElementById('speed').value)),
+                    element: document.getElementById('speed')
+                },
+                { 
+                    name: '语言选择', 
+                    valid: document.getElementById('country').value !== '',
+                    element: document.getElementById('country')
+                },
+                { 
+                    name: '声音选择', 
+                    valid: validateVoiceSelectionStatus(),
+                    element: null
+                }
+            ];
+            
+            let completedCount = 0;
+            checks.forEach(check => {
+                if (check.valid) completedCount++;
+                
+                validationItems.push({
+                    name: check.name,
+                    valid: check.valid,
+                    element: check.element
+                });
+            });
+            
+            const progress = (completedCount / checks.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // 更新验证摘要
+            updateValidationSummaryContent(validationItems);
+            
+            // 更新提交按钮状态
+            const submitButton = document.querySelector('button[type="submit"]');
+            if (completedCount === checks.length) {
+                submitButton.disabled = false;
+                submitButton.textContent = '生成音频链接';
+            } else {
+                submitButton.disabled = true;
+                submitButton.textContent = `请完成表单 (${completedCount}/${checks.length})`;
+            }
+        }
+
+        function validateVoiceSelectionStatus() {
+            const singleVoiceMode = document.getElementById('single-voice').checked;
+            
+            if (singleVoiceMode) {
+                return document.getElementById('voice').value !== '';
+            } else {
+                const narrationVoice = document.getElementById('narration-voice').value;
+                const dialogueVoice = document.getElementById('dialogue-voice').value;
+                return narrationVoice !== '' || dialogueVoice !== '';
+            }
+        }
+
+        function updateValidationSummary() {
+            const summary = document.getElementById('validation-summary');
+            const hasErrors = document.querySelectorAll('.input-validation-icon.invalid').length > 0;
+            const hasWarnings = document.querySelectorAll('.input-validation-icon.warning').length > 0;
+            
+            if (hasErrors || hasWarnings) {
+                summary.classList.add('show');
+            } else {
+                summary.classList.remove('show');
+            }
+        }
+
+        function updateValidationSummaryContent(validationItems) {
+            const itemsContainer = document.getElementById('validation-items');
+            if (!itemsContainer) return;
+            
+            itemsContainer.innerHTML = '';
+            
+            validationItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `validation-item ${item.valid ? 'valid' : 'invalid'}`;
+                
+                const icon = item.valid ? '✅' : '❌';
+                const status = item.valid ? '完成' : '待完成';
+                
+                itemDiv.innerHTML = `
+                    <span class="icon">${icon}</span>
+                    <span>${item.name}: ${status}</span>
+                `;
+                
+                itemsContainer.appendChild(itemDiv);
+            });
+        }
+
+        // 增强的声音模式切换
+        function toggleVoiceMode() {
+            const singleVoiceMode = document.getElementById('single-voice').checked;
+            const singleSection = document.getElementById('single-voice-section');
+            const multiSection = document.getElementById('multi-voice-section');
+            const voiceModeSection = document.querySelector('.voice-mode-section');
+            
+            // 添加活动状态
+            voiceModeSection.classList.add('active');
+            setTimeout(() => {
+                voiceModeSection.classList.remove('active');
+            }, 1000);
+            
+            // 添加过渡效果
+            singleSection.style.transition = 'opacity 0.3s ease';
+            multiSection.style.transition = 'opacity 0.3s ease';
+            
+            if (singleVoiceMode) {
+                multiSection.style.opacity = '0';
+                setTimeout(() => {
+                    multiSection.style.display = 'none';
+                    singleSection.style.display = 'block';
+                    singleSection.style.opacity = '1';
+                }, 150);
+            } else {
+                singleSection.style.opacity = '0';
+                setTimeout(() => {
+                    singleSection.style.display = 'none';
+                    multiSection.style.display = 'block';
+                    multiSection.style.opacity = '1';
+                }, 150);
+            }
+            
+            // 使用防抖更新声音选项
+            debouncedUpdateVoices();
+            
+            // 重新验证声音选择
+            setTimeout(() => {
+                validateVoiceSelection();
+                updateFormProgress();
+            }, 200);
+        }
+        
+        /**
+         * 初始化移动端优化
+         */
+        function initializeMobileOptimizations() {
+            if (!window.mobileDetector) {
+                console.warn('移动端检测器未加载');
+                return;
+            }
+            
+            const deviceInfo = mobileDetector.getDeviceInfo();
+            console.log('设备信息:', deviceInfo);
+            
+            // 移动端特定优化
+            if (deviceInfo.isMobile) {
+                setupMobileFormOptimizations();
+                setupMobileTouchOptimizations();
+                setupMobileKeyboardOptimizations();
+            }
+            
+            // 平板设备优化
+            if (deviceInfo.isTablet) {
+                setupTabletOptimizations();
+            }
+            
+            // 触摸设备优化
+            if (deviceInfo.touchSupport) {
+                setupTouchDeviceOptimizations();
+            }
+            
+            // 监听设备变化
+            document.addEventListener('deviceresize', handleDeviceChange);
+            document.addEventListener('orientationchange', handleOrientationChange);
+            document.addEventListener('swipe', handleSwipeGesture);
+        }
+        
+        /**
+         * 设置移动端表单优化
+         */
+        function setupMobileFormOptimizations() {
+            // 优化表单布局
+            const form = document.querySelector('form');
+            if (form) {
+                form.classList.add('mobile-optimized');
+            }
+            
+            // 优化按钮组布局
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.classList.add('mobile-button');
+            });
+            
+            // 优化选择器
+            const selects = document.querySelectorAll('select');
+            selects.forEach(select => {
+                select.classList.add('mobile-select');
+                
+                // 添加移动端友好的变化事件
+                select.addEventListener('change', function() {
+                    // 提供触觉反馈（如果支持）
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                });
+            });
+            
+            // 优化文本区域
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(textarea => {
+                textarea.classList.add('mobile-textarea');
+                
+                // 自动调整高度
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = this.scrollHeight + 'px';
+                });
+            });
+        }
+        
+        /**
+         * 设置移动端触摸优化
+         */
+        function setupMobileTouchOptimizations() {
+            // 添加触摸反馈样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .mobile-button:active {
+                    transform: scale(0.95);
+                    transition: transform 0.1s ease;
+                }
+                
+                .mobile-select:focus {
+                    border-color: #007bff;
+                    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+                }
+                
+                .touch-active {
+                    background-color: rgba(0, 123, 255, 0.1) !important;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 添加触摸开始和结束事件
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.matches('button, select, input')) {
+                    e.target.classList.add('touch-active');
+                }
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                setTimeout(() => {
+                    document.querySelectorAll('.touch-active').forEach(el => {
+                        el.classList.remove('touch-active');
+                    });
+                }, 150);
+            });
+        }
+        
+        /**
+         * 设置移动端键盘优化
+         */
+        function setupMobileKeyboardOptimizations() {
+            // 优化数字输入
+            const speedInput = document.querySelector('input[type="number"]');
+            if (speedInput) {
+                speedInput.setAttribute('inputmode', 'decimal');
+                speedInput.setAttribute('pattern', '[0-9]*\\.?[0-9]*');
+            }
+            
+            // 处理虚拟键盘显示/隐藏
+            let initialViewportHeight = window.innerHeight;
+            
+            window.addEventListener('resize', function() {
+                const currentHeight = window.innerHeight;
+                const heightDifference = initialViewportHeight - currentHeight;
+                
+                // 检测虚拟键盘是否显示
+                if (heightDifference > 150) {
+                    document.body.classList.add('keyboard-open');
+                } else {
+                    document.body.classList.remove('keyboard-open');
+                }
+            });
+            
+            // 输入框聚焦时滚动到视图中
+            document.addEventListener('focusin', function(e) {
+                if (e.target.matches('input, textarea, select')) {
+                    setTimeout(() => {
+                        e.target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }, 300);
+                }
+            });
+        }
+        
+        /**
+         * 设置平板设备优化
+         */
+        function setupTabletOptimizations() {
+            // 平板设备的特殊优化
+            document.body.classList.add('tablet-optimized');
+            
+            // 优化按钮布局
+            const buttonGroups = document.querySelectorAll('.btn-group');
+            buttonGroups.forEach(group => {
+                group.classList.add('tablet-button-group');
+            });
+        }
+        
+        /**
+         * 设置触摸设备优化
+         */
+        function setupTouchDeviceOptimizations() {
+            // 禁用悬停效果
+            const style = document.createElement('style');
+            style.textContent = `
+                @media (hover: none) {
+                    *:hover {
+                        background-color: initial !important;
+                        color: initial !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 添加触摸手势支持
+            setupTouchGestures();
+        }
+        
+        /**
+         * 设置触摸手势
+         */
+        function setupTouchGestures() {
+            // 双击刷新声音列表
+            let lastTap = 0;
+            document.addEventListener('touchend', function(e) {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+                
+                if (tapLength < 500 && tapLength > 0) {
+                    if (e.target.matches('select')) {
+                        // 双击选择器刷新选项
+                        updateVoices();
+                        
+                        // 提供触觉反馈
+                        if (navigator.vibrate) {
+                            navigator.vibrate([50, 50, 50]);
+                        }
+                    }
+                }
+                lastTap = currentTime;
+            });
+        }
+        
+        /**
+         * 处理设备变化
+         */
+        function handleDeviceChange(event) {
+            const deviceInfo = event.detail;
+            console.log('设备变化:', deviceInfo);
+            
+            // 重新应用优化
+            if (deviceInfo.isMobile) {
+                document.body.classList.add('device-mobile');
+                document.body.classList.remove('device-desktop', 'device-tablet');
+            } else if (deviceInfo.isTablet) {
+                document.body.classList.add('device-tablet');
+                document.body.classList.remove('device-mobile', 'device-desktop');
+            } else {
+                document.body.classList.add('device-desktop');
+                document.body.classList.remove('device-mobile', 'device-tablet');
+            }
+        }
+        
+        /**
+         * 处理屏幕方向变化
+         */
+        function handleOrientationChange(event) {
+            const orientation = event.detail.orientation;
+            console.log('屏幕方向变化:', orientation);
+            
+            // 方向变化后重新布局
+            setTimeout(() => {
+                // 重新计算布局
+                updateVoices();
+                
+                // 如果有打开的菜单，关闭它
+                if (window.mobileDetector) {
+                    mobileDetector.closeMobileMenu();
+                }
+            }, 100);
+        }
+        
+        /**
+         * 处理滑动手势
+         */
+        function handleSwipeGesture(event) {
+            const { direction, target } = event.detail;
+            console.log('滑动手势:', direction, target);
+            
+            // 根据滑动方向执行操作
+            if (direction === 'left') {
+                // 向左滑动 - 可以切换到下一个选项
+                if (target.matches('select')) {
+                    const currentIndex = target.selectedIndex;
+                    if (currentIndex < target.options.length - 1) {
+                        target.selectedIndex = currentIndex + 1;
+                        target.dispatchEvent(new Event('change'));
+                    }
+                }
+            } else if (direction === 'right') {
+                // 向右滑动 - 可以切换到上一个选项
+                if (target.matches('select')) {
+                    const currentIndex = target.selectedIndex;
+                    if (currentIndex > 0) {
+                        target.selectedIndex = currentIndex - 1;
+                        target.dispatchEvent(new Event('change'));
+                    }
+                }
+            }
+        }
+        
+        /**
+         * 移动端调试工具
+         */
+        function enableMobileDebug() {
+            if (window.mobileDetector) {
+                mobileDetector.enableDebugMode();
+            }
+        }
+        
+        // 在开发环境中启用调试
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            setTimeout(() => {
+                enableMobileDebug();
+            }, 1000);
         }
     </script>
 </head>
 <body>
-    <h1>文本转语音生成器</h1>
+    <!-- 移动端导航栏 -->
+    <div class="mobile-nav" id="mobile-nav">
+        <div class="mobile-nav-title">🎙️ TTS 转换器</div>
+        <button class="mobile-nav-menu" onclick="toggleMobileMenu()" aria-label="菜单">
+            ☰
+        </button>
+    </div>
+    
+    <!-- 移动端菜单 -->
+    <div class="mobile-menu" id="mobile-menu">
+        <a href="/" class="mobile-menu-item">🏠 首页</a>
+        <a href="/admin" class="mobile-menu-item">⚙️ 管理面板</a>
+        <a href="/api/status" class="mobile-menu-item">📊 服务状态</a>
+        <a href="/health" class="mobile-menu-item">💚 健康检查</a>
+    </div>
+    
+    <!-- 主内容区域 -->
+    <div class="main-content">
+        <h1>文本转语音生成器</h1>
     <form onsubmit="generateLink(event)">
-        <label for="text">文本:</label><br>
-        <textarea id="text" name="text" rows="4" cols="50" required></textarea><br><br>
+        <div class="form-group">
+            <label for="text">
+                文本内容:
+                <span id="char-count" class="character-count">0/5000</span>
+            </label>
+            <textarea id="text" name="text" rows="4" placeholder="请输入要转换的文本。使用引号包围对话内容，例如：他说"你好"然后离开了。" required oninput="updateCharCount()"></textarea>
+        </div>
         
-        <label for="speed">速度 (默认50%):</label><br>
-        <input type="number" id="speed" name="speed" value="50"><br><br>
+        <div class="form-group">
+            <label for="speed">语速 (0.5-3.0):</label>
+            <input type="number" id="speed" name="speed" value="1.0" min="0.5" max="3.0" step="0.1">
+        </div>
 
-        <label for="country">选择国家:</label><br>
-        <select id="country" name="country" onchange="updateVoices()">
-            <option value="">请选择国家</option>
-            <option value="ar">阿拉伯语</option>
-            <option value="cs">捷克语</option>
-            <option value="de">德语</option>
-            <option value="en">英语</option>
-            <option value="es">西班牙语</option>
-            <option value="fr">法语</option>
-            <option value="hi">印地语</option>
-            <option value="hu">匈牙利语</option>
-            <option value="id">印尼语</option>
-            <option value="it">意大利语</option>
-            <option value="ja">日语</option>
-            <option value="kk">哈萨克语</option>
-            <option value="ko">韩语</option>
-            <option value="ms">马来语</option>
-            <option value="nl">荷兰语</option>
-            <option value="pl">波兰语</option>
-            <option value="pt">葡萄牙语</option>
-            <option value="ru">俄语</option>
-            <option value="sv">瑞典语</option>
-            <option value="th">泰语</option>
-            <option value="tr">土耳其语</option>
-            <option value="uk">乌克兰语</option>
-            <option value="vi">越南语</option>
-            <option value="zh">中文</option>
-        </select><br><br>
+        <div class="form-group">
+            <label for="country">选择语言:</label>
+            <select id="country" name="country" onchange="updateVoices()">
+                <option value="">请选择语言</option>
+                <option value="zh">中文</option>
+                <option value="en">英语</option>
+                <option value="ja">日语</option>
+                <option value="ko">韩语</option>
+                <option value="fr">法语</option>
+                <option value="de">德语</option>
+                <option value="es">西班牙语</option>
+                <option value="ru">俄语</option>
+                <option value="ar">阿拉伯语</option>
+                <option value="it">意大利语</option>
+                <option value="pt">葡萄牙语</option>
+                <option value="hi">印地语</option>
+                <option value="th">泰语</option>
+                <option value="vi">越南语</option>
+                <option value="tr">土耳其语</option>
+                <option value="nl">荷兰语</option>
+                <option value="pl">波兰语</option>
+                <option value="cs">捷克语</option>
+                <option value="hu">匈牙利语</option>
+                <option value="sv">瑞典语</option>
+                <option value="uk">乌克兰语</option>
+                <option value="id">印尼语</option>
+                <option value="ms">马来语</option>
+                <option value="kk">哈萨克语</option>
+            </select>
+        </div>
 
-        <label for="voice">选择声音:</label><br>
-        <select id="voice" name="voice" required>
-            <option value="">请先选择国家</option>
-        </select><br><br>
+        <div class="voice-mode-section">
+            <label>声音选择模式:</label>
+            <div>
+                <input type="radio" id="single-voice" name="voice-mode" value="single" checked onchange="toggleVoiceMode()">
+                <label for="single-voice" style="display: inline; font-weight: normal;">统一声音</label>
+                <input type="radio" id="multi-voice" name="voice-mode" value="multi" onchange="toggleVoiceMode()">
+                <label for="multi-voice" style="display: inline; font-weight: normal;">旁白对话分离</label>
+            </div>
 
-        <label>多语音(旁白/对话):</label><br>
-        <input type="checkbox" id="narration" name="narration" onchange="updateVoices()">
-        <label for="narration">旁白</label><br>
-        <input type="checkbox" id="dialogue" name="dialogue" onchange="updateVoices()">
-        <label for="dialogue">对话</label><br><br>
+            <div id="single-voice-section">
+                <div class="form-group">
+                    <label for="voice">选择声音:</label>
+                    <select id="voice" name="voice">
+                        <option value="">请先选择语言</option>
+                    </select>
+                    <div id="voice-feedback" class="feedback"></div>
+                </div>
+            </div>
 
-        <input type="submit" value="生成链接">
+            <div id="multi-voice-section" style="display: none;">
+                <div class="form-group">
+                    <label for="narration-voice">旁白声音 (引号外的文本):</label>
+                    <select id="narration-voice" name="narration-voice">
+                        <option value="">请先选择语言</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dialogue-voice">对话声音 (引号内的文本):</label>
+                    <select id="dialogue-voice" name="dialogue-voice">
+                        <option value="">请先选择语言</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit">生成音频链接</button>
     </form>
+    </div> <!-- 结束 main-content -->
+    
+    <script>
+        // 移动端导航功能
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('open');
+        }
+        
+        // 点击菜单项后关闭菜单
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mobile-menu-item')) {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.remove('open');
+            }
+        });
+        
+        // 点击页面其他地方关闭菜单
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.mobile-nav') && !e.target.closest('.mobile-menu')) {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.remove('open');
+            }
+        });
+    </script>
 </body>
 </html>

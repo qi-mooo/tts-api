@@ -1,4 +1,5 @@
 {
+  "version": "2.0",
   "rules": [
     {
       "id": "pronunciation_001",
@@ -82,5 +83,13 @@
       "updated_at": "2025-08-23T02:11:40.127090"
     }
   ],
-  "updated_at": "2025-08-23T02:11:40.127125"
+  "metadata": {
+    "updated_at": "2025-08-23T06:18:41.094694",
+    "total_rules": 9,
+    "enabled_rules": 9,
+    "type_counts": {
+      "pronunciation": 7,
+      "filter": 2
+    }
+  }
 }

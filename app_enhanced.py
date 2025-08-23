@@ -16,6 +16,7 @@ from logger.structured_logger import get_logger, performance_timer
 from config.config_manager import config_manager
 from health_check.health_monitor import HealthMonitor
 from admin.admin_controller import AdminController
+from user_settings.settings_controller import settings_controller
 from voice_manager import get_voice_manager
 
 
@@ -604,46 +605,266 @@ def create_enhanced_app() -> Flask:
         from admin.flask_integration import init_admin_app
         init_admin_app(app)
         logger.info("管理控制台已集成")
+        
+        # 注册用户设置蓝图
+        app.register_blueprint(settings_controller.blueprint)
+        logger.info("用户设置API已集成")
     except ImportError as e:
         logger.warning(f"管理控制台模块不可用: {e}")
     
     # 根路径
     @app.route('/')
     def index():
-        """根路径 - API 信息"""
-        return jsonify({
-            "service": "Enhanced TTS API",
-            "version": "2.1.0",
-            "endpoints": {
-                "tts": "/api",
-                "cached_audio": "/audio",
-                "status": "/api/status",
-                "health": "/health",
-                "dictionary": "/api/dictionary/*",
-                "config": "/api/config",
-                "voices": "/api/voices",
-                "voice_stats": "/api/voices/stats",
-                "voice_validate": "/api/voices/validate",
-                "voice_locales": "/api/voices/locales",
-                "voice_search": "/api/voices/search",
-                "admin": "/admin"
-            },
-            "features": [
-                "Text-to-Speech conversion",
-                "Audio caching",
-                "Dictionary management",
-                "Voice management (322+ voices)",
-                "Health monitoring",
-                "Admin interface"
-            ],
-            "voice_stats": {
-                "total_voices": "322+",
-                "chinese_voices": "14",
-                "supported_locales": "5 Chinese regions"
-            },
-            "documentation": "https://github.com/your-repo/tts-api"
-        })
+        """根路径 - 服务首页"""
+        from flask import render_template, request
+        
+        # 检查是否是 API 请求（通过 Accept 头判断）
+        if request.headers.get('Accept', '').startswith('application/json'):
+            # 获取实时统计信息
+            try:
+                voice_manager = get_voice_manager()
+                voice_stats = voice_manager.get_voice_statistics()
+                cache_stats = enhanced_tts_service.audio_cache.get_stats()
+            except Exception as e:
+                logger.warning(f"获取统计信息失败: {e}")
+                voice_stats = {"total_voices": "322+", "chinese_voices": "14"}
+                cache_stats = {}
+            
+            # 返回 JSON API 信息
+            return jsonify({
+                "service": "Enhanced TTS API",
+                "version": "2.1.0",
+                "status": "running",
+                "endpoints": {
+                    "tts": "/api",
+                    "cached_audio": "/audio", 
+                    "status": "/api/status",
+                    "health": "/health",
+                    "dictionary": "/api/dictionary/*",
+                    "config": "/api/config",
+                    "voices": "/api/voices",
+                    "voice_stats": "/api/voices/stats",
+                    "voice_validate": "/api/voices/validate",
+                    "voice_locales": "/api/voices/locales",
+                    "voice_search": "/api/voices/search",
+                    "admin": "/admin",
+                    "tts_interface": "/tts"
+                },
+                "features": [
+                    "Text-to-Speech conversion with 322+ voices",
+                    "Narration and dialogue separation",
+                    "Intelligent speed adjustment",
+                    "Audio caching and optimization",
+                    "Dictionary management",
+                    "Voice management and search",
+                    "Health monitoring and admin interface",
+                    "Mobile-friendly responsive design",
+                    "RESTful API with comprehensive documentation"
+                ],
+                "voice_stats": {
+                    "total_voices": voice_stats.get("total_voices", "322+"),
+                    "chinese_voices": voice_stats.get("chinese_voices", "14"),
+                    "supported_locales": voice_stats.get("supported_locales", "75+"),
+                    "voice_categories": ["narration", "dialogue", "general"]
+                },
+                "cache_stats": cache_stats,
+                "documentation": {
+                    "api_docs": "Available via web interface",
+                    "examples": {
+                        "basic_tts": "/api?text=Hello&speed=1.0&all=en-US-AvaNeural",
+                        "narration_dialogue": "/api?text=He said \"Hello\"&narr=en-US-BrianNeural&dlg=en-US-AvaNeural",
+                        "voice_list": "/api/voices",
+                        "health_check": "/health"
+                    }
+                },
+                "system_info": {
+                    "uptime": time.time(),
+                    "request_id": getattr(request, 'id', 'unknown')
+                }
+            })
+        else:
+            # 增强的移动端检测 - 主要基于屏幕宽度
+            user_agent = request.headers.get('User-Agent', '').lower()
+            
+            # 移动设备关键词
+            mobile_keywords = [
+                'mobile', 'android', 'iphone', 'ipod', 'blackberry', 
+                'windows phone', 'opera mini', 'iemobile', 'webos'
+            ]
+            
+            # 平板设备关键词
+            tablet_keywords = ['ipad', 'tablet', 'kindle', 'playbook', 'silk']
+            
+            # 初始基于 User-Agent 的检测
+            ua_mobile = any(keyword in user_agent for keyword in mobile_keywords)
+            ua_tablet = any(keyword in user_agent for keyword in tablet_keywords)
+            
+            # 优先使用屏幕宽度信息（如果可用）
+            viewport_width = request.headers.get('Viewport-Width')
+            screen_width = None
+            
+            if viewport_width:
+                try:
+                    screen_width = int(viewport_width)
+                except ValueError:
+                    pass
+            
+            # 基于屏幕宽度的设备类型判断
+            if screen_width:
+                # 主要判断逻辑：基于屏幕宽度
+                if screen_width <= 768:
+                    is_mobile = True
+                    is_tablet = False
+                elif screen_width <= 1024:
+                    # 在平板范围内，结合 User-Agent 判断
+                    if ua_tablet or (ua_mobile and 'ipad' in user_agent):
+                        is_mobile = False
+                        is_tablet = True
+                    else:
+                        # 可能是小屏笔记本，按桌面处理
+                        is_mobile = False
+                        is_tablet = False
+                else:
+                    # 大屏幕设备
+                    is_mobile = False
+                    is_tablet = False
+            else:
+                # 没有屏幕宽度信息，回退到 User-Agent 检测
+                is_mobile = ua_mobile and not ua_tablet
+                is_tablet = ua_tablet
+            
+            # 设备信息
+            device_info = {
+                'is_mobile': is_mobile,
+                'is_tablet': is_tablet,
+                'device_type': 'mobile' if is_mobile else ('tablet' if is_tablet else 'desktop'),
+                'user_agent': user_agent,
+                'screen_width': screen_width,
+                'detection_method': 'screen-width' if screen_width else 'user-agent',
+                'supports_touch': any(touch in user_agent for touch in ['touch', 'mobile', 'android', 'iphone', 'ipad'])
+            }
+            
+            # 返回 HTML 首页
+            try:
+                return render_template('home.html', 
+                                     is_mobile=is_mobile, 
+                                     is_tablet=is_tablet,
+                                     device_info=device_info)
+            except Exception as e:
+                logger.warning(f"首页模板加载失败: {e}")
+                # 降级到简单 HTML（移动端优化版）
+                device_styles = ""
+                if is_mobile:
+                    device_styles = """
+                        @media (max-width: 768px) {
+                            body { padding: 10px; font-size: 16px; }
+                            .header h1 { font-size: 1.8rem; }
+                            .links { flex-direction: column; gap: 10px; }
+                            .links a { display: block; text-align: center; min-height: 44px; padding: 12px 20px; }
+                            .feature { padding: 12px; margin: 15px 0; }
+                            .mobile-indicator { display: inline-block; }
+                        }
+                    """
+                elif is_tablet:
+                    device_styles = """
+                        @media (min-width: 769px) and (max-width: 1024px) {
+                            .container { max-width: 900px; }
+                            .links { flex-wrap: wrap; }
+                            .links a { min-width: 200px; }
+                        }
+                    """
+                
+                return f"""
+                <!DOCTYPE html>
+                <html lang="zh-CN">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>TTS 文本转语音服务</title>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }}
+                        .header {{ text-align: center; margin-bottom: 40px; }}
+                        .feature {{ margin: 20px 0; padding: 15px; border-left: 4px solid #007bff; background: #f8f9fa; }}
+                        .links {{ display: flex; gap: 15px; justify-content: center; margin: 30px 0; flex-wrap: wrap; }}
+                        .links a {{ padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }}
+                        .links a:hover {{ background: #0056b3; }}
+                        .mobile-indicator {{ background: #28a745; color: white; padding: 5px 10px; border-radius: 3px; font-size: 0.8rem; display: none; }}
+                        .tablet-indicator {{ background: #17a2b8; color: white; padding: 5px 10px; border-radius: 3px; font-size: 0.8rem; display: none; }}
+                        {device_styles}
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>🎙️ TTS 文本转语音服务</h1>
+                        <p>高质量的文本转语音 API 服务</p>
+                        {'<span class="mobile-indicator">📱 移动端优化</span>' if is_mobile else ''}
+                        {'<span class="tablet-indicator">📱 平板优化</span>' if is_tablet else ''}
+                    </div>
+                    
+                    <div class="feature">
+                        <h3>🚀 快速开始</h3>
+                        <p>使用我们的 Web 界面快速体验文本转语音功能，支持旁白对话分离。</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3>🎵 多语音支持</h3>
+                        <p>支持 322+ 种不同的语音，包括中文、英文、日文等多种语言。</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3>⚡ 智能处理</h3>
+                        <p>自动识别文本中的旁白和对话部分，使用不同声音进行合成。</p>
+                    </div>
+                    
+                    <div class="links">
+                        <a href="/tts">🎙️ 开始使用</a>
+                        <a href="/admin">⚙️ 管理面板</a>
+                        <a href="/api/status">📊 服务状态</a>
+                        <a href="/health">💚 健康检查</a>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 40px; color: #666;">
+                        <p>Enhanced TTS API v2.1.0 | {device_info['device_type']}端访问 | {'支持触摸' if device_info['supports_touch'] else '鼠标操作'}</p>
+                    </div>
+                </body>
+                </html>
+                """
     
+    # TTS Web 界面
+    @app.route('/tts')
+    def tts_interface():
+        """TTS Web 界面"""
+        from flask import render_template, request
+        
+        # 检测设备类型
+        user_agent = request.headers.get('User-Agent', '').lower()
+        mobile_keywords = ['mobile', 'android', 'iphone', 'ipod', 'blackberry', 'windows phone', 'opera mini', 'iemobile']
+        tablet_keywords = ['ipad', 'tablet', 'kindle', 'playbook', 'silk']
+        
+        is_mobile = any(keyword in user_agent for keyword in mobile_keywords)
+        is_tablet = any(keyword in user_agent for keyword in tablet_keywords)
+        
+        device_info = {
+            'is_mobile': is_mobile,
+            'is_tablet': is_tablet,
+            'device_type': 'mobile' if is_mobile else ('tablet' if is_tablet else 'desktop'),
+            'user_agent': user_agent,
+            'supports_touch': any(touch in user_agent for touch in ['touch', 'mobile', 'android', 'iphone', 'ipad'])
+        }
+        
+        try:
+            return render_template('index.html', 
+                                 is_mobile=is_mobile, 
+                                 is_tablet=is_tablet,
+                                 device_info=device_info)
+        except Exception as e:
+            logger.error(f"TTS 界面模板加载失败: {e}")
+            return jsonify({
+                "error": "TTS 界面暂时不可用",
+                "message": "请直接使用 API 端点 /api",
+                "device_info": device_info
+            }), 500
+
     logger.info("增强版 Flask 应用初始化完成")
     return app
 

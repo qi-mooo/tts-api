@@ -6,6 +6,7 @@
     <title>TTS 管理控制台</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="/static/js/mobile-detector.js"></script>
     <style>
         .sidebar {
             min-height: 100vh;
@@ -94,9 +95,130 @@
         .log-level-DEBUG {
             color: #6c757d;
         }
+        
+        /* 移动端优化样式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                transition: left 0.3s ease;
+                z-index: 1050;
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .mobile-nav-toggle {
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1060;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 10px;
+                font-size: 18px;
+            }
+            
+            .mobile-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 1040;
+                display: none;
+            }
+            
+            .mobile-overlay.show {
+                display: block;
+            }
+            
+            .card {
+                margin-bottom: 15px;
+            }
+            
+            .btn-toolbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn-toolbar .btn {
+                width: 100%;
+            }
+            
+            .table-responsive {
+                font-size: 14px;
+            }
+            
+            .login-container {
+                padding: 20px;
+            }
+            
+            .login-card {
+                margin: 0 10px;
+            }
+        }
+        
+        /* 平板设备优化 */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                margin-left: 200px;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+        }
+        
+        /* 触摸设备优化 */
+        .touch-device .btn {
+            min-height: 44px;
+            padding: 12px 16px;
+        }
+        
+        .touch-device .nav-link {
+            padding: 12px 16px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .touch-device .form-control {
+            min-height: 44px;
+            padding: 12px 16px;
+        }
+        
+        .touch-device .btn:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
     </style>
 </head>
 <body>
+    <!-- 移动端导航按钮 -->
+    <button class="mobile-nav-toggle d-md-none" onclick="toggleMobileSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+    
+    <!-- 移动端遮罩层 -->
+    <div class="mobile-overlay" onclick="closeMobileSidebar()"></div>
+    
     <!-- 登录页面 -->
     <div id="loginPage" class="login-container">
         <div class="login-card">
@@ -149,6 +271,11 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="#" data-page="dictionary">
                                     <i class="bi bi-book me-2"></i>字典管理
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-page="settings">
+                                    <i class="bi bi-gear me-2"></i>个人设置
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -336,23 +463,89 @@
                                     </div>
                                     <div class="card-body">
                                         <form id="ttsConfigForm">
+                                            <!-- 语言选择 -->
                                             <div class="mb-3">
-                                                <label for="narrationVoice" class="form-label">旁白语音</label>
-                                                <select class="form-select" id="narrationVoice" name="narration_voice">
-                                                    <option value="zh-CN-YunjianNeural">云健 (男声)</option>
-                                                    <option value="zh-CN-XiaoyiNeural">晓伊 (女声)</option>
-                                                    <option value="zh-CN-YunxiNeural">云希 (男声)</option>
-                                                    <option value="zh-CN-XiaoxiaoNeural">晓晓 (女声)</option>
+                                                <label for="adminCountrySelect" class="form-label">
+                                                    <i class="bi bi-globe me-1"></i>选择语言
+                                                </label>
+                                                <select class="form-select" id="adminCountrySelect" name="country" onchange="updateAdminVoices()">
+                                                    <option value="">请选择语言</option>
+                                                    <option value="zh">中文</option>
+                                                    <option value="en">English</option>
+                                                    <option value="ja">日本語</option>
+                                                    <option value="ko">한국어</option>
+                                                    <option value="fr">Français</option>
+                                                    <option value="de">Deutsch</option>
+                                                    <option value="es">Español</option>
+                                                    <option value="it">Italiano</option>
+                                                    <option value="pt">Português</option>
+                                                    <option value="ru">Русский</option>
+                                                    <option value="ar">العربية</option>
+                                                    <option value="hi">हिन्दी</option>
+                                                    <option value="th">ไทย</option>
+                                                    <option value="vi">Tiếng Việt</option>
+                                                    <option value="tr">Türkçe</option>
+                                                    <option value="pl">Polski</option>
+                                                    <option value="nl">Nederlands</option>
+                                                    <option value="sv">Svenska</option>
+                                                    <option value="cs">Čeština</option>
+                                                    <option value="hu">Magyar</option>
+                                                    <option value="uk">Українська</option>
+                                                    <option value="ms">Bahasa Melayu</option>
+                                                    <option value="id">Bahasa Indonesia</option>
+                                                    <option value="kk">Қазақ тілі</option>
                                                 </select>
+                                                <div class="form-text">选择语言后将显示对应的语音选项</div>
                                             </div>
+                                            
+                                            <!-- 语音类型选择 -->
                                             <div class="mb-3">
-                                                <label for="dialogueVoice" class="form-label">对话语音</label>
-                                                <select class="form-select" id="dialogueVoice" name="dialogue_voice">
-                                                    <option value="zh-CN-XiaoyiNeural">晓伊 (女声)</option>
-                                                    <option value="zh-CN-YunjianNeural">云健 (男声)</option>
-                                                    <option value="zh-CN-YunxiNeural">云希 (男声)</option>
-                                                    <option value="zh-CN-XiaoxiaoNeural">晓晓 (女声)</option>
+                                                <label class="form-label">
+                                                    <i class="bi bi-mic me-1"></i>语音配置模式
+                                                </label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="adminVoiceMode" id="adminSingleVoice" value="single" checked onchange="toggleAdminVoiceMode()">
+                                                    <label class="form-check-label" for="adminSingleVoice">
+                                                        统一语音模式
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="adminVoiceMode" id="adminMultiVoice" value="multi" onchange="toggleAdminVoiceMode()">
+                                                    <label class="form-check-label" for="adminMultiVoice">
+                                                        旁白对话分离模式
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 统一语音选择 -->
+                                            <div id="adminSingleVoiceSection" class="mb-3">
+                                                <label for="adminUnifiedVoice" class="form-label">统一语音</label>
+                                                <select class="form-select" id="adminUnifiedVoice" name="unified_voice">
+                                                    <option value="">请先选择语言</option>
                                                 </select>
+                                                <div class="form-text">所有文本将使用此语音</div>
+                                            </div>
+                                            
+                                            <!-- 分离语音选择 -->
+                                            <div id="adminMultiVoiceSection" class="d-none">
+                                                <div class="mb-3">
+                                                    <label for="narrationVoice" class="form-label">
+                                                        <i class="bi bi-person-lines-fill me-1"></i>旁白语音
+                                                    </label>
+                                                    <select class="form-select" id="narrationVoice" name="narration_voice">
+                                                        <option value="">请先选择语言</option>
+                                                    </select>
+                                                    <div class="form-text">用于叙述性文本</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="dialogueVoice" class="form-label">
+                                                        <i class="bi bi-chat-quote me-1"></i>对话语音
+                                                    </label>
+                                                    <select class="form-select" id="dialogueVoice" name="dialogue_voice">
+                                                        <option value="">请先选择语言</option>
+                                                    </select>
+                                                    <div class="form-text">用于引号内的对话文本</div>
+                                                </div>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="defaultSpeed" class="form-label">默认语速</label>
@@ -376,18 +569,26 @@
                                         
                                         <!-- 语音预览 -->
                                         <div class="mt-4">
-                                            <h6>语音预览</h6>
-                                            <div class="input-group mb-2">
+                                            <h6><i class="bi bi-play-circle me-1"></i>语音预览</h6>
+                                            <div class="mb-3">
+                                                <label for="previewText" class="form-label">预览文本</label>
                                                 <input type="text" class="form-control" id="previewText" 
-                                                       placeholder="输入要预览的文本" value="这是一个语音预览测试">
-                                                <button class="btn btn-preview" type="button" onclick="previewVoice('narration')">
-                                                    预览旁白
+                                                       placeholder="输入要预览的文本" value="他说'你好世界'然后离开了">
+                                                <div class="form-text">使用默认文本可以同时测试旁白和对话语音</div>
+                                            </div>
+                                            <div class="btn-group w-100 mb-2" role="group">
+                                                <button class="btn btn-outline-primary" type="button" onclick="previewAdminVoice('narration')">
+                                                    <i class="bi bi-person-lines-fill me-1"></i>预览旁白
                                                 </button>
-                                                <button class="btn btn-preview" type="button" onclick="previewVoice('dialogue')">
-                                                    预览对话
+                                                <button class="btn btn-outline-success" type="button" onclick="previewAdminVoice('dialogue')">
+                                                    <i class="bi bi-chat-quote me-1"></i>预览对话
+                                                </button>
+                                                <button class="btn btn-outline-info" type="button" onclick="previewAdminVoice('unified')">
+                                                    <i class="bi bi-mic me-1"></i>预览统一
                                                 </button>
                                             </div>
                                             <audio id="previewAudio" controls class="w-100 d-none"></audio>
+                                            <div id="previewStatus" class="mt-2"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -492,6 +693,12 @@
                                 <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="loadDictionaryRules()">
                                     <i class="bi bi-arrow-clockwise me-1"></i>刷新
                                 </button>
+                                <button type="button" class="btn btn-sm btn-outline-info ms-2" data-bs-toggle="modal" data-bs-target="#importRulesModal">
+                                    <i class="bi bi-upload me-1"></i>导入
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-success ms-2" onclick="exportDictionaryRules()">
+                                    <i class="bi bi-download me-1"></i>导出
+                                </button>
                             </div>
                         </div>
 
@@ -550,18 +757,44 @@
                         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                             <h1 class="h2">日志查看</h1>
                             <div class="btn-toolbar mb-2 mb-md-0">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadLogs()">
-                                    <i class="bi bi-arrow-clockwise me-1"></i>刷新
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="clearLogDisplay()">
-                                    <i class="bi bi-trash me-1"></i>清空显示
-                                </button>
+                                <div class="btn-group me-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="loadLogs()">
+                                        <i class="bi bi-arrow-clockwise me-1"></i>刷新
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-info" onclick="clearTimeFilters()">
+                                        <i class="bi bi-x-circle me-1"></i>清空时间
+                                    </button>
+                                </div>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="setQuickTimeRange(1)">
+                                        最近1小时
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="setQuickTimeRange(6)">
+                                        最近6小时
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="setQuickTimeRange(24)">
+                                        最近24小时
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
                         <!-- 日志过滤器 -->
                         <div class="row mb-3">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
+                                <label for="logTypeFilter" class="form-label">日志类别</label>
+                                <select class="form-select" id="logTypeFilter" onchange="loadLogs()">
+                                    <option value="audio" selected>音频请求</option>
+                                    <option value="ALL">所有类别</option>
+                                    <option value="http">HTTP请求</option>
+                                    <option value="api">API调用</option>
+                                    <option value="error">错误日志</option>
+                                    <option value="audit">审计日志</option>
+                                    <option value="performance">性能日志</option>
+                                    <option value="general">一般日志</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
                                 <label for="logLevelFilter" class="form-label">日志级别</label>
                                 <select class="form-select" id="logLevelFilter" onchange="loadLogs()">
                                     <option value="ALL">所有级别</option>
@@ -571,7 +804,7 @@
                                     <option value="ERROR">ERROR</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="logLines" class="form-label">显示行数</label>
                                 <select class="form-select" id="logLines" onchange="loadLogs()">
                                     <option value="50">50 行</option>
@@ -580,13 +813,53 @@
                                     <option value="500">500 行</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label for="logSearch" class="form-label">搜索关键词</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="logSearch" placeholder="输入搜索关键词...">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="filterLogs()">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="loadLogs()">
                                         <i class="bi bi-search"></i>
                                     </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">时间范围</label>
+                                <div class="input-group">
+                                    <input type="datetime-local" class="form-control" id="logStartTime" onchange="loadLogs()">
+                                    <span class="input-group-text">至</span>
+                                    <input type="datetime-local" class="form-control" id="logEndTime" onchange="loadLogs()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 日志统计信息 -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="card bg-light">
+                                    <div class="card-body py-2">
+                                        <div class="row text-center">
+                                            <div class="col-md-2">
+                                                <small class="text-muted">总条数</small>
+                                                <div class="fw-bold" id="logStatsTotal">-</div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <small class="text-muted">已过滤</small>
+                                                <div class="fw-bold" id="logStatsFiltered">-</div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <small class="text-muted">显示中</small>
+                                                <div class="fw-bold" id="logStatsDisplayed">-</div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted">类型分布</small>
+                                                <div class="fw-bold" id="logStatsTypes">-</div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <small class="text-muted">级别分布</small>
+                                                <div class="fw-bold" id="logStatsLevels">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -860,6 +1133,127 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- 用户偏好设置 -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card shadow">
+                                    <div class="card-header">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            <i class="bi bi-sliders me-2"></i>用户偏好设置
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <!-- 语音设置 -->
+                                            <div class="col-md-6">
+                                                <h6 class="text-secondary mb-3">语音设置</h6>
+                                                <form id="voiceSettingsForm">
+                                                    <div class="mb-3">
+                                                        <label for="userDefaultNarrationVoice" class="form-label">默认旁白语音</label>
+                                                        <select class="form-select" id="userDefaultNarrationVoice" name="default_narration_voice">
+                                                            <option value="">请选择...</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="userDefaultDialogueVoice" class="form-label">默认对话语音</label>
+                                                        <select class="form-select" id="userDefaultDialogueVoice" name="default_dialogue_voice">
+                                                            <option value="">请选择...</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="userDefaultSpeed" class="form-label">默认语速</label>
+                                                        <input type="range" class="form-range" id="userDefaultSpeed" name="default_speed" 
+                                                               min="0.5" max="3.0" step="0.1" value="1.0">
+                                                        <div class="d-flex justify-content-between">
+                                                            <small>0.5x</small>
+                                                            <small id="userSpeedValue">1.0x</small>
+                                                            <small>3.0x</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="userPreferredFormat" class="form-label">首选音频格式</label>
+                                                        <select class="form-select" id="userPreferredFormat" name="preferred_format">
+                                                            <option value="webm">WebM</option>
+                                                            <option value="mp3">MP3</option>
+                                                            <option value="wav">WAV</option>
+                                                        </select>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- 界面设置 -->
+                                            <div class="col-md-6">
+                                                <h6 class="text-secondary mb-3">界面设置</h6>
+                                                <form id="userUiSettingsForm">
+                                                    <div class="mb-3">
+                                                        <label for="userTheme" class="form-label">主题</label>
+                                                        <select class="form-select" id="userTheme" name="theme">
+                                                            <option value="light">浅色</option>
+                                                            <option value="dark">深色</option>
+                                                            <option value="auto">跟随系统</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="userLanguage" class="form-label">语言</label>
+                                                        <select class="form-select" id="userLanguage" name="language">
+                                                            <option value="zh-CN">简体中文</option>
+                                                            <option value="en-US">English</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="userAutoPlay" name="auto_play">
+                                                            <label class="form-check-label" for="userAutoPlay">
+                                                                自动播放音频
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="userShowAdvancedOptions" name="show_advanced_options">
+                                                            <label class="form-check-label" for="userShowAdvancedOptions">
+                                                                显示高级选项
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        <!-- 操作按钮 -->
+                                        <div class="row mt-4">
+                                            <div class="col-12">
+                                                <div class="btn-group me-2">
+                                                    <button type="button" class="btn btn-primary" onclick="saveUserSettings()">
+                                                        <i class="bi bi-check-circle me-1"></i>保存设置
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-secondary" onclick="loadUserSettings()">
+                                                        <i class="bi bi-arrow-clockwise me-1"></i>刷新
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group me-2">
+                                                    <button type="button" class="btn btn-outline-info" onclick="exportUserSettings()">
+                                                        <i class="bi bi-download me-1"></i>导出
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#importUserSettingsModal">
+                                                        <i class="bi bi-upload me-1"></i>导入
+                                                    </button>
+                                                </div>
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-outline-success" onclick="backupUserSettings()">
+                                                        <i class="bi bi-shield-check me-1"></i>备份
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-danger" onclick="resetUserSettings()">
+                                                        <i class="bi bi-arrow-counterclockwise me-1"></i>重置
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </main>
             </div>
@@ -954,14 +1348,250 @@
         </div>
     </div>
 
+    <!-- 导入规则模态框 -->
+    <div class="modal fade" id="importRulesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">批量导入字典规则</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="importFile" class="form-label">选择文件</label>
+                        <input type="file" class="form-control" id="importFile" accept=".json,.csv">
+                        <div class="form-text">支持 JSON 和 CSV 格式文件</div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="overwriteRules" name="overwrite">
+                            <label class="form-check-label" for="overwriteRules">
+                                覆盖已存在的规则
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">或直接粘贴 JSON 数据：</label>
+                        <textarea class="form-control" id="importData" rows="10" placeholder='{"rules": [{"type": "pronunciation", "pattern": "\\btest\\b", "replacement": "测试", "enabled": true}]}'></textarea>
+                    </div>
+                    <div class="alert alert-info">
+                        <h6>导入格式说明：</h6>
+                        <p><strong>JSON 格式：</strong></p>
+                        <pre><code>{
+  "rules": [
+    {
+      "type": "pronunciation",
+      "pattern": "\\bAPI\\b",
+      "replacement": "A P I",
+      "enabled": true
+    }
+  ]
+}</code></pre>
+                        <p><strong>CSV 格式：</strong>需包含 type, pattern, replacement, enabled 列</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="importRules()">导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入用户设置模态框 -->
+    <div class="modal fade" id="importUserSettingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">导入用户设置</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="settingsImportFile" class="form-label">选择设置文件</label>
+                        <input type="file" class="form-control" id="settingsImportFile" accept=".json">
+                        <div class="form-text">支持 JSON 格式的设置文件</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">或直接粘贴设置数据：</label>
+                        <textarea class="form-control" id="settingsImportData" rows="8" placeholder='{"version": "1.0", "settings": {...}}'></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="importUserSettings()">导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 备份列表模态框 -->
+    <div class="modal fade" id="backupsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">设置备份</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="backupsList">
+                        <p class="text-center">加载中...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/admin-voice-config.js"></script>
     
     <script>
+        // 管理面板语音配置功能
+        const adminVoiceData = {
+            "zh": ["zh-CN-XiaoxiaoNeural", "zh-CN-YunxiNeural", "zh-CN-YunjianNeural"],
+            "en": ["en-US-AvaNeural", "en-US-AndrewNeural", "en-US-EmmaNeural"],
+            "ja": ["ja-JP-NanamiNeural", "ja-JP-KeitaNeural"],
+            "ko": ["ko-KR-SunHiNeural", "ko-KR-InJoonNeural"]
+        };
+        
+        function updateAdminVoices() {
+            console.log('updateAdminVoices 被调用');
+            const countrySelect = document.getElementById('adminCountrySelect');
+            if (!countrySelect) return;
+            
+            const selectedCountry = countrySelect.value;
+            if (!selectedCountry || !adminVoiceData[selectedCountry]) {
+                clearAdminVoiceSelections();
+                return;
+            }
+            
+            const singleVoiceMode = document.getElementById('adminSingleVoice')?.checked;
+            if (singleVoiceMode) {
+                updateAdminSingleVoiceSelect(selectedCountry);
+            } else {
+                updateAdminMultiVoiceSelects(selectedCountry);
+            }
+        }
+        
+        function toggleAdminVoiceMode() {
+            console.log('toggleAdminVoiceMode 被调用');
+            const singleVoiceMode = document.getElementById('adminSingleVoice')?.checked;
+            const singleSection = document.getElementById('adminSingleVoiceSection');
+            const multiSection = document.getElementById('adminMultiVoiceSection');
+            
+            if (!singleSection || !multiSection) return;
+            
+            if (singleVoiceMode) {
+                multiSection.classList.add('d-none');
+                singleSection.classList.remove('d-none');
+            } else {
+                singleSection.classList.add('d-none');
+                multiSection.classList.remove('d-none');
+            }
+            updateAdminVoices();
+        }
+        
+        function clearAdminVoiceSelections() {
+            const selects = ['adminUnifiedVoice', 'narrationVoice', 'dialogueVoice'];
+            selects.forEach(id => {
+                const select = document.getElementById(id);
+                if (select) {
+                    select.innerHTML = '<option value="">请先选择语言</option>';
+                }
+            });
+        }
+        
+        function updateAdminSingleVoiceSelect(selectedCountry) {
+            const voiceSelect = document.getElementById('adminUnifiedVoice');
+            if (!voiceSelect) return;
+            
+            const voices = adminVoiceData[selectedCountry];
+            voiceSelect.innerHTML = '<option value="">请选择语音</option>';
+            
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice;
+                option.textContent = voice;
+                voiceSelect.appendChild(option);
+            });
+        }
+        
+        function updateAdminMultiVoiceSelects(selectedCountry) {
+            const narrationSelect = document.getElementById('narrationVoice');
+            const dialogueSelect = document.getElementById('dialogueVoice');
+            if (!narrationSelect || !dialogueSelect) return;
+            
+            const voices = adminVoiceData[selectedCountry];
+            
+            narrationSelect.innerHTML = '<option value="">请选择旁白语音</option>';
+            dialogueSelect.innerHTML = '<option value="">请选择对话语音</option>';
+            
+            voices.forEach(voice => {
+                const narrationOption = document.createElement('option');
+                narrationOption.value = voice;
+                narrationOption.textContent = voice;
+                narrationSelect.appendChild(narrationOption);
+                
+                const dialogueOption = document.createElement('option');
+                dialogueOption.value = voice;
+                dialogueOption.textContent = voice;
+                dialogueSelect.appendChild(dialogueOption);
+            });
+        }
+        
+        async function previewAdminVoice(type) {
+            const previewText = document.getElementById('previewText')?.value || '他说"你好世界"然后离开了';
+            let voiceId = '';
+            
+            if (type === 'unified') {
+                voiceId = document.getElementById('adminUnifiedVoice')?.value;
+            } else if (type === 'narration') {
+                voiceId = document.getElementById('narrationVoice')?.value;
+            } else if (type === 'dialogue') {
+                voiceId = document.getElementById('dialogueVoice')?.value;
+            }
+            
+            if (!voiceId) {
+                showAlert('请先选择语音', 'warning');
+                return;
+            }
+            
+            try {
+                const params = new URLSearchParams({
+                    text: previewText,
+                    narr: voiceId,
+                    speed: '1.0'
+                });
+                
+                const previewUrl = `/api?${params.toString()}`;
+                const audio = new Audio(previewUrl);
+                audio.play().catch(error => {
+                    console.error('播放预览失败:', error);
+                    showAlert('预览播放失败', 'danger');
+                });
+                
+                const typeText = type === 'unified' ? '统一' : type === 'narration' ? '旁白' : '对话';
+                showAlert(`正在预览${typeText}语音`, 'info');
+                
+            } catch (error) {
+                console.error('预览语音失败:', error);
+                showAlert('预览语音失败', 'danger');
+            }
+        }
+        
         // 全局变量
         let currentUser = null;
         let autoRefreshInterval = null;
         let currentRules = [];
+        
+        // 语音数据处理器
+        let adminVoiceProcessor = null;
+        let adminProcessedVoices = {};
+
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -1100,6 +1730,10 @@
                     case 'dictionary':
                         loadDictionaryRules();
                         break;
+                    case 'profile':
+                        loadUserSettings();
+                        loadVoicesForSettings();
+                        break;
                     case 'logs':
                         loadLogs();
                         break;
@@ -1123,23 +1757,31 @@
    // 加载仪表板数据
         async function loadDashboard() {
             try {
-                const response = await fetch('/admin/dashboard');
+                // 使用统一监控接口获取更完整的数据
+                const response = await fetch('/admin/system/monitoring');
                 const result = await response.json();
 
                 if (result.success) {
                     const data = result.data;
                     
                     // 更新系统状态卡片
-                    document.getElementById('systemUptime').textContent = data.system_info.uptime_human || '--';
+                    const uptimeSeconds = data.performance_metrics.uptime_seconds || 0;
+                    const uptimeHuman = formatUptime(uptimeSeconds);
+                    document.getElementById('systemUptime').textContent = uptimeHuman;
+                    
                     document.getElementById('memoryUsage').textContent = 
-                        data.system_info.memory ? `${data.system_info.memory.percent.toFixed(1)}%` : '--';
+                        `${(data.performance_metrics.memory_usage_percent || 0).toFixed(1)}%`;
                     document.getElementById('cpuUsage').textContent = 
-                        data.system_info.cpu_percent ? `${data.system_info.cpu_percent.toFixed(1)}%` : '--';
+                        `${(data.performance_metrics.cpu_usage_percent || 0).toFixed(1)}%`;
                     
                     // 更新 Edge-TTS 状态
                     const edgeTtsElement = document.getElementById('edgeTtsStatus');
-                    if (data.system_info.edge_tts_status) {
-                        edgeTtsElement.innerHTML = '<span class="status-indicator status-healthy"></span>正常';
+                    const edgeTtsStatus = data.performance_metrics.edge_tts_status;
+                    const responseTime = data.performance_metrics.edge_tts_response_time;
+                    
+                    if (edgeTtsStatus) {
+                        const timeText = responseTime ? ` (${responseTime.toFixed(0)}ms)` : '';
+                        edgeTtsElement.innerHTML = `<span class="status-indicator status-healthy"></span>正常${timeText}`;
                     } else {
                         edgeTtsElement.innerHTML = '<span class="status-indicator status-error"></span>异常';
                     }
@@ -1150,6 +1792,7 @@
                         <p><strong>旁白语音：</strong> ${data.config_summary.tts.narration_voice}</p>
                         <p><strong>对话语音：</strong> ${data.config_summary.tts.dialogue_voice}</p>
                         <p><strong>默认语速：</strong> ${data.config_summary.tts.default_speed}</p>
+                        <p><strong>缓存大小限制：</strong> ${formatBytes(data.config_summary.tts.cache_size_limit || 0)}</p>
                     `;
 
                     // 更新字典统计
@@ -1157,10 +1800,67 @@
                     dictionaryStats.innerHTML = `
                         <p><strong>状态：</strong> ${data.config_summary.dictionary.enabled ? '已启用' : '已禁用'}</p>
                         <p><strong>规则数量：</strong> ${data.config_summary.dictionary.rules_count}</p>
+                        <p><strong>规则文件：</strong> ${data.config_summary.dictionary.rules_file}</p>
                     `;
+                    
+                    // 更新服务统计信息（如果页面上有相应元素）
+                    updateServiceStats(data.service_stats);
+                    
+                    // 更新管理信息
+                    updateManagementInfo(data.management_info);
                 }
             } catch (error) {
                 console.error('加载仪表板数据失败:', error);
+                showAlert('加载监控数据失败', 'danger');
+            }
+        }
+        
+        // 更新服务统计信息
+        function updateServiceStats(stats) {
+            // 如果页面上有服务统计元素，更新它们
+            const activeRequestsElement = document.getElementById('activeRequests');
+            if (activeRequestsElement) {
+                activeRequestsElement.textContent = stats.active_requests || 0;
+            }
+            
+            const cacheSizeElement = document.getElementById('cacheSize');
+            if (cacheSizeElement) {
+                cacheSizeElement.textContent = formatBytes(stats.cache_size || 0);
+            }
+            
+            const cacheHitRateElement = document.getElementById('cacheHitRate');
+            if (cacheHitRateElement) {
+                cacheHitRateElement.textContent = `${(stats.cache_hit_rate || 0).toFixed(1)}%`;
+            }
+            
+            const errorCount1hElement = document.getElementById('errorCount1h');
+            if (errorCount1hElement) {
+                errorCount1hElement.textContent = stats.error_count_1h || 0;
+            }
+        }
+        
+        // 更新管理信息
+        function updateManagementInfo(info) {
+            const currentUserElement = document.getElementById('currentUser');
+            if (currentUserElement) {
+                currentUserElement.textContent = info.current_user || '管理员';
+            }
+        }
+        
+        // 格式化运行时间
+        function formatUptime(seconds) {
+            if (!seconds) return '--';
+            
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            
+            if (days > 0) {
+                return `${days}天 ${hours}小时`;
+            } else if (hours > 0) {
+                return `${hours}小时 ${minutes}分钟`;
+            } else {
+                return `${minutes}分钟`;
             }
         }
 
@@ -1511,22 +2211,382 @@
             }
         }
 
+        // 导入规则
+        async function importRules() {
+            try {
+                const fileInput = document.getElementById('importFile');
+                const textInput = document.getElementById('importData');
+                const overwrite = document.getElementById('overwriteRules').checked;
+                
+                let rulesData = null;
+                
+                // 优先使用文件输入
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const fileContent = await readFileContent(file);
+                    
+                    if (file.name.endsWith('.csv')) {
+                        rulesData = parseCSVRules(fileContent);
+                    } else {
+                        const jsonData = JSON.parse(fileContent);
+                        rulesData = jsonData.rules || jsonData;
+                    }
+                } else if (textInput.value.trim()) {
+                    // 使用文本输入
+                    const jsonData = JSON.parse(textInput.value);
+                    rulesData = jsonData.rules || jsonData;
+                } else {
+                    showAlert('请选择文件或输入规则数据', 'warning');
+                    return;
+                }
+                
+                if (!Array.isArray(rulesData)) {
+                    showAlert('规则数据格式错误，必须是数组', 'danger');
+                    return;
+                }
+                
+                // 发送导入请求
+                const response = await fetch('/admin/dictionary/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        rules: rulesData,
+                        overwrite: overwrite
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('importRulesModal')).hide();
+                    
+                    // 清空表单
+                    fileInput.value = '';
+                    textInput.value = '';
+                    document.getElementById('overwriteRules').checked = false;
+                    
+                    loadDictionaryRules();
+                } else {
+                    showAlert(result.message || '导入失败', 'danger');
+                }
+                
+            } catch (error) {
+                console.error('导入规则失败:', error);
+                showAlert('导入规则失败: ' + error.message, 'danger');
+            }
+        }
+        
+        // 导出规则
+        async function exportDictionaryRules() {
+            try {
+                const response = await fetch('/admin/dictionary/export?format=json');
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 下载 JSON 文件
+                    const dataStr = JSON.stringify(result.data, null, 2);
+                    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(dataBlob);
+                    link.download = `dictionary_rules_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+                    link.click();
+                    
+                    showAlert('规则导出成功', 'success');
+                } else {
+                    showAlert('导出失败', 'danger');
+                }
+            } catch (error) {
+                console.error('导出规则失败:', error);
+                showAlert('导出规则失败', 'danger');
+            }
+        }
+        
+        // 读取文件内容
+        function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
+        }
+        
+        // 解析 CSV 规则
+        function parseCSVRules(csvContent) {
+            const lines = csvContent.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            const rules = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+                const rule = {};
+                
+                headers.forEach((header, index) => {
+                    if (values[index] !== undefined) {
+                        if (header === 'enabled') {
+                            rule[header] = values[index].toLowerCase() === 'true';
+                        } else {
+                            rule[header] = values[index];
+                        }
+                    }
+                });
+                
+                if (rule.type && rule.pattern && rule.replacement) {
+                    rules.push(rule);
+                }
+            }
+            
+            return rules;
+        }
+
+        // 用户设置相关函数
+        async function loadUserSettings() {
+            try {
+                const response = await fetch('/api/settings');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const settings = result.data.settings;
+                    
+                    // 填充表单
+                    document.getElementById('userDefaultNarrationVoice').value = settings.default_narration_voice || '';
+                    document.getElementById('userDefaultDialogueVoice').value = settings.default_dialogue_voice || '';
+                    document.getElementById('userDefaultSpeed').value = settings.default_speed || 1.0;
+                    document.getElementById('userPreferredFormat').value = settings.preferred_format || 'webm';
+                    document.getElementById('userTheme').value = settings.theme || 'light';
+                    document.getElementById('userLanguage').value = settings.language || 'zh-CN';
+                    document.getElementById('userAutoPlay').checked = settings.auto_play || false;
+                    document.getElementById('userShowAdvancedOptions').checked = settings.show_advanced_options || false;
+                    
+                    // 更新语速显示
+                    document.getElementById('userSpeedValue').textContent = (settings.default_speed || 1.0) + 'x';
+                    
+                    console.log('用户设置加载成功');
+                } else {
+                    showAlert('加载用户设置失败', 'danger');
+                }
+            } catch (error) {
+                console.error('加载用户设置失败:', error);
+                showAlert('加载用户设置失败', 'danger');
+            }
+        }
+        
+        async function saveUserSettings() {
+            try {
+                const settingsData = {
+                    default_narration_voice: document.getElementById('userDefaultNarrationVoice').value || null,
+                    default_dialogue_voice: document.getElementById('userDefaultDialogueVoice').value || null,
+                    default_speed: parseFloat(document.getElementById('userDefaultSpeed').value),
+                    preferred_format: document.getElementById('userPreferredFormat').value,
+                    theme: document.getElementById('userTheme').value,
+                    language: document.getElementById('userLanguage').value,
+                    auto_play: document.getElementById('userAutoPlay').checked,
+                    show_advanced_options: document.getElementById('userShowAdvancedOptions').checked
+                };
+                
+                const response = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(settingsData)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('设置保存成功', 'success');
+                } else {
+                    showAlert(result.message || '设置保存失败', 'danger');
+                }
+            } catch (error) {
+                console.error('保存用户设置失败:', error);
+                showAlert('保存用户设置失败', 'danger');
+            }
+        }
+        
+        async function exportUserSettings() {
+            try {
+                const response = await fetch('/api/settings/export?download=true');
+                
+                if (response.ok) {
+                    // 触发文件下载
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `user_settings_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    showAlert('设置导出成功', 'success');
+                } else {
+                    showAlert('设置导出失败', 'danger');
+                }
+            } catch (error) {
+                console.error('导出用户设置失败:', error);
+                showAlert('导出用户设置失败', 'danger');
+            }
+        }
+        
+        async function importUserSettings() {
+            try {
+                const fileInput = document.getElementById('settingsImportFile');
+                const textInput = document.getElementById('settingsImportData');
+                
+                let settingsData = null;
+                
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const fileContent = await readFileContent(file);
+                    settingsData = JSON.parse(fileContent);
+                } else if (textInput.value.trim()) {
+                    settingsData = JSON.parse(textInput.value);
+                } else {
+                    showAlert('请选择文件或输入设置数据', 'warning');
+                    return;
+                }
+                
+                const response = await fetch('/api/settings/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(settingsData)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('设置导入成功', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('importUserSettingsModal')).hide();
+                    
+                    // 清空表单
+                    fileInput.value = '';
+                    textInput.value = '';
+                    
+                    // 重新加载设置
+                    loadUserSettings();
+                } else {
+                    showAlert(result.message || '设置导入失败', 'danger');
+                }
+            } catch (error) {
+                console.error('导入用户设置失败:', error);
+                showAlert('导入用户设置失败: ' + error.message, 'danger');
+            }
+        }
+        
+        async function resetUserSettings() {
+            if (!confirm('确定要重置所有设置为默认值吗？此操作不可撤销。')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/settings/reset', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('设置已重置为默认值', 'success');
+                    loadUserSettings();
+                } else {
+                    showAlert(result.message || '设置重置失败', 'danger');
+                }
+            } catch (error) {
+                console.error('重置用户设置失败:', error);
+                showAlert('重置用户设置失败', 'danger');
+            }
+        }
+        
+        async function backupUserSettings() {
+            try {
+                const response = await fetch('/api/settings/backup', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('设置备份成功', 'success');
+                } else {
+                    showAlert(result.message || '设置备份失败', 'danger');
+                }
+            } catch (error) {
+                console.error('备份用户设置失败:', error);
+                showAlert('备份用户设置失败', 'danger');
+            }
+        }
+        
+        async function loadVoicesForSettings() {
+            try {
+                const response = await fetch('/api/voices');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const voices = result.data;
+                    
+                    // 填充旁白语音选项
+                    const narrationSelect = document.getElementById('userDefaultNarrationVoice');
+                    const dialogueSelect = document.getElementById('userDefaultDialogueVoice');
+                    
+                    // 清空现有选项
+                    narrationSelect.innerHTML = '<option value="">请选择...</option>';
+                    dialogueSelect.innerHTML = '<option value="">请选择...</option>';
+                    
+                    // 添加语音选项
+                    voices.forEach(voice => {
+                        const option1 = new Option(voice.FriendlyName, voice.ShortName);
+                        const option2 = new Option(voice.FriendlyName, voice.ShortName);
+                        narrationSelect.add(option1);
+                        dialogueSelect.add(option2);
+                    });
+                }
+            } catch (error) {
+                console.error('加载语音列表失败:', error);
+            }
+        }
+        
+        // 语速滑块事件
+        document.addEventListener('DOMContentLoaded', function() {
+            const speedSlider = document.getElementById('userDefaultSpeed');
+            const speedValue = document.getElementById('userSpeedValue');
+            
+            if (speedSlider && speedValue) {
+                speedSlider.addEventListener('input', function() {
+                    speedValue.textContent = this.value + 'x';
+                });
+            }
+        });
+
         // 加载日志
         async function loadLogs() {
             const level = document.getElementById('logLevelFilter').value;
+            const type = document.getElementById('logTypeFilter').value;
             const lines = document.getElementById('logLines').value;
+            const search = document.getElementById('logSearch').value;
+            const startTime = document.getElementById('logStartTime').value;
+            const endTime = document.getElementById('logEndTime').value;
 
             try {
-                const params = new URLSearchParams({
-                    level: level,
-                    lines: lines
-                });
+                const params = new URLSearchParams();
+                
+                if (level && level !== 'ALL') params.append('level', level);
+                if (type && type !== 'ALL') params.append('type', type);
+                if (lines) params.append('lines', lines);
+                if (search) params.append('search', search);
+                if (startTime) params.append('start_time', new Date(startTime).toISOString());
+                if (endTime) params.append('end_time', new Date(endTime).toISOString());
 
                 const response = await fetch(`/admin/logs?${params.toString()}`);
                 const result = await response.json();
 
                 if (result.success) {
                     displayLogs(result.data.logs);
+                    updateLogStats(result.data.stats, result.data.type_stats, result.data.level_stats);
                     document.getElementById('logTimestamp').textContent = 
                         `最后更新：${new Date().toLocaleString()}`;
                 }
@@ -1541,38 +2601,174 @@
             const container = document.getElementById('logContainer');
             
             if (logs.length === 0) {
-                container.innerHTML = '<div class="text-center text-muted p-3">暂无日志</div>';
+                container.innerHTML = '<div class="text-center text-muted p-3">暂无符合条件的日志</div>';
                 return;
             }
 
             container.innerHTML = logs.map(log => {
-                const timestamp = new Date(log.timestamp).toLocaleString();
-                return `
-                    <div class="log-entry log-level-${log.level}">
-                        <span class="text-muted">[${timestamp}]</span>
-                        <span class="badge bg-secondary">${log.level}</span>
-                        ${log.message}
-                    </div>
-                `;
+                return formatLogEntry(log);
             }).join('');
 
             // 滚动到底部
             container.scrollTop = container.scrollHeight;
         }
-
-        // 过滤日志
-        function filterLogs() {
-            const searchTerm = document.getElementById('logSearch').value.toLowerCase();
-            const logEntries = document.querySelectorAll('.log-entry');
-
-            logEntries.forEach(entry => {
-                const text = entry.textContent.toLowerCase();
-                if (!searchTerm || text.includes(searchTerm)) {
-                    entry.style.display = 'block';
-                } else {
-                    entry.style.display = 'none';
+        
+        // 格式化单条日志条目
+        function formatLogEntry(log) {
+            const levelClass = log.level_color || 'text-info';
+            const icon = log.icon || 'ℹ️';
+            const typeClass = getTypeClass(log.type);
+            
+            let content = `
+                <div class="log-entry ${levelClass} border-start border-3 ${typeClass} mb-2 p-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="me-2">${icon}</span>
+                                <span class="badge bg-secondary me-2">${log.level}</span>
+                                <span class="badge bg-info me-2">${log.type}</span>
+                                <small class="text-muted">[${log.timestamp}]</small>
+                                <small class="text-muted ms-2">[${log.module}]</small>
+                            </div>
+                            <div class="log-message">
+                                ${escapeHtml(log.message)}
+                            </div>
+            `;
+            
+            // HTTP 请求信息
+            if (log.http_method && log.http_path) {
+                content += `
+                    <div class="mt-1">
+                        <span class="badge bg-primary me-1">${log.http_method}</span>
+                        <code class="text-primary">${log.http_path}</code>
+                `;
+                
+                if (log.status_code) {
+                    const statusClass = log.status_color || 'text-info';
+                    content += `<span class="badge ${statusClass} ms-2">${log.status_code}</span>`;
                 }
-            });
+                
+                if (log.duration_ms) {
+                    const perfClass = getPerfClass(log.duration_ms);
+                    content += `<span class="badge ${perfClass} ms-1">${log.duration_ms}ms</span>`;
+                }
+                
+                content += `</div>`;
+            }
+            
+            // 错误信息
+            if (log.error_type) {
+                content += `
+                    <div class="mt-1 text-danger">
+                        <strong>错误类型:</strong> ${log.error_type}
+                        ${log.error_message ? `<br><strong>错误信息:</strong> ${escapeHtml(log.error_message)}` : ''}
+                    </div>
+                `;
+            }
+            
+            // 审计信息
+            if (log.audit_action) {
+                content += `
+                    <div class="mt-1">
+                        <strong>操作:</strong> ${log.audit_action}
+                        ${log.audit_user ? `<strong class="ms-2">用户:</strong> ${log.audit_user}` : ''}
+                    </div>
+                `;
+            }
+            
+            content += `
+                        </div>
+                        <div class="ms-2">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleLogDetails(this)" title="查看详情">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="log-details d-none mt-2">
+                        <pre class="bg-light p-2 rounded"><code>${JSON.stringify(log.raw_data, null, 2)}</code></pre>
+                    </div>
+                </div>
+            `;
+            
+            return content;
+        }
+        
+        // 获取类型对应的样式类
+        function getTypeClass(type) {
+            const typeClasses = {
+                'audio': 'border-success',
+                'http': 'border-info',
+                'api': 'border-primary',
+                'error': 'border-danger',
+                'audit': 'border-warning',
+                'performance': 'border-secondary'
+            };
+            return typeClasses[type] || 'border-light';
+        }
+        
+        // 获取性能级别对应的样式类
+        function getPerfClass(duration) {
+            if (duration < 100) return 'bg-success';
+            if (duration < 500) return 'bg-info';
+            if (duration < 1000) return 'bg-warning';
+            return 'bg-danger';
+        }
+        
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 切换日志详情显示
+        function toggleLogDetails(button) {
+            const details = button.closest('.log-entry').querySelector('.log-details');
+            const icon = button.querySelector('i');
+            
+            if (details.classList.contains('d-none')) {
+                details.classList.remove('d-none');
+                icon.className = 'bi bi-chevron-up';
+            } else {
+                details.classList.add('d-none');
+                icon.className = 'bi bi-chevron-down';
+            }
+        }
+        
+        // 更新日志统计信息
+        function updateLogStats(stats, typeStats, levelStats) {
+            document.getElementById('logStatsTotal').textContent = stats.total_lines || 0;
+            document.getElementById('logStatsFiltered').textContent = stats.filtered_entries || 0;
+            document.getElementById('logStatsDisplayed').textContent = stats.returned_entries || 0;
+            
+            // 类型分布
+            const typeText = Object.entries(typeStats || {})
+                .map(([type, count]) => `${type}:${count}`)
+                .join(', ') || '无';
+            document.getElementById('logStatsTypes').textContent = typeText;
+            
+            // 级别分布
+            const levelText = Object.entries(levelStats || {})
+                .map(([level, count]) => `${level}:${count}`)
+                .join(', ') || '无';
+            document.getElementById('logStatsLevels').textContent = levelText;
+        }
+
+        // 清空时间范围过滤器
+        function clearTimeFilters() {
+            document.getElementById('logStartTime').value = '';
+            document.getElementById('logEndTime').value = '';
+            loadLogs();
+        }
+        
+        // 设置快速时间范围
+        function setQuickTimeRange(hours) {
+            const now = new Date();
+            const start = new Date(now.getTime() - hours * 60 * 60 * 1000);
+            
+            document.getElementById('logStartTime').value = start.toISOString().slice(0, 16);
+            document.getElementById('logEndTime').value = now.toISOString().slice(0, 16);
+            loadLogs();
         }
 
         // 清空日志显示
@@ -1584,40 +2780,109 @@
         // 加载系统状态
         async function loadSystemStatus() {
             try {
-                const response = await fetch('/admin/system/status');
+                // 使用统一监控接口获取完整的系统状态
+                const response = await fetch('/admin/system/monitoring');
                 const result = await response.json();
 
                 if (result.success) {
                     const data = result.data;
+                    const systemInfo = data.system_info;
+                    const performanceMetrics = data.performance_metrics;
+                    const serviceStats = data.service_stats;
+                    const managementInfo = data.management_info;
                     
                     // 更新详细信息
-                    document.getElementById('detailUptime').textContent = data.uptime_human || '--';
+                    const uptimeHuman = formatUptime(performanceMetrics.uptime_seconds || 0);
+                    document.getElementById('detailUptime').textContent = uptimeHuman;
+                    
                     document.getElementById('detailMemory').textContent = 
-                        data.memory ? `${data.memory.percent.toFixed(1)}% (${formatBytes(data.memory.used)}/${formatBytes(data.memory.total)})` : '--';
+                        `${performanceMetrics.memory_usage_percent.toFixed(1)}% (${formatBytes(systemInfo.memory_used || 0)}/${formatBytes(systemInfo.memory_total || 0)})`;
+                    
                     document.getElementById('detailCpu').textContent = 
-                        data.cpu_percent ? `${data.cpu_percent.toFixed(1)}%` : '--';
+                        `${performanceMetrics.cpu_usage_percent.toFixed(1)}%`;
+                    
                     document.getElementById('detailDisk').textContent = 
-                        data.disk ? `${data.disk.percent.toFixed(1)}% (${formatBytes(data.disk.used)}/${formatBytes(data.disk.total)})` : '--';
-                    document.getElementById('detailEdgeTts').innerHTML = 
-                        data.edge_tts_status ? '<span class="status-indicator status-healthy"></span>正常' : '<span class="status-indicator status-error"></span>异常';
-                    document.getElementById('detailSessions').textContent = data.active_sessions || '0';
+                        `${performanceMetrics.disk_usage_percent.toFixed(1)}%`;
+                    
+                    // Edge-TTS 状态显示响应时间
+                    const edgeTtsStatus = performanceMetrics.edge_tts_status;
+                    const responseTime = performanceMetrics.edge_tts_response_time;
+                    const edgeTtsText = edgeTtsStatus ? 
+                        `<span class="status-indicator status-healthy"></span>正常${responseTime ? ` (${responseTime.toFixed(0)}ms)` : ''}` :
+                        '<span class="status-indicator status-error"></span>异常';
+                    document.getElementById('detailEdgeTts').innerHTML = edgeTtsText;
+                    
+                    // 活跃请求数
+                    document.getElementById('detailSessions').textContent = serviceStats.active_requests || '0';
+                    
+                    // 配置更新时间
+                    const configTime = managementInfo.last_config_update;
                     document.getElementById('detailConfigTime').textContent = 
-                        data.config_last_modified ? new Date(data.config_last_modified * 1000).toLocaleString() : '--';
+                        configTime ? new Date(configTime).toLocaleString() : '--';
 
                     // 更新进度条
-                    if (data.memory) {
-                        updateProgressBar('memoryProgressBar', data.memory.percent);
-                    }
-                    if (data.cpu_percent !== undefined) {
-                        updateProgressBar('cpuProgressBar', data.cpu_percent);
-                    }
-                    if (data.disk) {
-                        updateProgressBar('diskProgressBar', data.disk.percent);
-                    }
+                    updateProgressBar('memoryProgressBar', performanceMetrics.memory_usage_percent);
+                    updateProgressBar('cpuProgressBar', performanceMetrics.cpu_usage_percent);
+                    updateProgressBar('diskProgressBar', performanceMetrics.disk_usage_percent);
+                    
+                    // 更新额外的监控信息
+                    updateExtendedMonitoringInfo(data);
                 }
             } catch (error) {
                 console.error('加载系统状态失败:', error);
                 showAlert('加载系统状态失败', 'danger');
+            }
+        }
+        
+        // 更新扩展监控信息
+        function updateExtendedMonitoringInfo(data) {
+            const serviceStats = data.service_stats;
+            const systemInfo = data.system_info;
+            
+            // 更新缓存信息
+            const cacheInfoElement = document.getElementById('cacheInfo');
+            if (cacheInfoElement) {
+                cacheInfoElement.innerHTML = `
+                    <p><strong>缓存大小：</strong> ${formatBytes(serviceStats.cache_size || 0)}</p>
+                    <p><strong>缓存命中率：</strong> ${(serviceStats.cache_hit_rate || 0).toFixed(1)}%</p>
+                `;
+            }
+            
+            // 更新错误统计
+            const errorStatsElement = document.getElementById('errorStats');
+            if (errorStatsElement) {
+                errorStatsElement.innerHTML = `
+                    <p><strong>1小时内错误：</strong> ${serviceStats.error_count_1h || 0}</p>
+                    <p><strong>24小时内错误：</strong> ${serviceStats.error_count_24h || 0}</p>
+                `;
+            }
+            
+            // 更新系统状态指示器
+            const statusIndicator = document.getElementById('systemStatusIndicator');
+            if (statusIndicator) {
+                const status = systemInfo.status || 'unknown';
+                let statusClass = 'status-healthy';
+                let statusText = '健康';
+                
+                switch (status) {
+                    case 'healthy':
+                        statusClass = 'status-healthy';
+                        statusText = '健康';
+                        break;
+                    case 'degraded':
+                        statusClass = 'status-warning';
+                        statusText = '降级';
+                        break;
+                    case 'unhealthy':
+                        statusClass = 'status-error';
+                        statusText = '异常';
+                        break;
+                    default:
+                        statusClass = 'status-warning';
+                        statusText = '未知';
+                }
+                
+                statusIndicator.innerHTML = `<span class="status-indicator ${statusClass}"></span>${statusText}`;
             }
         }
 
@@ -1740,6 +3005,141 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
+        
+        // 移动端功能
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+        
+        function closeMobileSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+        
+        // 初始化移动端优化
+        function initializeMobileAdmin() {
+            if (!window.mobileDetector) return;
+            
+            const deviceInfo = mobileDetector.getDeviceInfo();
+            console.log('管理面板设备信息:', deviceInfo);
+            
+            // 移动端优化
+            if (deviceInfo.isMobile) {
+                setupMobileAdminOptimizations();
+            }
+            
+            // 触摸设备优化
+            if (deviceInfo.touchSupport) {
+                setupTouchAdminOptimizations();
+            }
+            
+            // 监听设备变化
+            document.addEventListener('deviceresize', handleAdminDeviceChange);
+            document.addEventListener('orientationchange', handleAdminOrientationChange);
+        }
+        
+        function setupMobileAdminOptimizations() {
+            // 优化表格显示
+            const tables = document.querySelectorAll('.table');
+            tables.forEach(table => {
+                if (!table.closest('.table-responsive')) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'table-responsive';
+                    table.parentNode.insertBefore(wrapper, table);
+                    wrapper.appendChild(table);
+                }
+            });
+            
+            // 优化按钮组
+            const btnToolbars = document.querySelectorAll('.btn-toolbar');
+            btnToolbars.forEach(toolbar => {
+                toolbar.classList.add('mobile-btn-toolbar');
+            });
+            
+            // 自动关闭侧边栏（点击主内容区域时）
+            document.querySelector('.main-content')?.addEventListener('click', () => {
+                closeMobileSidebar();
+            });
+            
+            // 侧边栏链接点击后自动关闭
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    setTimeout(closeMobileSidebar, 100);
+                });
+            });
+        }
+        
+        function setupTouchAdminOptimizations() {
+            // 添加触摸反馈
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.matches('.btn, .nav-link, .dropdown-item')) {
+                    e.target.classList.add('touch-active');
+                }
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                setTimeout(() => {
+                    document.querySelectorAll('.touch-active').forEach(el => {
+                        el.classList.remove('touch-active');
+                    });
+                }, 150);
+            });
+            
+            // 优化下拉菜单
+            const dropdowns = document.querySelectorAll('.dropdown-toggle');
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    this.click();
+                });
+            });
+        }
+        
+        function handleAdminDeviceChange(event) {
+            const deviceInfo = event.detail;
+            console.log('管理面板设备变化:', deviceInfo);
+            
+            // 设备类型变化时重新应用优化
+            if (deviceInfo.isMobile) {
+                document.body.classList.add('mobile-admin');
+                setupMobileAdminOptimizations();
+            } else {
+                document.body.classList.remove('mobile-admin');
+                closeMobileSidebar();
+            }
+        }
+        
+        function handleAdminOrientationChange(event) {
+            const orientation = event.detail.orientation;
+            console.log('管理面板方向变化:', orientation);
+            
+            // 方向变化时关闭侧边栏
+            closeMobileSidebar();
+            
+            // 重新布局表格
+            setTimeout(() => {
+                const tables = document.querySelectorAll('.table');
+                tables.forEach(table => {
+                    // 触发表格重绘
+                    table.style.display = 'none';
+                    table.offsetHeight; // 强制重排
+                    table.style.display = '';
+                });
+            }, 100);
+        }
+
+        // 在页面加载时初始化移动端功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟初始化以确保 mobileDetector 已加载
+            setTimeout(initializeMobileAdmin, 100);
+        });
     </script>
 </body>
 </html>

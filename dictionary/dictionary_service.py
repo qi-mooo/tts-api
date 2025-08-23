@@ -122,9 +122,9 @@ class DictionaryService:
         if not self.validate_rule(pattern):
             raise ValueError(f"无效的正则表达式: {pattern}")
         
-        # 生成规则ID
+        # 生成简化的规则ID
         if not rule_id:
-            rule_id = f"{rule_type}_{len(self.rules) + 1:03d}"
+            rule_id = self._generate_simple_id(rule_type)
         
         # 检查ID是否已存在
         if any(rule.id == rule_id for rule in self.rules):
@@ -253,7 +253,7 @@ class DictionaryService:
     
     def reload_rules(self) -> None:
         """
-        重新加载规则文件
+        重新加载规则文件 - 兼容新旧格式
         """
         try:
             if os.path.exists(self.rules_file):
@@ -261,7 +261,21 @@ class DictionaryService:
                     data = json.load(f)
                 
                 self.rules = []
-                for rule_data in data.get('rules', []):
+                
+                # 检查文件版本
+                version = data.get('version', '1.0')
+                rules_data = data.get('rules', [])
+                
+                if version == '2.0':
+                    # 新格式
+                    self.logger.info(f"加载新格式规则文件 (v{version})")
+                    metadata = data.get('metadata', {})
+                    self.logger.debug(f"规则文件元数据: {metadata}")
+                else:
+                    # 旧格式兼容
+                    self.logger.info("加载旧格式规则文件，将在下次保存时升级")
+                
+                for rule_data in rules_data:
                     try:
                         rule = DictionaryRule.from_dict(rule_data)
                         self.rules.append(rule)
@@ -269,6 +283,12 @@ class DictionaryService:
                         self.logger.error(f"加载规则失败: {rule_data}, 错误: {e}")
                 
                 self.logger.info(f"成功加载 {len(self.rules)} 条规则")
+                
+                # 如果是旧格式，自动升级
+                if version != '2.0':
+                    self.logger.info("自动升级规则文件格式")
+                    self._save_rules()
+                    
             else:
                 # 创建默认规则文件
                 self._create_default_rules()
@@ -294,12 +314,150 @@ class DictionaryService:
         except re.error:
             return False
     
+    def import_rules(self, rules_data: List[Dict[str, Any]], overwrite: bool = False) -> Dict[str, Any]:
+        """
+        批量导入字典规则
+        
+        Args:
+            rules_data: 规则数据列表，每个元素包含 pattern, replacement, type 等字段
+            overwrite: 是否覆盖已存在的规则
+            
+        Returns:
+            导入结果统计
+        """
+        results = {
+            'success_count': 0,
+            'error_count': 0,
+            'skipped_count': 0,
+            'errors': [],
+            'imported_ids': []
+        }
+        
+        for i, rule_data in enumerate(rules_data):
+            try:
+                # 验证必需字段
+                if not all(key in rule_data for key in ['pattern', 'replacement', 'type']):
+                    results['errors'].append(f"第 {i+1} 条规则缺少必需字段")
+                    results['error_count'] += 1
+                    continue
+                
+                # 验证规则类型
+                if rule_data['type'] not in ['pronunciation', 'filter']:
+                    results['errors'].append(f"第 {i+1} 条规则类型无效: {rule_data['type']}")
+                    results['error_count'] += 1
+                    continue
+                
+                # 验证正则表达式
+                if not self.validate_rule(rule_data['pattern']):
+                    results['errors'].append(f"第 {i+1} 条规则正则表达式无效: {rule_data['pattern']}")
+                    results['error_count'] += 1
+                    continue
+                
+                # 检查是否已存在相同的规则
+                existing_rule = None
+                for rule in self.rules:
+                    if rule.pattern == rule_data['pattern'] and rule.type == rule_data['type']:
+                        existing_rule = rule
+                        break
+                
+                if existing_rule and not overwrite:
+                    results['skipped_count'] += 1
+                    continue
+                
+                # 生成或使用指定的ID
+                rule_id = rule_data.get('id')
+                if not rule_id:
+                    rule_id = self._generate_simple_id(rule_data['type'])
+                
+                # 如果ID已存在且不允许覆盖，生成新ID
+                if any(rule.id == rule_id for rule in self.rules) and not overwrite:
+                    rule_id = self._generate_simple_id(rule_data['type'])
+                
+                # 删除已存在的规则（如果覆盖）
+                if existing_rule and overwrite:
+                    self.remove_rule(existing_rule.id)
+                
+                # 添加新规则
+                now = datetime.now().isoformat()
+                new_rule = DictionaryRule(
+                    id=rule_id,
+                    type=rule_data['type'],
+                    pattern=rule_data['pattern'],
+                    replacement=rule_data['replacement'],
+                    enabled=rule_data.get('enabled', True),
+                    created_at=now,
+                    updated_at=now
+                )
+                
+                self.rules.append(new_rule)
+                results['success_count'] += 1
+                results['imported_ids'].append(rule_id)
+                
+            except Exception as e:
+                results['errors'].append(f"第 {i+1} 条规则导入失败: {str(e)}")
+                results['error_count'] += 1
+        
+        # 保存到文件
+        if results['success_count'] > 0:
+            self._save_rules()
+            self.logger.info(f"批量导入完成: 成功 {results['success_count']}, 失败 {results['error_count']}, 跳过 {results['skipped_count']}")
+        
+        return results
+    
+    def export_rules(self, rule_type: Optional[str] = None, enabled_only: bool = False) -> List[Dict[str, Any]]:
+        """
+        导出字典规则
+        
+        Args:
+            rule_type: 规则类型过滤，None表示导出所有类型
+            enabled_only: 是否只导出启用的规则
+            
+        Returns:
+            规则数据列表
+        """
+        rules_to_export = self.rules
+        
+        # 按类型过滤
+        if rule_type:
+            rules_to_export = [rule for rule in rules_to_export if rule.type == rule_type]
+        
+        # 按启用状态过滤
+        if enabled_only:
+            rules_to_export = [rule for rule in rules_to_export if rule.enabled]
+        
+        # 转换为简化格式
+        exported_data = []
+        for rule in rules_to_export:
+            exported_data.append({
+                'id': rule.id,
+                'type': rule.type,
+                'pattern': rule.pattern,
+                'replacement': rule.replacement,
+                'enabled': rule.enabled,
+                'created_at': rule.created_at,
+                'updated_at': rule.updated_at
+            })
+        
+        return exported_data
+    
     def _save_rules(self) -> None:
-        """保存规则到文件"""
+        """保存规则到文件 - 使用简化的结构"""
         try:
+            # 统计信息
+            enabled_count = len([rule for rule in self.rules if rule.enabled])
+            type_counts = {}
+            for rule in self.rules:
+                type_counts[rule.type] = type_counts.get(rule.type, 0) + 1
+            
             data = {
+                'version': '2.0',  # 版本标识
                 'rules': [rule.to_dict() for rule in self.rules],
-                'updated_at': datetime.now().isoformat()
+                'metadata': {
+                    'updated_at': datetime.now().isoformat(),
+                    'total_rules': len(self.rules),
+                    'enabled_rules': enabled_count,
+                    'type_counts': type_counts
+                }
             }
             
             with open(self.rules_file, 'w', encoding='utf-8') as f:
@@ -310,10 +468,10 @@ class DictionaryService:
             raise
     
     def _create_default_rules(self) -> None:
-        """创建默认规则"""
+        """创建默认规则 - 使用简化的ID和结构"""
         default_rules = [
             {
-                'id': 'pronunciation_001',
+                'id': '1',
                 'type': 'pronunciation',
                 'pattern': r'\bGitHub\b',
                 'replacement': '吉特哈布',
@@ -322,7 +480,7 @@ class DictionaryService:
                 'updated_at': datetime.now().isoformat()
             },
             {
-                'id': 'pronunciation_002',
+                'id': '2',
                 'type': 'pronunciation',
                 'pattern': r'\bAPI\b',
                 'replacement': 'A P I',
@@ -331,9 +489,18 @@ class DictionaryService:
                 'updated_at': datetime.now().isoformat()
             },
             {
-                'id': 'filter_001',
+                'id': '3',
+                'type': 'pronunciation',
+                'pattern': r'\bJSON\b',
+                'replacement': 'J S O N',
+                'enabled': True,
+                'created_at': datetime.now().isoformat(),
+                'updated_at': datetime.now().isoformat()
+            },
+            {
+                'id': '4',
                 'type': 'filter',
-                'pattern': r'[敏感词汇]',
+                'pattern': r'敏感词汇',
                 'replacement': '***',
                 'enabled': True,
                 'created_at': datetime.now().isoformat(),
@@ -341,9 +508,15 @@ class DictionaryService:
             }
         ]
         
+        # 简化的配置文件结构
         data = {
+            'version': '2.0',  # 版本标识
             'rules': default_rules,
-            'updated_at': datetime.now().isoformat()
+            'metadata': {
+                'created_at': datetime.now().isoformat(),
+                'updated_at': datetime.now().isoformat(),
+                'total_rules': len(default_rules)
+            }
         }
         
         with open(self.rules_file, 'w', encoding='utf-8') as f:
@@ -351,3 +524,17 @@ class DictionaryService:
         
         # 重新加载规则
         self.reload_rules()
+    
+    def _generate_simple_id(self, rule_type: str) -> str:
+        """生成简化的规则ID - 使用自增数字"""
+        # 获取所有规则的数字ID
+        existing_ids = []
+        for rule in self.rules:
+            if rule.id.isdigit():
+                existing_ids.append(int(rule.id))
+            elif '_' in rule.id and rule.id.split('_')[-1].isdigit():
+                # 兼容旧格式
+                existing_ids.append(int(rule.id.split('_')[-1]))
+        
+        next_id = max(existing_ids, default=0) + 1
+        return str(next_id)
